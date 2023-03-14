@@ -42,7 +42,7 @@ const IndexPage: React.FC<PageProps> = () => {
           <motion.div variants={item}>
             <StaticImage
               alt="Carolyn McNeillie, illustration by Patrick Gray" 
-              src="https://www.carolynmcneillie.com/static/c6a9e439e2b76f961b824beb0279d377/78646/Carolyn.png"
+              src="../images/Carolyn.png"
               className="profileImage" 
             />
           </motion.div>
