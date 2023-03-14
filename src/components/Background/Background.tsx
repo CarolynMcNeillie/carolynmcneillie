@@ -58,10 +58,13 @@ const Background = () => {
   const isSSR = typeof window === "undefined"
   const tile = useMemo(generateTile, []);
   const [rowCount, setRowCount] = useState<number>();
+  const [colCount, setColCount] = useState<number>();
 
   const updateRowCount = () => {
-    const tileWidth = window.innerWidth / 7
+    const colCount = window.innerWidth > 1024 ? 7 : window.innerWidth > 800 ? 5 : 3
+    const tileWidth = window.innerWidth / colCount
     setRowCount(Math.ceil(window.innerHeight / tileWidth))
+    setColCount(colCount)
   };
 
   useEffect(() => {
@@ -79,7 +82,7 @@ const Background = () => {
   const Row = () => {
     return (
       <div className="row">
-        {tile}{tile}{tile}{tile}{tile}{tile}{tile}
+        {colCount === 7 ? [tile, tile, tile, tile, tile, tile, tile] : colCount === 5 ? [tile, tile, tile, tile, tile] : [tile, tile, tile]}
       </div>
     )
   }
