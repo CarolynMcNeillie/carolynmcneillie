@@ -215,6 +215,16 @@ main {
   &:nth-child(odd) {
       transform: scaleX(-1);
   }
+
+  @media only screen and (max-width: 1024px) {
+    width: calc(100vw / 5);
+    height: calc(100vw / 5);
+  }
+  
+  @media only screen and (max-width: 800px) {
+    width: calc(100vw / 3);
+    height: calc(100vw / 3);
+  }
 }
 
 .row {
