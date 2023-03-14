@@ -18,8 +18,25 @@ const config: GatsbyConfig = {
         display: "swap",
       },
     },
-    "gatsby-plugin-sass", 
-    "gatsby-plugin-google-gtag", 
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: "Carolyn McNeillie",
+        short_name: "Carolyn",
+        start_url: "/",
+        icon: "src/images/icon.png",
+        crossOrigin: `use-credentials`,
+      },
+    },
+    {
+      resolve: "gatsby-plugin-google-analytics",
+      options: {
+        trackingId: "UA-113885017-1",
+      },
+    },
+    "gatsby-plugin-image",
+    "gatsby-plugin-sharp",
+    "gatsby-plugin-sass",
     "gatsby-plugin-sitemap"
   ]
 };

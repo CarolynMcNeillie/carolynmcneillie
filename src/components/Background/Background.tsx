@@ -1,17 +1,15 @@
-import React, {useMemo} from "react"
+import React, {useMemo, useEffect, useState} from "react"
 import { motion } from "framer-motion";
 
 import tiles from './tiles'
 import themes from './themes'
 
+// Setup
 const cells = ['dark', 'medium', 'light']
 
 const randomIntFromInterval = (min: number, max:number) => {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
-
-const currentTile = randomIntFromInterval(0, tiles.length -1)
-const scheme = randomIntFromInterval(0, themes.length -1)
 
 function updateTheme(index: number) {
   const newTheme = themes[index]
@@ -20,7 +18,8 @@ function updateTheme(index: number) {
   })
 }
 
-updateTheme(scheme)
+const currentTile = randomIntFromInterval(0, tiles.length -1)
+const scheme = randomIntFromInterval(0, themes.length -1)
 
 const generateTile = () => {
   const size = tiles[currentTile].size * 10
@@ -56,90 +55,41 @@ const generateTile = () => {
 }
 
 const Background = () => {
-  const myTile = useMemo(generateTile, [])
+  const isSSR = typeof window === "undefined"
+  const tile = useMemo(generateTile, []);
+  const [rowCount, setRowCount] = useState<number>();
+
+  const updateRowCount = () => {
+    const tileWidth = window.innerWidth / 7
+    setRowCount(Math.ceil(window.innerHeight / tileWidth))
+  };
+
+  useEffect(() => {
+    if (!isSSR) {
+      updateTheme(scheme)
+      updateRowCount()
+      window.addEventListener('resize', updateRowCount);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateRowCount);
+    };
+  }, [isSSR])
+
+  const Row = () => {
+    return (
+      <div className="row">
+        {tile}{tile}{tile}{tile}{tile}{tile}{tile}
+      </div>
+    )
+  }
+
   return (
     <div className="background">
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
-      <div className="row">
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-        {myTile}
-      </div>
+      {[...Array(rowCount)].map((el, i) => {
+        const loopKey = `row-${i}`
+        return (<Row key={loopKey}/>)
+      })}
     </div>
   )
 }

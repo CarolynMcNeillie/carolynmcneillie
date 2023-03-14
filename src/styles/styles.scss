@@ -2,7 +2,7 @@
 :root {
   --light: #e6cbc9;
   --medium: #344767;
-  --dark: #242236;
+  --dark: #1d1d1d;
   --black: #1d1d1d;
   --white: #e1e1e1;
 }
@@ -116,22 +116,25 @@ main {
 }
 
 .card {
-  background-color: #e1e1e1;
+  background-color: var(--white);
   padding: 40px 100px 60px;
-  max-width: 1000px;
   margin: 0 auto;
   border-radius: 4px;
   box-shadow: 10px 10px 100px rgba(0, 0, 0, 0.5);
   position: relative;
+  text-align: center;
 
   * {
-    position: relative;
-    z-index: 2;
+    z-index: 1000;
   }
 
   @media only screen and (max-width: 650px) {
     padding: 40px 20px 60px;
   }
+}
+
+.profileImage {
+  width: 180px;
 }
 
 .text {
@@ -140,14 +143,7 @@ main {
   border-bottom: 1px solid var(--medium);
   margin: 40px 0 60px;
   padding: 20px 0;
-}
-
-.profileImage {
-    width: 180px;
-    margin: 0 auto;
-    display: block;
-    margin: 0 auto;
-    position: relative;
+  text-align: left;
 }
 
 .socialList {
@@ -162,7 +158,7 @@ main {
   margin: 0 10px 0 0;
 
   a {
-    background-color: #1d1d1d;
+    background-color: var(--black);
     display: inline-flex;
     width: 40px;
     height: 40px;
@@ -180,7 +176,7 @@ main {
     }
   }
 
-  img {
+  .gatsby-image-wrapper {
     display: block;
     width: 70%;
   }
@@ -189,17 +185,20 @@ main {
 // Background Animation
 .light {
   background-color: var(--light);
-  fill: var(--light)
+  fill: var(--light);
+  transition: color 0.4s;
 }
 
 .medium {
   background-color: var(--medium);
-  fill: var(--medium)
+  fill: var(--medium);
+  transition: color 0.4s;
 }
 
 .dark {
   background-color: var(--dark);
-  fill: var(--dark)
+  fill: var(--dark);
+  transition: color 0.4s;
 }
 
 .background {

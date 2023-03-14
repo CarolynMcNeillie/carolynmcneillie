@@ -1,10 +1,12 @@
 import * as React from "react"
-import type { HeadFC, PageProps } from "gatsby"
 import "../styles/normalize.css"
 import "../styles/styles.scss"
-import Background from "../components/Background/Background"
+import { StaticImage } from 'gatsby-plugin-image'
 import { motion } from "framer-motion";
+import type { HeadFC, PageProps } from "gatsby"
+import Background from "../components/Background/Background"
 
+// Set up Framer Motion
 const container = {
   hidden: { opacity: 0, scale: 0.8 },
   visible: {
@@ -28,7 +30,6 @@ const item = {
 };
 
 const IndexPage: React.FC<PageProps> = () => {
-
   return (
     <main>
       <Background />
@@ -39,7 +40,11 @@ const IndexPage: React.FC<PageProps> = () => {
         animate="visible"
       >
           <motion.div variants={item}>
-            <img src="/images/Carolyn.png" className="profileImage" alt="Carolyn McNeillie, illustration by Patrick Gray" width="180" height="246"/>
+            <StaticImage
+              alt="Carolyn McNeillie, illustration by Patrick Gray" 
+              src="https://www.carolynmcneillie.com/static/c6a9e439e2b76f961b824beb0279d377/78646/Carolyn.png"
+              className="profileImage" 
+            />
           </motion.div>
           <motion.h1 variants={item}>Carolyn McNeillie</motion.h1>
           <motion.p className="h2" variants={item}>
@@ -63,7 +68,7 @@ const IndexPage: React.FC<PageProps> = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <img src="/images/codepen.svg" width="28" height="28" alt="Code pen" />
+                <StaticImage src="../images/codepen.svg" alt="Code pen" />
                 <span>Codepen</span>
               </a>
             </li>
@@ -73,7 +78,7 @@ const IndexPage: React.FC<PageProps> = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <img src="/images/github.svg" width="28" height="29" alt="Github" />
+                <StaticImage src="../images/github.svg" alt="Github" />
                 <span>GitHub</span>
               </a>
             </li>
@@ -83,7 +88,7 @@ const IndexPage: React.FC<PageProps> = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <img src="/images/twitter.svg" width="28" height="28" alt="Twitter" />
+                <StaticImage src="../images/twitter.svg" alt="Twitter" />
                 <span>Twitter</span>
               </a>
             </li>
@@ -93,7 +98,7 @@ const IndexPage: React.FC<PageProps> = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <img src="/images/medium.svg" width="28" height="22" alt="Medium" />
+                <StaticImage src="../images/medium.svg" alt="Medium" />
                 <span>Medium</span>
               </a>
             </li>
@@ -103,7 +108,7 @@ const IndexPage: React.FC<PageProps> = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <img src="/images/linkedin.svg" width="28" height="32" alt="LinkedIn" />
+                <StaticImage src="../images/linkedin.svg" alt="LinkedIn" />
                 <span>LinkedIn</span>
               </a>
             </li>
@@ -115,4 +120,18 @@ const IndexPage: React.FC<PageProps> = () => {
 
 export default IndexPage
 
-export const Head: HeadFC = () => <title>Carolyn McNeillie</title>
+// HTML Head
+export const Head: HeadFC = () => (
+  <>
+    <html lang="en" />
+    <title>Carolyn McNeillie</title>
+    <meta name="description" content="I am a senior front-end developer who has been crafting exceptional web experiences for five years. I love CSS." />
+    <meta name="image" content="../images/Carolyn.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Carolyn McNeillie" />
+    <meta name="twitter:url" content="https://www.carolynmcneillie.com"/>
+    <meta name="twitter:description" content="I am a senior front-end developer who has been crafting exceptional web experiences for five years. I love CSS." />
+    <meta name="twitter:image" content="../images/Carolyn.png" />
+    <meta name="twitter:creator" content="carolynalive" />
+  </>
+)
