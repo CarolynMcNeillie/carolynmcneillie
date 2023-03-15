@@ -34,6 +34,7 @@ const config: GatsbyConfig = {
         trackingId: "UA-113885017-1",
       },
     },
+    "gatsby-plugin-js-fallback",
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
     "gatsby-plugin-sass",
