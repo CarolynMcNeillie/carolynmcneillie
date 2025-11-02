@@ -130,34 +130,13 @@ export function rgbToGlsl(rgb: [number, number, number]): string {
   return `vec3(${rgb[0].toFixed(3)}, ${rgb[1].toFixed(3)}, ${rgb[2].toFixed(3)})`;
 }
 
-// Verify accessibility
+// Verify accessibility (for development)
 export function verifyAccessibility() {
-  const darkRgb = colors.dark;
-  const whiteRgb = colors.white;
-  const lightRgb = colors.light;
-  const mediumRgb = colors.medium;
-
   const results = {
-    textOnDark: contrastRatio(whiteRgb, darkRgb),
-    lightOnDark: contrastRatio(lightRgb, darkRgb),
-    mediumOnDark: contrastRatio(mediumRgb, darkRgb),
+    textOnDark: contrastRatio(colors.white, colors.dark),
+    lightOnDark: contrastRatio(colors.light, colors.dark),
+    mediumOnDark: contrastRatio(colors.medium, colors.dark),
   };
-
-  console.log("🎨 Generated Color Palette:");
-  console.log(`  Base Hue: ${colorDefinitions.medium.h}°`);
-  console.log(`  Accent Hue: ${colorDefinitions.light.h}° (${Math.abs(colorDefinitions.light.h - colorDefinitions.medium.h).toFixed(0)}° offset)`);
-
-  console.log("\n✓ Accessibility Report:");
-  console.log(`  Text on Dark: ${results.textOnDark.toFixed(2)}:1 ${results.textOnDark >= 7 ? "✓ AAA" : results.textOnDark >= 4.5 ? "✓ AA" : "✗ FAIL"}`);
-  console.log(`  Accent on Dark: ${results.lightOnDark.toFixed(2)}:1 ${results.lightOnDark >= 7 ? "✓ AAA" : results.lightOnDark >= 4.5 ? "✓ AA" : "✗ FAIL"}`);
-  console.log(`  Deep on Dark: ${results.mediumOnDark.toFixed(2)}:1 ${results.mediumOnDark >= 7 ? "✓ AAA" : results.mediumOnDark >= 4.5 ? "✓ AA" : "✗ FAIL"}`);
-
-  console.log("\n🌈 Color Harmony:");
-  console.log(`  Dark: OKLCH(${colorDefinitions.dark.l.toFixed(2)}, ${colorDefinitions.dark.c.toFixed(2)}, ${colorDefinitions.dark.h.toFixed(0)}°) - Background`);
-  console.log(`  Medium: OKLCH(${colorDefinitions.medium.l.toFixed(2)}, ${colorDefinitions.medium.c.toFixed(2)}, ${colorDefinitions.medium.h.toFixed(0)}°) - Deep tone`);
-  console.log(`  Light: OKLCH(${colorDefinitions.light.l.toFixed(2)}, ${colorDefinitions.light.c.toFixed(2)}, ${colorDefinitions.light.h.toFixed(0)}°) - Accent (complementary)`);
-  console.log(`  White: OKLCH(${colorDefinitions.white.l.toFixed(2)}, ${colorDefinitions.white.c.toFixed(2)}, ${colorDefinitions.white.h.toFixed(0)}°) - Text`);
-
   return results;
 }
 
