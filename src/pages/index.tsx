@@ -9,7 +9,7 @@ const IndexPage: React.FC<PageProps> = () => {
   return (
     <main>
       <WebGLBackground />
-      {/* <Content /> */}
+      <Content />
     </main>
   );
 };

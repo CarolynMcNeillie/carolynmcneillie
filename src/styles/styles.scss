@@ -10,9 +10,10 @@
 body {
   box-sizing: border-box;
   font-family: cardo, serif;
-  color: var(--black);
+  color: var(--white);
   line-height: 1.8;
   font-family: cardo, serif;
+  background-color: var(--dark);
 }
 
 h1,
@@ -22,30 +23,33 @@ h2,
 h3,
 .h3 {
   font-family: montserrat, sans-serif;
-  font-weight: 400;
+  font-weight: 200;
   margin: 0;
   text-align: center;
+  position: relative;
 }
 
 h1,
 .h1 {
   line-height: 1em;
-  font-weight: 700;
-  font-size: 40px;
+  font-weight: 400;
+  font-size: 60px;
   margin: 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 
   @media only screen and (max-width: 650px) {
-    font-size: 30px;
+    font-size: 40px;
   }
 }
 
 h2,
 .h2 {
-  font-size: 16px;
+  font-size: 22px;
   margin: 0 0 0.5em;
 
   @media only screen and (max-width: 650px) {
-    font-size: 14px;
+    font-size: 18px;
   }
 }
 
@@ -62,7 +66,7 @@ h3,
 
 a {
   text-decoration: none;
-  color: var(--dark);
+  color: var(--light);
   transition: color 0.4s;
   position: relative;
   white-space: nowrap;
@@ -81,14 +85,14 @@ a {
     width: 0%;
     position: absolute;
     height: 1px;
-    background-color: var(--medium);
+    background-color: var(--light);
     transition: width 0.2s ease-in-out;
     left: 0;
   }
 
   &:hover,
   &:focus {
-    color: var(--medium);
+    color: var(--white);
   }
   &:hover {
     &::after {
@@ -105,8 +109,7 @@ a {
 
 //Homepage
 main {
-  min-height: 100vh;
-  padding: 40px;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
 
@@ -124,34 +127,38 @@ main {
 }
 
 .card {
-  background-color: var(--white);
-  padding: 40px 100px 60px;
-  margin: 0 auto;
-  border-radius: 4px;
-  box-shadow: 10px 10px 100px rgba(0, 0, 0, 0.5);
+  margin: auto;
+  padding: 40px 20px;
   position: relative;
   text-align: center;
+  position: relative;
 
-  * {
-    z-index: 1000;
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 120%;
+    height: 100%;
+    background-color: var(--dark);
+    mix-blend-mode: multiply;
+    opacity: 0.3;
+    border-radius: 10px;
   }
-
-  @media only screen and (max-width: 650px) {
-    padding: 40px 20px 60px;
-  }
-}
-
-.profileImage {
-  width: 180px;
 }
 
 .text {
-  max-width: 700px;
-  border-top: 1px solid var(--medium);
-  border-bottom: 1px solid var(--medium);
-  margin: 40px 0 60px;
-  padding: 20px 0;
+  text-wrap: pretty;
+  max-width: 74ch;
+  margin: 20px auto 40px;
   text-align: left;
+  font-size: 20px;
+  position: relative;
+
+  @media only screen and (max-width: 650px) {
+    font-size: 18px;
+  }
 }
 
 .socialList {
@@ -166,7 +173,6 @@ main {
   margin: 0 10px 0 0;
 
   a {
-    background-color: var(--black);
     display: inline-flex;
     width: 40px;
     height: 40px;
@@ -177,7 +183,7 @@ main {
 
     &:hover,
     &:focus {
-      background-color: var(--medium);
+      background-color: var(--dark);
     }
 
     &::after {
@@ -188,59 +194,5 @@ main {
   .gatsby-image-wrapper {
     display: block;
     width: 70%;
-  }
-}
-
-// Background Animation
-.light {
-  background-color: var(--light);
-  fill: var(--light);
-  transition: color 0.4s;
-}
-
-.medium {
-  background-color: var(--medium);
-  fill: var(--medium);
-  transition: color 0.4s;
-}
-
-.dark {
-  background-color: var(--dark);
-  fill: var(--dark);
-  transition: color 0.4s;
-}
-
-.background {
-  background-color: var(--dark);
-  position: fixed;
-  inset: 0;
-  z-index: -100;
-}
-
-.tile {
-  width: calc(100vw / 7);
-  height: calc(100vw / 7);
-
-  &:nth-child(odd) {
-    transform: scaleX(-1);
-  }
-
-  @media only screen and (max-width: 1024px) {
-    width: calc(100vw / 5);
-    height: calc(100vw / 5);
-  }
-
-  @media only screen and (max-width: 800px) {
-    width: calc(100vw / 3);
-    height: calc(100vw / 3);
-  }
-}
-
-.row {
-  z-index: 1;
-  display: flex;
-
-  &:nth-child(even) {
-    transform: scaleY(-1);
   }
 }

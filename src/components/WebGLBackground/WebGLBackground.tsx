@@ -16,6 +16,11 @@ const fragmentShaderSource = `#version 300 es
 
   out vec4 fragColor;
 
+  // Color constants
+  const vec3 LIGHT_COLOR = vec3(0.90, 0.80, 0.79);  // light pink
+  const vec3 MEDIUM_COLOR = vec3(0.20, 0.28, 0.40); // medium blue
+  const vec3 DARK_COLOR = vec3(0.11, 0.07, 0.10);   // dark
+
   // Tile pattern data (13x13, Tile 0)
   const int TILE_SIZE = 13;
   const int PATTERN[169] = int[169](
@@ -111,17 +116,12 @@ const fragmentShaderSource = `#version 300 es
     // Get the pattern value for this cell
     int patternValue = getPatternValue(tileX, tileY);
 
-    // Define colors
-    vec3 lightColor = vec3(0.90, 0.80, 0.79);  // light pink
-    vec3 mediumColor = vec3(0.20, 0.28, 0.40); // medium blue
-    vec3 darkColor = vec3(0.11, 0.07, 0.10);   // dark
-
     // Select color based on pattern value
-    vec3 color = darkColor;
+    vec3 color = DARK_COLOR;
     if (patternValue == 1) {
-      color = mediumColor;
+      color = MEDIUM_COLOR;
     } else if (patternValue == 2) {
-      color = lightColor;
+      color = LIGHT_COLOR;
     }
 
     // Add rounded corners
@@ -139,7 +139,7 @@ const fragmentShaderSource = `#version 300 es
     float cornerMask = 1.0 - smoothstep(0.8, 1.0, cornerDist);
 
     // Mix with background color based on corner mask
-    color = mix(darkColor, color, cornerMask);
+    color = mix(DARK_COLOR, color, cornerMask);
 
     // Animation: fade in and scale from center based on cell position
     // Only animate non-empty cells (patternValue > 0)
@@ -191,10 +191,10 @@ const fragmentShaderSource = `#version 300 es
       cornerMask = 1.0 - smoothstep(0.8, 1.0, scaledCornerDist);
 
       // Reapply corner mask with animation
-      color = mix(darkColor, color, cornerMask);
+      color = mix(DARK_COLOR, color, cornerMask);
 
       // Fade from background to final color
-      color = mix(darkColor, color, progress);
+      color = mix(DARK_COLOR, color, progress);
     }
 
     fragColor = vec4(color, 1.0);

@@ -4,13 +4,6 @@ import { StaticImage } from "gatsby-plugin-image";
 const Content = (): JSX.Element => {
   return (
     <div className="card">
-      <div>
-        <StaticImage
-          alt="Carolyn McNeillie, illustration by Patrick Gray"
-          src="../images/Carolyn.png"
-          className="profileImage"
-        />
-      </div>
       <h1>Carolyn McNeillie</h1>
       <p className="h2">
         Toronto / Hamilton / Anywhere <br />
@@ -20,20 +13,43 @@ const Content = (): JSX.Element => {
       </p>
       <div className="text">
         <p>
-          I am a senior front-end developer who has been crafting exceptional
-          web experiences for eight years. I hold a degree in fine art from OCAD
-          University and spent 15 years working in art and design. My previous
-          job titles include sign painter, art conservator, muralist, galley
-          attendant, art director, and marketing director. I bring my expertise
-          to bear on everything I build.
+          I am a senior front-end developer with 8 years of experience
+          specializing in high-polish front-of the front end code. I work at{" "}
+          <a href="https://www.shopify.com" target="_blank" rel="noreferrer">
+            Shopify
+          </a>
+          {` `}where I help build{" "}
+          <a
+            href="https://www.shopify.com/editions/summer2025"
+            target="_blank"
+            rel="noreferrer"
+          >
+            gorgeous
+          </a>
+          ,{" "}
+          <a
+            href="https://hydrogen.shopify.dev/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            envelope-pushing
+          </a>
+          , {` `}
+          <a
+            href="https://www.awwwards.com/sites/shopify-editions-summer-24"
+            target="_blank"
+            rel="noreferrer"
+          >
+            awwward-winning
+          </a>{" "}
+          websites.
         </p>
         <p>
-          I love collaborating with designers to bring their vision to life, and
-          pushing the boundaries of what code can do in the browser. I love
-          jamming on animations and micro interactions and I am passionate about
-          solving complex design problems with creativity and empathy. I always
-          ensure performance, maintainability, and accessibility are considered
-          from the first line of code.
+          I hold a degree in fine art from OCAD University and spent 15 years
+          working in art and design. My previous job titles include sign
+          painter, art conservator, muralist, galley attendant, art director,
+          and marketing director. I bring my expertise to bear on everything I
+          build.
         </p>
       </div>
       <ul className="socialList">
