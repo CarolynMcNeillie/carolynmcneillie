@@ -1,59 +1,29 @@
 import * as React from "react";
 import "../styles/normalize.css";
 import "../styles/styles.scss";
-import { StaticImage } from "gatsby-plugin-image";
-import { motion } from "framer-motion";
 import type { HeadFC, PageProps } from "gatsby";
-import Background from "../components/Background/Background";
-
-// Set up Framer Motion
-const container = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      delay: 2,
-      delayChildren: 2.8,
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-  },
-};
+import WebGLBackground from "../components/WebGLBackground/WebGLBackground";
 
 const IndexPage: React.FC<PageProps> = () => {
   return (
     <main>
-      <Background />
-      <motion.div
-        className="card"
-        variants={container}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div variants={item}>
+      <WebGLBackground />
+      {/* <div className="card">
+        <div>
           <StaticImage
             alt="Carolyn McNeillie, illustration by Patrick Gray"
             src="../images/Carolyn.png"
             className="profileImage"
           />
-        </motion.div>
-        <motion.h1 variants={item}>Carolyn McNeillie</motion.h1>
-        <motion.p className="h2" variants={item}>
+        </div>
+        <h1>Carolyn McNeillie</h1>
+        <p className="h2">
           Toronto / Hamilton / Anywhere <br />
           <a href="mailto:hello@carolynmcneillie.com">
             hello@carolynmcneillie.com
           </a>
-        </motion.p>
-        <motion.div className="text" variants={item}>
+        </p>
+        <div className="text">
           <p>
             I am a senior front-end developer who has been crafting exceptional
             web experiences for eight years. I hold a degree in fine art from
@@ -70,8 +40,8 @@ const IndexPage: React.FC<PageProps> = () => {
             empathy. I always ensure performance, maintainability, and
             accessibility are considered from the first line of code.
           </p>
-        </motion.div>
-        <motion.ul className="socialList" variants={item}>
+        </div>
+        <ul className="socialList">
           <li className="socialListItem">
             <a
               href="https://codepen.io/carolynmcneillie"
@@ -112,8 +82,8 @@ const IndexPage: React.FC<PageProps> = () => {
               <span>LinkedIn</span>
             </a>
           </li>
-        </motion.ul>
-      </motion.div>
+        </ul>
+      </div> */}
     </main>
   );
 };
