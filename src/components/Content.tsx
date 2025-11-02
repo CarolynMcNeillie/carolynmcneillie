@@ -13,12 +13,12 @@ const Content = (): JSX.Element => {
       </p>
       <div className="text">
         <p>
-          I am a senior front-end developer with 8 years of experience
-          specializing in high-polish front-of the front end code. I work at{" "}
+          I’m a senior front-end developer with eight years of experience,
+          specializing in highly polished, front-of-the-front-end code. At at{" "}
           <a href="https://www.shopify.com" target="_blank" rel="noreferrer">
             Shopify
           </a>
-          {` `}where I help build{" "}
+          {` `}I help build{" "}
           <a
             href="https://www.shopify.com/editions/summer2025"
             target="_blank"
@@ -40,15 +40,15 @@ const Content = (): JSX.Element => {
             target="_blank"
             rel="noreferrer"
           >
-            awwward-winning
+            Awwwards-winning
           </a>{" "}
           websites.
         </p>
         <p>
           I hold a degree in fine art from OCAD University and spent 15 years
-          working in art and design. My previous job titles include sign
-          painter, art conservator, muralist, galley attendant, art director,
-          and marketing director. I bring my expertise to bear on everything I
+          working across art and design. My previous roles include sign painter,
+          art conservator, muralist, gallery attendant, art director, and
+          marketing director. I bring my expertise to bear on everything I
           build.
         </p>
       </div>
