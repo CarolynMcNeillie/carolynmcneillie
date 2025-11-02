@@ -24,16 +24,11 @@
     <meta name="twitter:image" content="./images/Carolyn.png" />
     <meta name="twitter:creator" content="carolynalive" />
 
-    <!-- Preload critical font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Favicon -->
     <link rel="icon" href="./images/icon.png" />
 
     <style>
-      /* Inline Critical CSS */
-
       /* CSS Reset & Base */
       *,
       *::before,
@@ -71,7 +66,6 @@
         overflow-wrap: break-word;
       }
 
-      /* Design System */
       :root {
         --light: #e6cbc9;
         --medium: #344767;
@@ -87,7 +81,6 @@
         min-height: 100dvh;
       }
 
-      /* Prevent layout shift from font loading */
       @font-face {
         font-family: 'montserrat-fallback';
         src: local('Arial');
@@ -97,7 +90,6 @@
         size-adjust: 100%;
       }
 
-      /* Typography */
       h1,
       h2,
       h3 {
@@ -130,7 +122,6 @@
         }
       }
 
-      /* Links */
       a {
         text-decoration: none;
         color: var(--light);
@@ -174,7 +165,6 @@
         color: var(--medium);
       }
 
-      /* Layout */
       main {
         min-height: 100dvh;
         display: flex;
@@ -187,7 +177,6 @@
         position: relative;
         text-align: center;
         z-index: 1;
-        /* Reserve approximate space to prevent CLS */
         min-height: 600px;
       }
 
@@ -206,7 +195,6 @@
         }
       }
 
-      /* Social Links */
       .socialList {
         list-style-type: none;
         margin: 0;
@@ -243,7 +231,6 @@
         height: auto;
       }
 
-      /* WebGL Canvas */
       #webgl-canvas {
         position: fixed;
         top: 0;
@@ -254,14 +241,10 @@
       }
     </style>
 
-    <!-- Critical font loading - inline to prevent CLS -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=block" rel="stylesheet">
   </head>
   <body>
-    <!-- WebGL Background -->
     <canvas id="webgl-canvas"></canvas>
-
-    <!-- Main Content -->
     <main>
       <div class="card">
         <h1>Carolyn McNeillie</h1>
@@ -376,12 +359,7 @@
       </div>
     </main>
 
-    <!-- WebGL Script (inline to avoid CORS issues) -->
     <script type="module">
-      // WebGL Background with Animated Tile Pattern
-      // Converted from React/TypeScript to vanilla JavaScript
-
-      // Color System - OKLCH to RGB conversion for perceptually uniform colors
       const BASE_HUE = Math.floor(Math.random() * 360);
 
       function oklchToRgb(l, c, h) {
@@ -456,7 +434,6 @@
         light: rgbToGlsl(colors.light),
       };
 
-      // Shader Sources
       const vertexShaderSource = `#version 300 es
       in vec2 a_position;
 
@@ -478,7 +455,6 @@
       const vec3 MEDIUM_COLOR = ${glslColors.medium};
       const vec3 DARK_COLOR = ${glslColors.dark};
 
-      // Tile pattern data (13x13)
       const int TILE_SIZE = 13;
       const float TILE_SIZE_F = 13.0;
       const int PATTERN[169] = int[169](
@@ -583,7 +559,6 @@
       }
     `;
 
-      // WebGL Setup
       function createShader(gl, type, source) {
         const shader = gl.createShader(type);
         if (!shader) return null;
@@ -592,7 +567,6 @@
         gl.compileShader(shader);
 
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-          console.error("Shader compile error:", gl.getShaderInfoLog(shader));
           gl.deleteShader(shader);
           return null;
         }
@@ -609,7 +583,6 @@
         gl.linkProgram(program);
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-          console.error("Program link error:", gl.getProgramInfoLog(program));
           gl.deleteProgram(program);
           return null;
         }
@@ -617,16 +590,12 @@
         return program;
       }
 
-      // Initialize WebGL
       function initWebGL() {
         const canvas = document.getElementById("webgl-canvas");
         if (!canvas) return;
 
         const gl = canvas.getContext("webgl2");
-        if (!gl) {
-          console.warn("WebGL2 not supported");
-          return;
-        }
+        if (!gl) return;
 
         const vertexShader = createShader(
           gl,
@@ -643,7 +612,6 @@
         const program = createProgram(gl, vertexShader, fragmentShader);
         if (!program) return;
 
-        // Setup attributes and uniforms
         const positionLocation = gl.getAttribLocation(program, "a_position");
         const resolutionLocation = gl.getUniformLocation(
           program,
@@ -667,7 +635,6 @@
 
         const startTime = Date.now();
 
-        // Render loop
         function render() {
           const displayWidth = canvas.clientWidth;
           const displayHeight = canvas.clientHeight;
@@ -696,7 +663,6 @@
         render();
       }
 
-      // Initialize when DOM is ready
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initWebGL);
       } else {
