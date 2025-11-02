@@ -15,14 +15,20 @@ body {
   font-family: cardo, serif;
 }
 
-h1, .h1, h2, .h2, h3, .h3 {
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3 {
   font-family: montserrat, sans-serif;
   font-weight: 400;
   margin: 0;
   text-align: center;
 }
 
-h1, .h1 {
+h1,
+.h1 {
   line-height: 1em;
   font-weight: 700;
   font-size: 40px;
@@ -33,7 +39,8 @@ h1, .h1 {
   }
 }
 
-h2, .h2 {
+h2,
+.h2 {
   font-size: 16px;
   margin: 0 0 0.5em;
 
@@ -42,7 +49,8 @@ h2, .h2 {
   }
 }
 
-h3, .h3 {
+h3,
+.h3 {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 0.5em;
@@ -102,17 +110,17 @@ main {
   display: flex;
   align-items: center;
 
-  &::after {
-    content: '';
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background-image: url('./papier.jpg');
-    mix-blend-mode: overlay;
-    background-size: cover;
-  }
+  // &::after {
+  //   content: "";
+  //   display: block;
+  //   position: fixed;
+  //   inset: 0;
+  //   z-index: 1;
+  //   pointer-events: none;
+  //   // background-image: url('./papier.jpg');
+  //   mix-blend-mode: overlay;
+  //   background-size: cover;
+  // }
 }
 
 .card {
@@ -167,7 +175,8 @@ main {
     transition: 0.4;
     border-radius: 4px;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       background-color: var(--medium);
     }
 
@@ -213,14 +222,14 @@ main {
   height: calc(100vw / 7);
 
   &:nth-child(odd) {
-      transform: scaleX(-1);
+    transform: scaleX(-1);
   }
 
   @media only screen and (max-width: 1024px) {
     width: calc(100vw / 5);
     height: calc(100vw / 5);
   }
-  
+
   @media only screen and (max-width: 800px) {
     width: calc(100vw / 3);
     height: calc(100vw / 3);
@@ -232,6 +241,6 @@ main {
   display: flex;
 
   &:nth-child(even) {
-      transform: scaleY(-1);
+    transform: scaleY(-1);
   }
 }
