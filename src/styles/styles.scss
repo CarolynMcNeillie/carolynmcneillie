@@ -3,17 +3,15 @@
   --light: #e6cbc9;
   --medium: #344767;
   --dark: #1d1d1d;
-  --black: #1d1d1d;
   --white: #e1e1e1;
 }
 
 body {
   box-sizing: border-box;
-  font-family: cardo, serif;
   color: var(--white);
   line-height: 1.8;
-  font-family: cardo, serif;
   background-color: var(--dark);
+  font-family: montserrat, sans-serif;
 }
 
 h1,
@@ -23,7 +21,7 @@ h2,
 h3,
 .h3 {
   font-family: montserrat, sans-serif;
-  font-weight: 200;
+  font-weight: 400;
   margin: 0;
   text-align: center;
   position: relative;
@@ -132,20 +130,6 @@ main {
   position: relative;
   text-align: center;
   position: relative;
-
-  &::before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: -10%;
-    width: 120%;
-    height: 100%;
-    background-color: var(--dark);
-    mix-blend-mode: multiply;
-    opacity: 0.3;
-    border-radius: 10px;
-  }
 }
 
 .text {

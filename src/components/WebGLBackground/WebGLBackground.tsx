@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from "react";
+import { glslColors, verifyAccessibility, colors } from "./colors";
 
 const vertexShaderSource = `#version 300 es
   in vec2 a_position;
+  out vec2 v_texCoord;
 
   void main() {
     gl_Position = vec4(a_position, 0.0, 1.0);
+    v_texCoord = (a_position + 1.0) * 0.5;
   }
 `;
 
@@ -16,10 +19,10 @@ const fragmentShaderSource = `#version 300 es
 
   out vec4 fragColor;
 
-  // Color constants
-  const vec3 LIGHT_COLOR = vec3(0.90, 0.80, 0.79);  // light pink
-  const vec3 MEDIUM_COLOR = vec3(0.20, 0.28, 0.40); // medium blue
-  const vec3 DARK_COLOR = vec3(0.11, 0.07, 0.10);   // dark
+  // Color constants (generated from OKLCH for accessibility)
+  const vec3 LIGHT_COLOR = ${glslColors.light};  // light pink
+  const vec3 MEDIUM_COLOR = ${glslColors.medium}; // medium blue
+  const vec3 DARK_COLOR = ${glslColors.dark};   // dark
 
   // Tile pattern data (13x13, Tile 0)
   const int TILE_SIZE = 13;
@@ -251,6 +254,9 @@ const WebGLBackground: React.FC = () => {
   const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
+    // Verify color accessibility on mount
+    verifyAccessibility();
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -317,8 +323,9 @@ const WebGLBackground: React.FC = () => {
 
       gl.viewport(0, 0, canvas.width, canvas.height);
 
-      // Clear the canvas with dark background color
-      gl.clearColor(0.11, 0.07, 0.1, 1.0);
+      // Clear the canvas with dark background color (from OKLCH)
+      const [r, g, b] = colors.dark;
+      gl.clearColor(r, g, b, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       // Use our program
