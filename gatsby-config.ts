@@ -3,10 +3,8 @@ import type { GatsbyConfig } from "gatsby";
 const config: GatsbyConfig = {
   siteMetadata: {
     title: `CarolynMcNeillie`,
-    description:
-    "Carolyn McNeillie is a Senior Font-End Developer.",
+    description: "Carolyn McNeillie is a Senior Front-End Developer.",
     image: "images/Carolyn.png",
-    twitterUsername: "@carolynalive",
     siteUrl: "https://carolynmcneillie.com",
   },
   graphqlTypegen: true,
@@ -37,8 +35,8 @@ const config: GatsbyConfig = {
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
     "gatsby-plugin-sass",
-    "gatsby-plugin-sitemap"
-  ]
+    "gatsby-plugin-sitemap",
+  ],
 };
 
 export default config;
