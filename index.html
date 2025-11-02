@@ -704,22 +704,5 @@
       }
     </script>
 
-    <!-- Google Analytics - delayed load to not block performance -->
-    <script>
-      // Defer GA until page is interactive
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=UA-113885017-1';
-          document.head.appendChild(script);
-
-          window.dataLayer = window.dataLayer || [];
-          function gtag() { dataLayer.push(arguments); }
-          gtag('js', new Date());
-          gtag('config', 'UA-113885017-1');
-        }, 2000); // Load GA 2s after page load
-      });
-    </script>
   </body>
 </html>
