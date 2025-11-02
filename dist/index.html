@@ -83,8 +83,18 @@
         color: var(--white);
         line-height: 1.8;
         background-color: var(--dark);
-        font-family: montserrat, sans-serif;
+        font-family: montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
         min-height: 100dvh;
+      }
+
+      /* Prevent layout shift from font loading */
+      @font-face {
+        font-family: 'montserrat-fallback';
+        src: local('Arial');
+        ascent-override: 97%;
+        descent-override: 25%;
+        line-gap-override: 0%;
+        size-adjust: 100%;
       }
 
       /* Typography */
@@ -177,6 +187,8 @@
         position: relative;
         text-align: center;
         z-index: 1;
+        /* Reserve approximate space to prevent CLS */
+        min-height: 600px;
       }
 
       .text {
@@ -242,18 +254,9 @@
       }
     </style>
 
-    <!-- Load fonts async -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript
-      ><link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-        rel="stylesheet"
-    /></noscript>
+    <!-- Preload font for faster load, reduce CLS -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
   </head>
   <body>
     <!-- WebGL Background -->
