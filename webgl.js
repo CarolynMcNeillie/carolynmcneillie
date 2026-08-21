@@ -1,6 +1,66 @@
-import React, { useEffect, useRef } from "react";
-import { glslColors, colors } from "./colors";
+// WebGL Background with Animated Tile Pattern
+// Converted from React/TypeScript to vanilla JavaScript
 
+// Color System - OKLCH to RGB conversion for perceptually uniform colors
+const BASE_HUE = Math.floor(Math.random() * 360);
+
+function oklchToRgb(l, c, h) {
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  const r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  const g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  const b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+
+  const gammaCorrect = (c) => {
+    return c >= 0.0031308 ? 1.055 * Math.pow(c, 1 / 2.4) - 0.055 : 12.92 * c;
+  };
+
+  return [
+    Math.max(0, Math.min(1, gammaCorrect(r))),
+    Math.max(0, Math.min(1, gammaCorrect(g))),
+    Math.max(0, Math.min(1, gammaCorrect(b_))),
+  ];
+}
+
+function generateColorPalette(baseHue) {
+  const normalizedHue = ((baseHue % 360) + 360) % 360;
+  const accentHue = (normalizedHue + 165) % 360;
+
+  return {
+    dark: { l: 0.15, c: 0.02, h: normalizedHue },
+    medium: { l: 0.22, c: 0.04, h: normalizedHue },
+    light: { l: 0.28, c: 0.03, h: accentHue },
+  };
+}
+
+const colorDefinitions = generateColorPalette(BASE_HUE);
+const colors = {
+  dark: oklchToRgb(colorDefinitions.dark.l, colorDefinitions.dark.c, colorDefinitions.dark.h),
+  medium: oklchToRgb(colorDefinitions.medium.l, colorDefinitions.medium.c, colorDefinitions.medium.h),
+  light: oklchToRgb(colorDefinitions.light.l, colorDefinitions.light.c, colorDefinitions.light.h),
+};
+
+function rgbToGlsl(rgb) {
+  return `vec3(${rgb[0].toFixed(3)}, ${rgb[1].toFixed(3)}, ${rgb[2].toFixed(3)})`;
+}
+
+const glslColors = {
+  dark: rgbToGlsl(colors.dark),
+  medium: rgbToGlsl(colors.medium),
+  light: rgbToGlsl(colors.light),
+};
+
+// Shader Sources
 const vertexShaderSource = `#version 300 es
   in vec2 a_position;
 
@@ -17,12 +77,12 @@ const fragmentShaderSource = `#version 300 es
 
   out vec4 fragColor;
 
-  // Color constants (generated from OKLCH for accessibility)
+  // Color constants
   const vec3 LIGHT_COLOR = ${glslColors.light};
   const vec3 MEDIUM_COLOR = ${glslColors.medium};
   const vec3 DARK_COLOR = ${glslColors.dark};
 
-  // Tile pattern data (13x13, Tile 0)
+  // Tile pattern data (13x13)
   const int TILE_SIZE = 13;
   const float TILE_SIZE_F = 13.0;
   const int PATTERN[169] = int[169](
@@ -127,11 +187,8 @@ const fragmentShaderSource = `#version 300 es
   }
 `;
 
-function createShader(
-  gl: WebGL2RenderingContext,
-  type: number,
-  source: string
-): WebGLShader | null {
+// WebGL Setup
+function createShader(gl, type, source) {
   const shader = gl.createShader(type);
   if (!shader) return null;
 
@@ -139,6 +196,7 @@ function createShader(
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -146,11 +204,7 @@ function createShader(
   return shader;
 }
 
-function createProgram(
-  gl: WebGL2RenderingContext,
-  vertexShader: WebGLShader,
-  fragmentShader: WebGLShader
-): WebGLProgram | null {
+function createProgram(gl, vertexShader, fragmentShader) {
   const program = gl.createProgram();
   if (!program) return null;
 
@@ -159,6 +213,7 @@ function createProgram(
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Program link error:', gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
     return null;
   }
@@ -166,104 +221,74 @@ function createProgram(
   return program;
 }
 
-const WebGLBackground: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const resolutionLocationRef = useRef<WebGLUniformLocation | null>(null);
-  const timeLocationRef = useRef<WebGLUniformLocation | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+// Initialize WebGL
+function initWebGL() {
+  const canvas = document.getElementById('webgl-canvas');
+  if (!canvas) return;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const gl = canvas.getContext('webgl2');
+  if (!gl) {
+    console.warn('WebGL2 not supported');
+    return;
+  }
 
-    const gl = canvas.getContext("webgl2");
-    if (!gl) return;
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+  if (!vertexShader || !fragmentShader) return;
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(
-      gl,
-      gl.FRAGMENT_SHADER,
-      fragmentShaderSource
-    );
-    if (!vertexShader || !fragmentShader) return;
+  const program = createProgram(gl, vertexShader, fragmentShader);
+  if (!program) return;
 
-    const program = createProgram(gl, vertexShader, fragmentShader);
-    if (!program) return;
+  // Setup attributes and uniforms
+  const positionLocation = gl.getAttribLocation(program, 'a_position');
+  const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+  const timeLocation = gl.getUniformLocation(program, 'u_time');
 
-    // Look up attribute and uniform locations
-    const positionLocation = gl.getAttribLocation(program, "a_position");
-    resolutionLocationRef.current = gl.getUniformLocation(
-      program,
-      "u_resolution"
-    );
-    timeLocationRef.current = gl.getUniformLocation(program, "u_time");
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
 
-    const vao = gl.createVertexArray();
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
+
+  const startTime = Date.now();
+
+  // Render loop
+  function render() {
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+    const needsResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
+
+    if (needsResize) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    const [r, g, b] = colors.dark;
+    gl.clearColor(r, g, b, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.useProgram(program);
+    gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+    gl.uniform1f(timeLocation, (Date.now() - startTime) / 1000);
     gl.bindVertexArray(vao);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    requestAnimationFrame(render);
+  }
 
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    gl.bindVertexArray(null);
+  render();
+}
 
-    // Render function
-    const render = () => {
-      if (
-        !gl ||
-        !program ||
-        !resolutionLocationRef.current ||
-        !timeLocationRef.current
-      )
-        return;
-
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-      const needsResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
-
-      if (needsResize) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
-
-      const [r, g, b] = colors.dark;
-      gl.clearColor(r, g, b, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.useProgram(program);
-      gl.uniform2f(resolutionLocationRef.current, canvas.width, canvas.height);
-      gl.uniform1f(timeLocationRef.current, (Date.now() - startTimeRef.current) / 1000);
-      gl.bindVertexArray(vao);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    };
-
-    let animationFrameId: number;
-    const animate = () => {
-      render();
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    animate();
-
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        zIndex: -100,
-      }}
-    />
-  );
-};
-
-export default WebGLBackground;
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWebGL);
+} else {
+  initWebGL();
+}
