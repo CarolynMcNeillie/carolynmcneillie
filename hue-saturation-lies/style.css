@@ -1,0 +1,436 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Full-bleed background layers (two for crossfading) ─────────────── */
+.slide-bg-layer {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 1;
+}
+
+/* Illustration: contained artwork floating in the stage area ───────── */
+#illustration {
+  position: fixed;
+  top: 2.5rem;
+  left: calc(380px + 2.5rem);
+  right: 2.5rem;
+  bottom: 2.5rem;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition:
+    opacity 0.8s ease 0.2s,
+    left 0.4s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+body.presenter #illustration {
+  left: 2.5rem;
+}
+
+#slide-text {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 2.5rem 2rem;
+  z-index: 10;
+  transform: translateX(0);
+  transition:
+    transform 0.4s ease,
+    opacity 0.5s ease;
+  pointer-events: auto;
+}
+
+#slide-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  transition: opacity 0.3s ease;
+  padding-bottom: 1.25rem;
+}
+
+#slide-content::-webkit-scrollbar {
+  width: 3px;
+}
+#slide-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+#slide-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+#slide-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Title + counter ── top-right, always visible ── */
+#slide-status {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 0.3rem;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+#hud-title {
+  font-family: "Silkscreen", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+.hud-sep {
+  font-family: "Silkscreen", monospace;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+#hud-counter {
+  font-family: "Silkscreen", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.3);
+}
+body.has-viz #hud-counter,
+body.has-viz #hud-counter-sep {
+  display: none;
+}
+
+/* Attribution ── bottom-right in reader, bottom-center in presenter ── */
+#slide-hud {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.75rem;
+  padding: 0.4rem 0.85rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 0.3rem;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+body.presenter #slide-hud {
+  right: auto;
+  left: 50vw;
+  transform: translateX(-50%);
+}
+#hud-attribution {
+  font-family: "Silkscreen", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: auto;
+}
+#hud-attribution a {
+  color: inherit;
+  text-decoration: none;
+}
+#hud-attribution a:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#slide-title {
+  font-family: "Silkscreen", monospace;
+  font-size: clamp(0.6rem, 1.8vw, 0.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.85em;
+}
+
+#slide-body {
+  font-family: "Inter", sans-serif;
+  font-size: clamp(0.7rem, 1.9vw, 1rem);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: pre-line;
+}
+
+/* Resource links ─────────────────────────────────── */
+.slide-links {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  pointer-events: auto;
+}
+
+.slide-links a {
+  display: block;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(0.6rem, 1.5vw, 0.82rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  transition: color 0.2s ease;
+}
+
+.slide-links a:hover {
+  color: white;
+}
+
+/* Mode toggle ─────────────────────────────────────── */
+#mode-toggle {
+  position: fixed;
+  top: 1.5rem;
+  left: calc(380px - 2rem);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Silkscreen", monospace;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.3rem;
+  cursor: pointer;
+  z-index: 20;
+  padding: 0;
+  transition: left 0.4s ease, color 0.2s ease, border-color 0.2s ease;
+}
+body.presenter #mode-toggle {
+  left: 1.75rem;
+}
+#mode-toggle:hover {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Slide nav arrows ────────────────────────────────── */
+#slide-prev,
+#slide-next {
+  position: fixed;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Silkscreen", monospace;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.3rem;
+  cursor: pointer;
+  z-index: 20;
+  padding: 0;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+/* Reader mode: sit at the bottom of the sidebar */
+#slide-prev { bottom: 1.5rem; left: 1.5rem; }
+#slide-next { bottom: 1.5rem; left: 4.5rem; }
+/* Presenter mode: move to bottom-right of the stage */
+body.presenter #slide-prev { left: auto; right: 4.5rem; }
+body.presenter #slide-next { left: auto; right: 1.5rem; }
+#slide-prev:hover,
+#slide-next:hover {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Full-screen viz layer (behind the text card) ──── */
+#viz-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+#viz-layer canvas {
+  display: block;
+  pointer-events: auto;
+}
+
+/* Full-screen demo layer ────────────────────────── */
+#demo-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  transition: opacity 0.3s ease, left 0.5s ease;
+}
+#demo-layer:empty {
+  display: none;
+}
+
+/* Presenter mode: collapse sidebar, expand stage ── */
+body.presenter #slide-text {
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+/* Slide title overlay ──────────────────────────────────── */
+#slide-title-overlay {
+  position: fixed;
+  bottom: 6.5rem;
+  left: calc(190px + 50vw);
+  transform: translateX(-50%);
+  font-family: "Silkscreen", monospace;
+  font-size: clamp(1.2rem, 4vw, 2.8rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  padding: 0.1em 0.3em;
+  transition:
+    left 0.4s ease,
+    opacity 0.5s ease;
+  white-space: nowrap;
+}
+#slide-title-overlay.title-dark {
+  color: rgba(20, 15, 10, 0.85);
+}
+#slide-title-overlay.title-pill {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+#slide-body-center {
+  position: fixed;
+  top: 50%;
+  left: calc(380px + 4rem);
+  right: 4rem;
+  transform: translateY(-50%);
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: pre-line;
+  display: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+body.presenter #slide-body-center {
+  left: 4rem;
+}
+#slide-body-center.font-tangerine {
+  font-family: "Tangerine", cursive;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.5;
+}
+#slide-body-center.dark-text {
+  color: rgba(30, 20, 10, 0.85);
+}
+
+body.presenter #slide-title-overlay {
+  left: 50vw;
+}
+
+/* Rotation-axis preset buttons ─────────────────────── */
+#rotation-controls {
+  position: fixed;
+  bottom: 3.5rem;
+  left: calc(190px + 50vw);
+  transform: translateX(-50%);
+  display: none;
+  gap: 0.5rem;
+  z-index: 10;
+  transition: left 0.4s ease;
+}
+body.presenter #rotation-controls {
+  left: 50vw;
+}
+body.has-viz #rotation-controls {
+  display: flex;
+}
+/* WebGL unavailable, so viz.js never loaded and there is no canvas for these
+   axis buttons to drive. has-viz is still set per-slide by engine.js, so hide
+   them explicitly rather than leaving four controls that do nothing. */
+body.no-viz #rotation-controls {
+  display: none;
+}
+#rotation-controls button {
+  font: 600 0.62rem/1 monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+#rotation-controls button:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.13);
+}
+#rotation-controls button.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+
+/* Axis scale annotations ────────────────────────────── */
+#viz-annotations {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+.viz-ann {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.viz-ann.visible {
+  opacity: 1;
+}

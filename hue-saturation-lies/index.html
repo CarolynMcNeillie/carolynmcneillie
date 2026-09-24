@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hue, Saturation, Lies</title>
+    <meta
+      name="description"
+      content="A talk tracing colour from cave painting to OKLCH: why colour does not exist, how language shapes what we can see, and what CSS colour spaces get wrong."
+    />
+
+    <!-- Unlisted while the talk is under embargo. Deliberately not added to
+         robots.txt: a Disallow rule would advertise the path to anyone who
+         reads it, whereas noindex needs no rule to be effective. -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Hue, Saturation, Lies" />
+    <meta
+      property="og:description"
+      content="From cave painting to OKLCH: why colour does not exist, how language shapes what we can see, and what CSS colour spaces get wrong."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Hue, Saturation, Lies" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23ffd764'/%3E%3C/svg%3E"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Silkscreen&family=Tangerine:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/",
+          "delaunator": "https://cdn.jsdelivr.net/npm/delaunator@5.0.1/+esm"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="slide-bg-a" class="slide-bg-layer" aria-hidden="true"></div>
+    <div id="slide-bg-b" class="slide-bg-layer" aria-hidden="true"></div>
+    <div id="illustration" aria-hidden="true"></div>
+    <div id="viz-layer"></div>
+    <div id="demo-layer"></div>
+    <div id="rotation-controls" role="group" aria-label="View axis">
+      <button data-axis="x" aria-pressed="false">Lightness</button>
+      <button data-axis="z" aria-pressed="false">Chroma</button>
+      <button data-axis="y" aria-pressed="false">Hue</button>
+      <button id="viz-grayscale" aria-pressed="false">Grayscale</button>
+    </div>
+    <div id="slide-text" role="complementary" aria-label="Presenter notes">
+      <div id="slide-content">
+        <div id="slide-title"></div>
+        <p id="slide-body"></p>
+      </div>
+    </div>
+    <div id="slide-status" role="status" aria-label="Current slide info">
+      <span id="hud-title"></span>
+      <span id="hud-counter-sep" class="hud-sep" aria-hidden="true">·</span>
+      <span id="hud-counter"></span>
+    </div>
+    <div id="slide-hud">
+      <span id="hud-attribution"></span>
+    </div>
+    <div id="slide-title-overlay"></div>
+    <div id="slide-body-center"></div>
+<div id="viz-annotations">
+      <!-- Lightness view (x): horizontal L axis -->
+      <svg
+        class="viz-ann"
+        data-for="x"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 100 56.25"
+        width="100%"
+        height="100%"
+      >
+        <defs>
+          <marker
+            id="arr-l"
+            viewBox="0 0 8 8"
+            refX="7"
+            refY="4"
+            markerWidth="2.5"
+            markerHeight="2.5"
+            orient="auto"
+          >
+            <path d="M0,0.5 L7,4 L0,7.5 Z" fill="rgba(255,215,100,0.7)" />
+          </marker>
+        </defs>
+        <line
+          x1="18"
+          y1="43"
+          x2="82"
+          y2="43"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+          marker-end="url(#arr-l)"
+        />
+        <line
+          x1="18"
+          y1="42.2"
+          x2="18"
+          y2="43.8"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+        />
+        <text
+          x="18"
+          y="45.2"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="middle"
+        >
+          0
+        </text>
+        <text
+          x="82.5"
+          y="45.2"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="middle"
+        >
+          1
+        </text>
+        <text
+          x="50"
+          y="41.7"
+          font-family="'Silkscreen',monospace"
+          font-size="0.7"
+          fill="rgba(255,215,100,0.45)"
+          text-anchor="middle"
+        >
+          lightness
+        </text>
+      </svg>
+
+      <!-- Hue view (y): diagonal H arrow -->
+      <svg
+        class="viz-ann"
+        data-for="y"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 100 56.25"
+        width="100%"
+        height="100%"
+      >
+        <defs>
+          <marker
+            id="arr-h"
+            viewBox="0 0 8 8"
+            refX="7"
+            refY="4"
+            markerWidth="2.5"
+            markerHeight="2.5"
+            orient="auto"
+          >
+            <path d="M0,0.5 L7,4 L0,7.5 Z" fill="rgba(255,215,100,0.7)" />
+          </marker>
+        </defs>
+        <line
+          x1="33"
+          y1="44"
+          x2="70"
+          y2="19"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+          marker-end="url(#arr-h)"
+        />
+        <text
+          x="31"
+          y="45.5"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="middle"
+        >
+          0°
+        </text>
+        <text
+          x="72"
+          y="18"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="middle"
+        >
+          360°
+        </text>
+        <text
+          x="54"
+          y="33"
+          font-family="'Silkscreen',monospace"
+          font-size="0.7"
+          fill="rgba(255,215,100,0.45)"
+          text-anchor="middle"
+        >
+          hue
+        </text>
+      </svg>
+
+      <!-- Chroma view (z): vertical C scale on right -->
+      <svg
+        class="viz-ann"
+        data-for="z"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 100 56.25"
+        width="100%"
+        height="100%"
+      >
+        <line
+          x1="88"
+          y1="12"
+          x2="88"
+          y2="44"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+        />
+        <line
+          x1="87.2"
+          y1="12"
+          x2="88.8"
+          y2="12"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+        />
+        <line
+          x1="87.2"
+          y1="44"
+          x2="88.8"
+          y2="44"
+          stroke="rgba(255,215,100,0.6)"
+          stroke-width="0.12"
+        />
+        <text
+          x="86.8"
+          y="11.2"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="end"
+        >
+          ~0.37
+        </text>
+        <text
+          x="86.8"
+          y="45.8"
+          font-family="'Silkscreen',monospace"
+          font-size="0.8"
+          fill="rgba(255,215,100,0.8)"
+          text-anchor="end"
+        >
+          0
+        </text>
+        <text
+          x="86.8"
+          y="29"
+          font-family="'Silkscreen',monospace"
+          font-size="0.7"
+          fill="rgba(255,215,100,0.45)"
+          text-anchor="end"
+        >
+          chroma
+        </text>
+      </svg>
+    </div>
+
+    <button id="slide-prev" title="Previous slide (←)" aria-label="Previous slide">‹</button>
+    <button id="slide-next" title="Next slide (→)" aria-label="Next slide">›</button>
+    <button id="mode-toggle" title="Toggle presenter / reader mode (P)" aria-pressed="false" aria-label="Open presenter notes">‹</button>
+
+    <script type="module" src="engine.js"></script>
+  </body>
+</html>
