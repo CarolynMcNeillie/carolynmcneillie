@@ -1,7 +1,8 @@
-import { PATH_PAIRS, pathSelection } from './gradient-pairs.js';
-import { pairList } from './pair-list.js';
-import { PLAY_ICON } from './icons.js';
+import { PATH_PAIRS } from './gradient-pairs.js';
 
+// Blue to yellow only: the pair the narration names, and the one whose channels
+// cross in the middle. The second background step plays the sweep.
+const PAIR = PATH_PAIRS[0];
 const channels = ['red', 'green', 'blue'];
 const rgb = values => `rgb(${values.join(' ')})`;
 
@@ -30,7 +31,6 @@ export function mount(container) {
     .g-rgb-marker::before { content:''; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); border:7px solid transparent; border-top-color:var(--ink); }
     .g-rgb-range { position:absolute; inset:0; width:100%; height:64px; margin:0; opacity:0; pointer-events:none; }
     .g-rgb-strip-wrap:has(.g-rgb-range:focus-visible) { outline:2px solid var(--ink); outline-offset:3px; }
-    .g-rgb-controls { display:flex; gap:.75rem; }
     @media (max-width:700px) { .g-rgb { gap:1rem; padding:1rem; } .g-rgb-pixel { gap:1rem; width:100%; } .g-rgb-plot { width:100%; } .g-rgb-swatch { width:5rem; } }
   </style><div class="g-rgb demo-root">
     <div class="g-rgb-heading"><div class="caps-label" id="g-rgb-title"></div><p>Move along the gradient. Each channel travels in a straight line, on its own.</p></div>
@@ -38,10 +38,10 @@ export function mount(container) {
       <div class="g-rgb-bars">${channels.map((name, i) => `<div class="g-rgb-bar-group"><span class="g-rgb-bar-label caps-label">${name[0]}</span><div class="g-rgb-bar" style="background:${['#1a0000', '#001a00', '#00001a'][i]}"><div class="g-rgb-bar-fill"></div></div></div>`).join('')}</div>
       <div class="g-rgb-swatch-col"><div class="g-rgb-swatch" role="img" aria-label="Current gradient colour"></div><code class="css-tag g-rgb-swatch-tag"></code></div>
     </div>
-    <div class="g-rgb-plot"><div class="g-rgb-strip-wrap"><div class="g-rgb-strip" role="img" aria-label="Gradient from blue to yellow"></div><div class="g-rgb-marker" aria-hidden="true"></div><input class="g-rgb-range" type="range" min="0" max="1000" value="500" aria-label="Position along the gradient"></div></div><div class="g-rgb-controls"><span class="g-rgb-pair"></span><button type="button" class="icon-button g-rgb-play" aria-label="Play the gradient once" title="Play the gradient once">${PLAY_ICON}</button></div>
+    <div class="g-rgb-plot"><div class="g-rgb-strip-wrap"><div class="g-rgb-strip" role="img" aria-label="Gradient from blue to yellow"></div><div class="g-rgb-marker" aria-hidden="true"></div><input class="g-rgb-range" type="range" min="0" max="1000" value="500" aria-label="Position along the gradient"></div></div>
   </div>`;
 
-  const pair = () => PATH_PAIRS[pathSelection.index];
+  const pair = () => PAIR;
   const strip = container.querySelector('.g-rgb-strip');
   const wrap = container.querySelector('.g-rgb-strip-wrap');
   const marker = container.querySelector('.g-rgb-marker');
@@ -86,23 +86,27 @@ export function mount(container) {
     if (t < 1) frame = requestAnimationFrame(tick);
     else { frame = 0; started = 0; }
   }
-  container.querySelector('.g-rgb-play').addEventListener('click', () => {
-    stop();
-    if (motion.matches) { t = t >= 1 ? 0 : Math.ceil((t * 4 + .000001)) / 4; render(); }
-    else { t = 0; render(); frame = requestAnimationFrame(tick); }
-  });
   const onMotionChange = () => { if (motion.matches) stop(); };
   motion.addEventListener('change', onMotionChange);
-  container.querySelector('.g-rgb-pair').append(pairList({
-    pairs: PATH_PAIRS, get: () => pathSelection.index,
-    set: index => { pathSelection.index = index; }, onChange: renderPair,
-  }));
   renderPair();
-  return () => {
+  // Background step 0 parks the sweep at the start; step 1 runs it. Reduced
+  // motion jumps to the end rather than animating.
+  function step(n) {
     stop();
-    motion.removeEventListener('change', onMotionChange);
-    wrap.removeEventListener('pointermove', onStrip);
-    wrap.removeEventListener('pointerdown', onStrip);
-    container.innerHTML = '';
+    if (n < 1) { t = 0; render(); return; }
+    if (motion.matches) { t = 1; render(); return; }
+    t = 0;
+    render();
+    frame = requestAnimationFrame(tick);
+  }
+  return {
+    step,
+    cleanup() {
+      stop();
+      motion.removeEventListener('change', onMotionChange);
+      wrap.removeEventListener('pointermove', onStrip);
+      wrap.removeEventListener('pointerdown', onStrip);
+      container.innerHTML = '';
+    },
   };
 }

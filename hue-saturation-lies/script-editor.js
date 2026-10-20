@@ -139,11 +139,37 @@ if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
     for (const name of drafts()) {
       const slideId = name.slice('hsl-draft:'.length);
       let draft;
-      try { draft = JSON.parse(localStorage.getItem(name)); } catch { continue; }
-      if (!draft || !Object.hasOwn(LIBRARY, slideId)) continue;
-      const file = LIBRARY[slideId].script;
+      try { draft = JSON.parse(localStorage.getItem(name)); } catch { draft = null; }
       const row = document.createElement('div');
       row.className = 'draft-row';
+      const discard = document.createElement('button');
+      discard.textContent = 'Discard';
+      discard.setAttribute('aria-label', `Discard draft: ${slideId}`);
+      discard.addEventListener('click', () => { localStorage.removeItem(name); bannerUpdate(); renderReview(); });
+      // An orphaned or unreadable draft still counts in the banner, so it has to
+      // render here or Review looks like a dead button.
+      if (!draft || !Object.hasOwn(LIBRARY, slideId)) {
+        const heading = document.createElement('h3');
+        heading.textContent = draft?.title ? `${slideId}: ${draft.title}` : slideId;
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.textContent = draft
+          ? 'This slide is no longer in script.md. Copy anything you still want, then discard.'
+          : 'This draft is unreadable. Discard it.';
+        row.append(heading, message);
+        if (draft) {
+          const pre = document.createElement('pre');
+          pre.textContent = `Draft: ${draft.title}\n\n${draft.body}`;
+          pre.tabIndex = 0;
+          pre.setAttribute('role', 'region');
+          pre.setAttribute('aria-label', `Draft text for ${slideId}`);
+          row.append(pre);
+        }
+        row.append(discard);
+        review.append(row);
+        continue;
+      }
+      const file = LIBRARY[slideId].script;
       const heading = document.createElement('h3');
       heading.textContent = `${slideId}: ${draft.title}`;
       const comparison = document.createElement('div');
@@ -181,10 +207,6 @@ if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
           renderReview();
         } catch { message.textContent = 'Not saved: run `node tools/serve.mjs`'; apply.disabled = false; }
       });
-      const discard = document.createElement('button');
-      discard.textContent = 'Discard';
-      discard.setAttribute('aria-label', `Discard draft: ${slideId}`);
-      discard.addEventListener('click', () => { localStorage.removeItem(name); bannerUpdate(); renderReview(); });
       row.append(heading, comparison, message, apply, discard);
       review.append(row);
     }

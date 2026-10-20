@@ -1,4 +1,8 @@
 import { oklchToLinearRGB } from './colour-utils.js';
+import { PLAY_ICON, PAUSE_ICON } from './icons.js';
+
+// Seconds for one full turn of the hue wheel when the loop is running.
+const LOOP_SECONDS = 12;
 
 // The tallest P3 peak is about 0.363 (hue 146), so 0.4 leaves headroom for its label.
 const MAX_C = .4;
@@ -29,6 +33,7 @@ export function mount(container) {
     .hs-plot canvas { width:100%; height:100%; display:block; }
     .hs-row { display:flex; align-items:center; gap:.65rem; min-height:44px; padding:0 1rem 0 2rem; font:var(--text-small)/1.4 var(--font-code); }
     .hs-row input[type=range] { flex:1; min-width:0; }
+    .hs-row .icon-button { flex:none; }
     .hs-value { min-width:4ch; text-align:right; }
     .hs-live { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
     @media (max-width:600px) {
@@ -37,7 +42,7 @@ export function mount(container) {
       .hs-row { padding:0 .25rem; gap:.25rem; }
     }
   </style><div class="hs-root">
-    <div class="hs-panel"><div class="hs-plot"><canvas role="img" aria-label="Hue 264 slice"></canvas></div><div class="hs-row"><input type="range" min="0" max="360" step="1" value="264" aria-label="Hue"><span class="hs-value" aria-hidden="true"></span><span class="hs-live" aria-live="polite"></span></div></div>
+    <div class="hs-panel"><div class="hs-plot"><canvas role="img" aria-label="Hue 264 slice"></canvas></div><div class="hs-row"><button type="button" class="icon-button hs-play" aria-label="Loop through every hue" title="Loop through every hue">${PLAY_ICON}</button><input type="range" min="0" max="360" step="1" value="264" aria-label="Hue"><span class="hs-value" aria-hidden="true"></span><span class="hs-live" aria-live="polite"></span></div></div>
   </div>`;
   const panel = container.querySelector('.hs-panel');
   let raf = 0;
@@ -127,13 +132,55 @@ export function mount(container) {
   const observer = new ResizeObserver(schedule);
   observer.observe(container);
   const input = panel.querySelector('input');
-  input.addEventListener('input', schedule);
+  input.addEventListener('input', () => { stopLoop(); schedule(); });
   input.addEventListener('change', () => { announce = true; schedule(); });
+
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const play = panel.querySelector('.hs-play');
+  let loop = 0;
+  let last = 0;
+
+  function stopLoop() {
+    if (loop) cancelAnimationFrame(loop);
+    loop = 0;
+    last = 0;
+    play.innerHTML = PLAY_ICON;
+    play.setAttribute('aria-label', 'Loop through every hue');
+    play.title = 'Loop through every hue';
+  }
+  function spin(now) {
+    if (!alive) return;
+    if (!last) last = now;
+    const hue = (Number(input.value) + (now - last) / 1000 / LOOP_SECONDS * 360) % 360;
+    last = now;
+    input.value = String(Math.round(hue));
+    draw();
+    loop = requestAnimationFrame(spin);
+  }
+  play.addEventListener('click', () => {
+    if (loop) { stopLoop(); return; }
+    if (motion.matches) {
+      // Reduced motion: quarter-turn hops rather than a continuous spin.
+      input.value = String((Number(input.value) + 90) % 360);
+      announce = true;
+      schedule();
+      return;
+    }
+    play.innerHTML = PAUSE_ICON;
+    play.setAttribute('aria-label', 'Stop the hue loop');
+    play.title = 'Stop the hue loop';
+    loop = requestAnimationFrame(spin);
+  });
+  const onMotionChange = () => { if (motion.matches) stopLoop(); };
+  motion.addEventListener('change', onMotionChange);
+
   schedule();
   return {
     cleanup() {
       alive = false;
+      stopLoop();
       cancelAnimationFrame(raf);
+      motion.removeEventListener('change', onMotionChange);
       observer.disconnect();
       container.innerHTML = '';
     },

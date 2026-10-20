@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { PATH_PAIRS, pathSelection } from './gradient-pairs.js';
-import { pairList } from './pair-list.js';
+// Blue to yellow only: the pair the narration names on both path slides.
+import { PATH_PAIRS } from './gradient-pairs.js';
+const PAIR = PATH_PAIRS[0];
 import { oklchToLinearRGB } from './colour-utils.js';
 import { buildOklchShape } from './oklch-shape.js';
 
@@ -112,27 +113,25 @@ export function mount(container, type = 'hsl') {
   const isOklch = type === 'oklch';
   container.innerHTML = `<style>
     .gp-root { position:absolute; inset:0; background:var(--scrim); color:var(--ink); font-family:var(--font-body); overflow:hidden; }
-    .gp-models { position:absolute; inset:2rem 1rem 7rem; }
+    .gp-models { position:absolute; inset:2rem 1rem 4rem; }
     .gp-canvas { position:absolute; inset:0; }
     .gp-panel { position:absolute; inset:0; pointer-events:none; }
     .gp-axis-label { position:absolute; left:0; top:0; white-space:nowrap; font:var(--text-body)/1.3 var(--font-body); color:var(--ink-muted); }
-    .gp-strips { position:absolute; bottom:4.5rem; left:1rem; right:1rem; }
+    .gp-strips { position:absolute; bottom:1.5rem; left:1rem; right:1rem; }
     .gp-strip { height:24px; border-radius:var(--radius); }
-    .gp-controls { position:absolute; bottom:.75rem; left:50%; transform:translateX(-50%); display:flex; align-items:center; }
-    @media (max-width:600px) { .gp-models {inset:1rem .5rem 7rem} .gp-strips {left:.5rem;right:.5rem} }
+    @media (max-width:600px) { .gp-models {inset:1rem .5rem 4rem} .gp-strips {left:.5rem;right:.5rem} }
   </style><div class="gp-root demo-root">
     <div class="gp-models" role="img" aria-label="${isOklch ? 'OKLCH gradient on the unrolled Display P3 gamut' : 'HSL gradient on the HSL bicone'}. Drag to rotate.">
       <div class="gp-canvas"></div>
       <div class="gp-panel"><span class="gp-axis-label" aria-hidden="true">L</span>${isOklch ? '<span class="gp-axis-label" aria-hidden="true">H</span><span class="gp-axis-label" aria-hidden="true">C</span>' : ''}</div>
     </div>
     <div class="gp-strips"><div class="gp-strip" aria-hidden="true"></div></div>
-    <div class="gp-controls"></div>
   </div>`;
   const root = container.querySelector('.gp-root');
   const canvas = container.querySelector('.gp-canvas');
   const strip = root.querySelector('.gp-strip');
   const renderStrip = () => {
-    const pair = PATH_PAIRS[pathSelection.index];
+    const pair = PAIR;
     strip.style.background = `linear-gradient(to right in ${type}, ${(isOklch ? oklchEnds(pair.a, pair.b) : [rgbCSS(pair.a), rgbCSS(pair.b)]).join(', ')})`;
   };
   let renderer;
@@ -140,11 +139,6 @@ export function mount(container, type = 'hsl') {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   } catch {
     canvas.textContent = '3D view unavailable: WebGL is required.';
-    const list = pairList({
-      pairs: PATH_PAIRS, get: () => pathSelection.index,
-      set: value => { pathSelection.index = value; }, onChange: renderStrip,
-    });
-    root.querySelector('.gp-controls').append(list);
     renderStrip();
     return () => { container.innerHTML = ''; };
   }
@@ -215,7 +209,7 @@ export function mount(container, type = 'hsl') {
   function renderPair() {
     pathGroup.clear();
     pathResources.forEach(r => r.dispose()); pathResources = [];
-    const pair = PATH_PAIRS[pathSelection.index];
+    const pair = PAIR;
     renderStrip();
     // Public per-sample values make both colour and position testable.
     root.pathData = {};
@@ -264,11 +258,6 @@ export function mount(container, type = 'hsl') {
       }
     }
   }
-  const button = pairList({
-    pairs: PATH_PAIRS, get: () => pathSelection.index,
-    set: value => { pathSelection.index = value; }, onChange: renderPair,
-  });
-  root.querySelector('.gp-controls').append(button);
   const resize = () => {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;

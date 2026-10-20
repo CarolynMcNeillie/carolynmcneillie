@@ -13,22 +13,23 @@ Hello, I'm Carolyn McNeillie. I'm a senior web developer at Shopify specializing
 <!-- slide: work-homepage -->
 ## Work: homepage
 
-I've been with Shopify for five years, and I'm on the Brand Design Studio team, which is the team responsible for (in my biased opinion) the most fun and visually creative work at the company.
-
-I contribute heavily
-to our website, Shopify.com.
+I've been with Shopify for five years, and I'm on the Brand Design Studio team (aka BrDS), which is the team responsible for (in my biased opinion) the most fun and visually creative work at the company.
 
 <!-- slide: work-shop-md -->
 ## Work: shop.md
 
-As well as special projects, for example this site just went up a couple of weeks ago. It helps you to build a customizable skill for your agents to shop the Shopify ecosystem, which is a really great way to be able to discover indie shops and brands and find weird, specific things. I've been enjoying it a lot.
+As well as special projects, for example this site just went up a couple of weeks ago. It helps you to build a customizable skill for your agents to shop the Shopify ecosystem.
 
 <!-- slide: work-editions -->
 ## Work: Editions
 
-And we're also the team that builds Shopify Editions. If you're not familiar, Shopify releases the editions twice a year. It's a sort of change log where we collect everything that's been improved or released in the last six months. Everything that devs or merchants need to know.
+I've been with Shopify for five years, and I'm on the Brand Design Studio team (aka BrDS), which is the team responsible for (in my biased opinion) the most fun and visually creative work at the company.
 
-But it's also a love letter to the internet, and every edition has a completely new and different and ambitious design. It's exhausting and thrilling to work on, and actually, literally right this moment while we speak, my colleagues are releasing the newest edition, which is always a stressful day, so I'm sending up a little secular prayer for them. But this one, Winter 2026, is the most recent one I personally worked on, and also my personal favouite.
+For example, we're the team that builds Shopify Editions. If you're not familiar, Shopify releases Editions twice a year.
+
+It's a sort of hybrid changelog/love letter to the internet, and every edition has a completely new and different and ambitious design.
+
+This one, Winter 2026, is the most recent one I personally worked on, and also my personal favourite.
 
 <!-- slide: about-me-collage -->
 ## About me: then
@@ -39,18 +40,18 @@ After I graduated, to try to distract everyone from the fact that I still had no
 
 You can see me there in the corner wearing Peggy's glasses. And up at the top there I am with Duchamp's Box in a Valice.
 
-If  you're not familiar, Duchamp made little miniatures of his body of work, you can see the little dollhouse-sized urinal there, and The Bride Stripped Bare by Her Bachelors, Even. Out of frame is a bunch of art handlers, it was a big production, and even though I'm wearing gloves I don't think I got to touch anything - they brought it down, and I got to look at it quickly and snap this picture and then it was whisked away. It's very delicate. This is the first one Duchamp ever made. He made it for Peggy Guggenheim in one of her old suitcases. Later he made an edition of I think 300, but anyway, yes. This day I was so moved, I cried.
+If  you're not familiar, Duchamp made little miniatures of his body of work, you can see the little dollhouse-sized urinal there. Out of frame is a bunch of art handlers, it was a big production, and even though I'm wearing gloves I don't think I got to touch anything - they brought it down, and I got to look at it quickly and snap this picture and then it was whisked away. It's very delicate. But anyway, yes. This day I was so moved, I cried.
 
 <!-- slide: the-shape-of-oklch -->
 ## The shape of OKLCH
 
 It's that intersection of art history, colour theory, and front-end engineering that brings me here to talk to you today.
 
-A couple of years ago I was working on something and my colleague Eric said, "oh many this would be a good use for that new oklch colour format" and he sent me an Evil Martians blog post and I fell in love with it.
+This shape is a model of the OKLCH colour space, and I'm a little obsessed with it, and I'll talk about it to anyone who will listen.
 
-In the years since then I've been obsessed with this and talking about it to anyone who will listen.
+And I've noticed that at first glance this shape seems to turn a lot of people off: this complicated spiked hedgehog shape looks esoteric and hard to work with.
 
-And I've noticed that at first glance this shape seems to turn a lot of people off: this complicated spiked hedgehog shape looks esoteric and hard to work with. But once you learn how it works you'll discover it's really a really elegant and succinct representation of the culmination of centuries of humans seeking to understand, measure, and use colour, informed by physics and biology and the combined work of so many beautiful nerds across diciplines. I think of it as half self-portrait of humanity, half rosetta stone of colour technology.
+But once you learn how it works you'll discover it's really a really elegant and succinct representation of the culmination of centuries of humans seeking to understand, measure, and use colour, informed by physics and biology and the combined work of so many beautiful nerds across diciplines. I think of it as half self-portrait of humanity, half rosetta stone of colour technology.
 
 Together, in the next 45 minutes, I'm going to tell you everything you need to know to fall as much in love with this shape as I have.
 
@@ -194,13 +195,11 @@ But the truth is that all three cone types respond to a wide range of wavelength
 <!-- slide: the-biology-of-colour-2 -->
 ## The biology of colour
 
-Here's a representation of how our cones might be distributed. Your welcome, by the way, for not showing you a medical diagram here. I couldn't find one that didn't give me the heebie-jeebies.
+Here's a representation of how our cones might be distributed. You're welcome, by the way, for not showing you a medical diagram here. I couldn't find one that didn't give me the heebie-jeebies.
 
-But the point is that colour perception is not even across hues. Short (“blue”) cones make up only about 2 to 8 percent of your cones. Combine this with that fact that wavelengths in the green and red range will stimulate both the medium and long cones, you can see why we are significantly less sensitive to the colour blue.,
+But the point is that colour perception is not even across hues. Short (“blue”) cones make up only about 2 to 8 percent of your cones. Combine this with the fact that wavelengths in the green and red range will stimulate both the medium and long cones, and you can see why we are significantly less sensitive to the colour blue.
 
-The ratio of red to green cones varies wildly, and studies have found ratios ranging from 1:1 all the way to 16:1, all in people who are considered to be within the "normal" range of colour vision.
-
-Our distribution of colour sensors is as individual from person to person as height or nose shape, even before we take colourblindness into account.
+The ratio of red to green cones varies wildly too, from 1:1 all the way to 16:1, all within normal colour vision. Our distribution of colour sensors is as individual as height or nose shape, even before we take colourblindness into account.
 
 <!-- slide: deuteranomaly -->
 ## Deuteranomaly
@@ -277,15 +276,11 @@ There are languages that draw lines in places we don't, experiencing distinct co
 <!-- slide: colour-systems -->
 ## Colour systems
 
-So you can see the need to organize colour in a way that can create some kind of shared language, and many artists and scientists have tried. Here you can see Newton's early attempts. He bent the spectrum into a circle,  divided it into seven parts to try to match the intervals of a musical scale.
+So you can see the need to organize colour in a way that can create some kind of shared language, and many artists and scientists have tried.
 
-[Step 2] Here's an 1810 attempt by a German painter named Philipp Otto Runge decided a circle wasn't enough, who designed a model shaped as a sphere: pure colours around the equator, white at one pole and black at the other. It's one of the very first colour solids, and the great-great-grandparent of the 3D shapes we'll be looking at later.
+The one that matters most for us is Albert Munsell, an American painter and art teacher who wanted his students to describe colour as precisely as they described size or weight.
 
-[Step 3] And here's a precursor to the Pantone colour system, _Werner's Nomenclature of Colours_, with each swatch paired with occurrences in nature.
-
-[Step 4] And then there's Albert Munsell, an American painter and art teacher who wanted his students to describe colour as precisely as they described size or weight.
-
-He developed a system using  three numbers: hue, value and chroma. And when he laid out the colours he could actually make, the branches came out uneven, because some colours simply reach further than others.
+He developed a system using three numbers: hue, value and chroma. And when he laid out the colours he could actually make, the branches came out uneven, because some colours simply reach further than others.
 
 <!-- slide: the-abcs-of-cie-xyz -->
 ## The ABCs of CIE XYZ
@@ -379,10 +374,6 @@ Thankfully we have the WCAG standard, which requires a contrast of at least 4.5:
 
 However, getting there is the hard part. As we've seen, RGB is a very technical way to describe colour that's hardware and physics-oriented. But it's not very intuitive to us humans, or reflective of what happens to the light once it's actually processed by our squishy, mammalian eyes and brains. And we've all spent more time than we'd like fiddling with colour pickers and sliders to try to come up with a colour system that's harmonious and accessible.
 
-[REVIEW (a11y): 4.5:1 is AA for normal text; large text is 3:1. If asked about APCA / WCAG 3: still a draft, not a standard.]
-
-[REVIEW (Oct 19, accessibility): the dot-plate shows shape carrying meaning without colour (WCAG 1.4.1, Use of Color); 4.5:1 is the text-contrast rule (1.4.3). Keep the two claims apart.]
-
 <!-- slide: hue-saturation-lies -->
 ## Hue, Saturation, Lies
 
@@ -402,7 +393,7 @@ Ok, case closed. We fixed it. Talk over. We can all go home.
 <!-- slide: lies -->
 ## Lies
 
-[DRAFT NOTE: new title slide (Oct 19). Narration yours.]
+No notes
 
 <!-- slide: hue-saturation-lies-2 -->
 ## Hue, Saturation, Lies
@@ -445,26 +436,16 @@ First let's look at what OKLCH can do. If we repeat our lightness comparison we 
 <!-- slide: an-ok-color-space-2 -->
 ## An OK Color Space
 
-Now let's take another look at this mountain range shape.
+Now let's take another look at this mountain range shape. Like HSL, lightness runs along one axis and hue along another, straight across instead of wrapped around a circle. The chroma axis, roughly what HSL calls saturation, is where it gets idiosyncratic.
 
-Like the HSL model, we see lightness mapped across one axis, and hue on another, but this time straight across intead of wrapped around a circle.
+If we switch to grayscale, we can see why.
 
-Where it gets weird, is the chroma dimention, which is roughly equivalent to what HSL calls saturation. This is the axis on which the shape becomes much more ideosyncratic.
-
-If we switch to looking at this shape in grayscale, we can see why.
-
-The shape of the OKLCH model is a direct result of tuning the math to match human perception. The human eye dosn't support an equal range of chroma across all hues. We can see that the maximum chroma of green is much higher than the maximum chroma of blue.
-
-Viewing from the lightness axis, we can also see how OKLCH accounts for the perceived lightness of hues. The peek for this fusha colour, where it supports the wides chromatic range with the same perceived lightness is much further up the lightness axis than the peek for blue.
-
-[REVIEW (physicist, colour scientist): the shape is perception applied to a screen's gamut (viz.js samples the Display P3 cube), not the eye alone. Your own line from script-v2-arc.md: "its lumps come from perception and its boundary comes from the screen." Showing sRGB vs P3 vs Rec.2020 hedgehogs (same eyes, different shapes) makes the point. Typos here: accomodates, intead, ideosyncratic, dosn't, wides, peek.]
-
-[REVIEW (Oct 19, storytelling, speaking coach): the shape is back, so land "half self-portrait of humanity, half Rosetta stone" here (a FITC promise, said once in minute five). Read aloud twice: "dimention", "intead", "ideosyncratic", "dosn't", "peek".]
+The shape comes from tuning the math to match human perception, and we don't get an equal range of chroma across every hue. The maximum chroma of green is much higher than the maximum chroma of blue, and the peak for this fuchsia sits much further up the lightness axis than the peak for blue.
 
 <!-- slide: oklch-slices -->
 ## Slices
 
-[DRAFT NOTE: new demo (Oct 19). Narration yours.]
+
 
 <!-- section: OKLCH powers — Harmonies -->
 
@@ -489,11 +470,9 @@ In sRGB, transitioning from one colour to another means splitting the R, G, and 
 
 When we leverage HSL interpolation, we can see how the different hue arrangement gives us a different gradient, but we run into the same perceptual lightness issue which can cause a11y concerns if we're not careful.
 
-OKLCH's "in between" means walking the shortest path through perceived colour. The midpoint of blue and yellow in OKLCH is a vivid green — the colour your eye actually expects. And perceived lightness is more predictable and even.
+OKLCH's "in between" means walking the shortest path through perceived colour. The midpoint of blue and yellow in OKLCH is a vivid teal, the colour your eye actually expects. And perceived lightness is more predictable and even.
 
 Note that these benefits are due to the model, not the colour space. We get all this goodness even if we stay within the sRGB gamut.
-
-[REVIEW (Oct 19, colour scientist, checked): the OKLCH midpoint of blue and yellow has hue about 187 degrees, which is teal, not "a vivid green".]
 
 <!-- section: Painters in CSS -->
 
@@ -587,20 +566,16 @@ OKLCH is the first colour model on the web that's built around our eyes, and it 
 <!-- slide: the-medium-is-the-revolution -->
 ## The medium is the revolution
 
-And before I leave you I want to say a little more about painting, because I think there are some really instructive parallels to pull from art history.
+And before I leave you I want to say a little more about painting, because there are some instructive parallels in art history.
 
-We often frame the Renaissance as a revolution of ideas, which of course it was, but it was also a practical revolution of technique.
-
-For much of the Middle Ages, European painters worked mainly in egg tempera and fresco. Both of these media required planning and speed. They set quickly and then can't be reworked, so they encourage commitment to the first marks, flatter images, layered cross-hatching, and techniques that are closer to drawing than what we think of as painting.
-
-When we look at Medieval paintings, they tend to be flat, almost like cartoons.
+For much of the Middle Ages, European painters worked mainly in egg tempera and fresco. Both set quickly and can't be reworked, so they encourage commitment to the first marks, and flatter images, closer to drawing than to what we think of as painting.
 
 <!-- slide: the-medium-is-the-revolution-2 -->
 ## The medium is the revolution
 
-But in the 15th century, artists took up oil painting as a dominant medium. The motivation was largely practical, but the results were transformative. Oil paint dries slowly and stays workable longer, so you can blend transitions over multiple sessions instead of locking into the first marks. And the paint doesn’t set and fight back, so artists were able to use more fluid and natural movements.
+But in the 15th century, artists took up oil as the dominant medium. Oil dries slowly and stays workable, so you can blend transitions over several sessions instead of locking into the first marks, with more fluid and natural movements.
 
-Oil also enabled glazing: building up thin transparent layers over dry paint to shift colours and values without hiding what’s underneath. Sometimes an oil painting can even seem to echo our biology: firm structures rendered beneath softer, semi-transparent flesh tones like skin over muscle and bone.
+Oil also enabled glazing: thin transparent layers built over dry paint, shifting colour and value without hiding what's underneath.
 
 <!-- slide: the-medium-is-the-revolution-3 -->
 ## The medium is the revolution
@@ -644,11 +619,13 @@ We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or
 <!-- slide: 45finale -->
 ##
 
-Like oil paint, OKLCH unlocks a new way of carrying colour for the browser. Like when the camera was invented, with the rise of AI, we as designers and developers find ourselves, along with so many others, unlatched from the necessities around which we built our craft.
+Like oil paint, OKLCH unlocks a new way of carrying colour for the browser.
 
-Today I wanted to share with you the connections I see between two diciplines that make me really exicited about what OKLCH unlocks. But the really exciting thing, the thing the history books will write about, is what you do now after you leave.
+OKLCH is the first colour model on the web that's built around our eyes, and it can do a lot. But as Albers taught us, there's no replacement for your own judgement.
 
-With new tools, with new unencumbrances, what will you make that's delightful and brand new that you wouldn't have even conceived of a year ago. How will you explore the gap that exists between what we _can_ do, and what we can _do_
+I'm personally so excited about what OKLCH unlocks. But the really exciting thing, the thing the history books will write about, is what you do now after you leave.
+
+With new tools, what will you make that's delightful and brand new that you wouldn't have even conceived of a year ago. How will you explore the gap that exists between what we _can_ do, and what we can _do_
 
 <!-- section: Thank you -->
 

@@ -521,30 +521,9 @@ export const LIBRARY = {
 
 "colour-systems": {
     slide: {
-      // Four historical colour systems, one per press, each the whole page.
+      // Munsell only: Newton, Runge and Werner were cut for time on 20 Oct.
       fit: "whole",
       backgrounds: [
-        {
-          image: "./images/SystemNewton.avif",
-          attribution: {
-            text: "Isaac Newton, colour circle, _Opticks_ (1704) · Public domain",
-            url: "https://commons.wikimedia.org/wiki/File:Newton%27s_color_circle.png",
-          },
-        },
-        {
-          image: "./images/SystemRunge.avif",
-          attribution: {
-            text: "Philipp Otto Runge, _Farben-Kugel_ (1810) · Public domain",
-            url: "https://commons.wikimedia.org/wiki/File:Runge_Farbenkugel.jpg",
-          },
-        },
-        {
-          image: "./images/SystemWernerDetail.avif",
-          attribution: {
-            text: "Patrick Syme, _Werner's Nomenclature of Colours_ (1821 edition), Blues (detail) · Public domain · Getty Research Institute",
-            url: "https://archive.org/details/gri_c00033125012743312/page/n41",
-          },
-        },
         {
           image: "./images/MunsellChartC1915.avif",
           attribution: {
@@ -745,7 +724,8 @@ export const LIBRARY = {
   },
 
 "gradient-rgb": {
-    slide: { demo: "gradient-rgb" },
+    // Two steps: the sweep parked at the start, then played.
+    slide: { demo: "gradient-rgb", backgrounds: [{}, {}] },
   },
 
 "gradient-paths": {

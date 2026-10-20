@@ -11,10 +11,12 @@ export default {
           "id": "about-me-now"
         },
         {
-          "id": "work-homepage"
+          "id": "work-homepage",
+          "hidden": true
         },
         {
-          "id": "work-shop-md"
+          "id": "work-shop-md",
+          "hidden": true
         },
         {
           "id": "work-editions"
@@ -104,7 +106,8 @@ export default {
           "id": "deuteranomaly"
         },
         {
-          "id": "the-x-factor-2"
+          "id": "the-x-factor-2",
+          "hidden": true
         },
         {
           "id": "tritanopia",
@@ -127,7 +130,8 @@ export default {
           "id": "language-is-a-magic-spell"
         },
         {
-          "id": "language-is-a-magic-spell-2"
+          "id": "language-is-a-magic-spell-2",
+          "hidden": true
         },
         {
           "id": "think-pink"
@@ -264,7 +268,8 @@ export default {
           "id": "albers"
         },
         {
-          "id": "class-dismissed"
+          "id": "class-dismissed",
+          "hidden": true
         }
       ]
     },
@@ -284,7 +289,8 @@ export default {
           "id": "the-medium-is-the-revolution-4"
         },
         {
-          "id": "swatches"
+          "id": "swatches",
+          "hidden": true
         },
         {
           "id": "45finale"
