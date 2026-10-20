@@ -28,21 +28,6 @@ function linearSRGBToOKLCH(r, g, b) {
   return { L, C, H };
 }
 
-function oklchToLinearSRGB(L, C, H) {
-  const hr = H * Math.PI / 180;
-  const a  = C * Math.cos(hr);
-  const b  = C * Math.sin(hr);
-  const l_ = L + 0.3963377774*a + 0.2158037573*b;
-  const m_ = L - 0.1055613458*a - 0.0638541728*b;
-  const s_ = L - 0.0894841775*a - 1.2914855480*b;
-  const lc = l_**3, mc = m_**3, sc = s_**3;
-  return [
-     4.0767416621*lc - 3.3077115913*mc + 0.2309699292*sc,
-    -1.2684380046*lc + 2.6097574011*mc - 0.3413193965*sc,
-    -0.0041960863*lc - 0.7034186147*mc + 1.7076147010*sc,
-  ];
-}
-
 // ── Primaries ─────────────────────────────────────────────────────────────────
 // Approximate CIE 1931 primaries as linear sRGB values.
 // Each primary is a near-monochromatic light: red≈700nm, green≈546nm, blue≈436nm.
@@ -88,14 +73,6 @@ function oklchCSS({ L, C, H }) {
   return `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${H.toFixed(1)})`;
 }
 
-function srgbL(c) {
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-}
-function textOnBg(linR, linG, linB) {
-  const lum = 0.2126 * linR + 0.7152 * linG + 0.0722 * linB;
-  return (lum + 0.05) / 0.05 >= 1.05 / (lum + 0.05) ? '#000' : '#fff';
-}
-
 // Real additive mix: sum linear RGB contributions, convert back to OKLCH.
 function mixPrimaries(weights) {
   let r = 0, g = 0, b = 0;
@@ -116,11 +93,11 @@ export function mount(container) {
   container.innerHTML = `
     <style>
       .cm-wrap {
-        position: absolute; inset: 0;
+
         background: #0a0a0a;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        font-family: 'Silkscreen', monospace;
+
         gap: 2.5rem;
         padding: 2rem;
       }
@@ -128,26 +105,27 @@ export function mount(container) {
         display: flex;
         width: min(700px, 90vw);
         height: min(260px, 28vh);
-        border-radius: 6px;
+        border-radius: var(--radius);
         overflow: hidden;
-        box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+        box-shadow: 0 0 0 1px var(--line);
       }
       .cm-half {
+        background: var(--half-color);
+        color: var(--ink);
+        color: contrast-color(var(--half-color));
         flex: 1;
-        transition: background-color 0.08s ease;
         position: relative;
       }
       .cm-half-label {
         position: absolute;
         bottom: 0.6rem; left: 50%;
         transform: translateX(-50%);
-        font-size: 0.55rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+
+        letter-spacing: var(--tracking-caps);
+
         opacity: 0.6;
         pointer-events: none;
         white-space: nowrap;
-        transition: color 0.08s ease;
       }
       .cm-divider {
         width: 2px;
@@ -167,80 +145,65 @@ export function mount(container) {
         flex-shrink: 0;
       }
       .cm-slider-label {
-        font-size: 0.6rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.45);
+
+        letter-spacing: var(--tracking-caps);
+
+        color: var(--ink-muted);
         width: 1.4rem;
       }
-      .cm-slider-row input[type=range] {
-        flex: 1; height: 2rem; cursor: pointer; accent-color: white;
-      }
+      .cm-slider-row input[type=range] { flex: 1; }
       .cm-nav {
         display: flex; align-items: center; gap: 1.2rem;
       }
-      .cm-nav-btn {
-        background: rgba(255,255,255,0.08);
-        border: none; border-radius: 4px;
-        color: rgba(255,255,255,0.6);
-        font: 0.6rem/1 'Silkscreen', monospace;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 0.5em 1.4em;
-        cursor: pointer;
-      }
-      .cm-nav-btn:hover { background: rgba(255,255,255,0.14); }
       .cm-hint {
-        font-size: 0.55rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.25);
+        font: var(--text-body) var(--font-body);
+        color: var(--ink-soft);
       }
     </style>
-    <div class="cm-wrap">
+    <div class="cm-wrap demo-root">
       <div class="cm-field">
         <div class="cm-half" id="cm-test">
-          <span class="cm-half-label">Test colour</span>
+          <span class="cm-half-label caps-label">Test colour</span>
         </div>
         <div class="cm-divider"></div>
         <div class="cm-half" id="cm-mix">
-          <span class="cm-half-label">Your mix</span>
+          <span class="cm-half-label caps-label">Your mix</span>
         </div>
       </div>
       <div class="cm-controls">
         ${PRIMARIES.map((p, i) => `
           <div class="cm-slider-row">
             <div class="cm-primary-dot" style="background:${p.accent}"></div>
-            <span class="cm-slider-label">${p.label}</span>
-            <input type="range" class="cm-slider" data-i="${i}"
+            <label class="cm-slider-label caps-label" for="cm-slider-${i}">${p.label}</label>
+            <input type="range" class="cm-slider" id="cm-slider-${i}" aria-label="${['Red', 'Green', 'Blue'][i]} primary" data-i="${i}"
                    min="0" max="1" step="0.005" value="${weights[i]}">
           </div>
         `).join('')}
       </div>
       <div class="cm-nav">
-        <span class="cm-hint">try to match the left half</span>
-        <button class="cm-nav-btn" id="cm-next">give me another</button>
+        <span class="cm-hint">Try to match the left half.</span>
+        <button class="icon-button" id="cm-next" aria-label="New test colour" title="New test colour">
+          <!-- A die: "roll" a new random colour. -->
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+            <g fill="currentColor">
+              <circle cx="8" cy="8" r="1.6"/><circle cx="16" cy="8" r="1.6"/><circle cx="12" cy="12" r="1.6"/>
+              <circle cx="8" cy="16" r="1.6"/><circle cx="16" cy="16" r="1.6"/>
+            </g>
+          </svg>
+        </button>
       </div>
     </div>
   `;
 
   const testEl      = container.querySelector('#cm-test');
   const mixEl       = container.querySelector('#cm-mix');
-  const testLabelEl = testEl.querySelector('.cm-half-label');
-  const mixLabelEl  = mixEl.querySelector('.cm-half-label');
-
   function render() {
     const t   = TEST_COLOURS[testIdx % TEST_COLOURS.length];
     const mix = mixPrimaries(weights);
 
-    testEl.style.backgroundColor = oklchCSS(t);
-    mixEl.style.backgroundColor  = oklchCSS(mix);
-
-    const [tr, tg, tb] = oklchToLinearSRGB(t.L, t.C, t.H);
-    testLabelEl.style.color = textOnBg(Math.max(0, tr), Math.max(0, tg), Math.max(0, tb));
-
-    const [mr, mg, mb] = oklchToLinearSRGB(mix.L, mix.C, mix.H);
-    mixLabelEl.style.color = textOnBg(Math.max(0, mr), Math.max(0, mg), Math.max(0, mb));
+    testEl.style.setProperty('--half-color', oklchCSS(t));
+    mixEl.style.setProperty('--half-color', oklchCSS(mix));
   }
 
   container.querySelectorAll('.cm-slider').forEach(sl => {

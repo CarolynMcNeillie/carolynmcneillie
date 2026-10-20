@@ -194,19 +194,22 @@ function drawBase(canvas) {
   ctx.arc(wpx, wpy, 3, 0, Math.PI * 2);
   ctx.fillStyle = 'white';
   ctx.fill();
-  ctx.font = '600 10px system-ui, sans-serif';
+  // Chart labels are numbers: canvas text ignores font-variant-numeric, so use
+  // the code font, whose digits always sit level.
+  const bodyFont = getComputedStyle(document.documentElement).getPropertyValue('--font-code').trim();
+  ctx.font = `600 12px ${bodyFont}`;
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.textAlign = 'left';
   ctx.fillText('D65', wpx + 6, wpy + 4);
 
   // Axes
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(ML, MT + DH); ctx.lineTo(ML + DW, MT + DH); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(ML, MT);      ctx.lineTo(ML, MT + DH);      ctx.stroke();
 
-  ctx.font = '500 11px system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = `500 14px ${bodyFont}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.textAlign = 'center';
   ctx.fillText('x', ML + DW / 2, H - 8);
   ctx.save();
@@ -215,7 +218,7 @@ function drawBase(canvas) {
   ctx.fillText('y', 0, 0);
   ctx.restore();
 
-  ctx.font = '10px system-ui, sans-serif';
+  ctx.font = `12px ${bodyFont}`;
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   for (let v = 0.1; v < 0.75; v += 0.1) {
     const px = ML + ((v - X0) / (X1 - X0)) * DW;
@@ -229,8 +232,10 @@ function drawBase(canvas) {
   }
 
   // Wavelength ticks
-  const TICK_NM = [460, 470, 480, 490, 500, 510, 520, 530, 540, 560, 580, 600, 620, 660, 700];
-  ctx.font = '10px system-ui, sans-serif';
+  // No 660: past about 650 nm the locus barely moves, so a 660 label would sit
+  // on top of the 700 label.
+  const TICK_NM = [460, 470, 480, 490, 500, 510, 520, 530, 540, 560, 580, 600, 620, 700];
+  ctx.font = `12px ${bodyFont}`;
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.strokeStyle = 'rgba(255,255,255,0.4)';
   ctx.lineWidth = 1;
@@ -290,7 +295,7 @@ function drawGamut(canvas, offscreen, gamut) {
   ctx.setLineDash([]);
 
   // Primary labels
-  ctx.font = '600 11px system-ui, sans-serif';
+  ctx.font = `600 14px ${getComputedStyle(document.documentElement).getPropertyValue('--font-code').trim()}`;
   ctx.fillStyle = gamut.stroke;
   for (let i = 0; i < 3; i++) {
     const [px, py] = toPixel(gamut.primaries[i][0], gamut.primaries[i][1]);
@@ -316,19 +321,19 @@ export function mount(container) {
         display: flex; gap: 0.6rem;
       }
       .cie-btn {
-        background: rgba(255,255,255,0.07);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 4px;
-        color: rgba(255,255,255,0.55);
-        font: 0.6rem/1 'Silkscreen', monospace;
-        letter-spacing: 0.08em;
+        background: var(--fill);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--ink-muted);
+        font: var(--text-label)/1 var(--font-display);
+        letter-spacing: var(--tracking-caps);
         text-transform: uppercase;
         padding: 0.5em 1em;
         cursor: pointer;
-        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
       }
-      .cie-btn:hover { background: rgba(255,255,255,0.13); color: rgba(255,255,255,0.8); }
-      .cie-btn.active { color: #fff; border-color: var(--btn-color, #fff); background: rgba(255,255,255,0.12); }
+      .cie-btn:hover { background: var(--fill-strong); color: var(--ink-soft); }
+      .cie-btn.active { color: #fff; border-color: var(--btn-color, #fff); background: var(--fill-strong); }
     </style>
     <div class="cie-wrap">
       <canvas class="cie-canvas"></canvas>
@@ -347,8 +352,8 @@ export function mount(container) {
   function redraw() { drawGamut(canvas, offscreen, getGamut()); }
 
   function resize() {
-    const W = container.clientWidth  || window.innerWidth;
-    const H = container.clientHeight || window.innerHeight;
+    const W = container.clientWidth;
+    const H = container.clientHeight;
     const btnH = 48;
     const size = Math.min(W - 20, H - btnH - 28, 680);
     canvas.width = offscreen.width  = size;
@@ -369,12 +374,12 @@ export function mount(container) {
   });
 
   let resizeTimer;
-  const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150); };
-  window.addEventListener('resize', onResize);
+  const observer = new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150); });
+  observer.observe(container);
   resize();
 
   return () => {
-    window.removeEventListener('resize', onResize);
+    observer.disconnect();
     clearTimeout(resizeTimer);
     container.innerHTML = '';
   };

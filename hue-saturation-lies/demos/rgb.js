@@ -1,17 +1,15 @@
 // ── RGB / Subpixel Demo ──────────────────────────────────────────────────────
 // One pixel. Three subpixel bars. Each bar IS the slider.
-
+// Type "black" keeps the background black (srgb); the default shows the
+// pixel's colour (srgb-2). update(type) carries the demo from one slide to the
+// next: the bars glide to new values and the background fades in OKLCH from
+// black to the colour, instead of a fade through black. On srgb-2 each arrow
+// press glides the bars to the next colour in STEPS.
 function toHex2(n)  { return n.toString(16).padStart(2, '0').toUpperCase(); }
-function toBin8(n)  { return n.toString(2).padStart(8, '0'); }
 
-function srgbL(c) {
-  const v = c / 255;
-  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-}
-function textOnBg(r, g, b) {
-  const L = 0.2126 * srgbL(r) + 0.7152 * srgbL(g) + 0.0722 * srgbL(b);
-  return (L + 0.05) / 0.05 >= 1.05 / (L + 0.05) ? '#000' : '#fff';
-}
+// srgb-2's arrow steps: red, pink (green and blue to half), dark red (red to
+// half), middle grey (all three at half), blue, yellow.
+const STEPS = [[255, 0, 0], [255, 128, 128], [128, 0, 0], [128, 128, 128], [0, 0, 255], [255, 255, 0]];
 
 const CHANNELS = [
   { label: 'R', bg: '#1a0000', fill: (v) => `rgb(${v},0,0)` },
@@ -23,20 +21,26 @@ export function mount(container, type) {
   let r = Math.floor(Math.random() * 256);
   let g = Math.floor(Math.random() * 256);
   let b = Math.floor(Math.random() * 256);
+  // How much of the pixel's colour shows in the background: 0 is black.
+  let bgAmount = type === 'black' ? 0 : 1;
+  let frame = 0;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   container.innerHTML = `
     <style>
       .rgb-wrap {
-        position: absolute; inset: 0;
+        --rgb-bg: #000;
+        background-color: var(--rgb-bg);
+        color: var(--ink);
+        color: contrast-color(var(--rgb-bg));
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         gap: 2rem;
-        transition: background-color 0.08s ease, color 0.15s ease;
-        font-family: 'Silkscreen', monospace;
       }
       .rgb-pixel {
         display: flex; gap: 3px;
       }
+      .rgb-css { display: flex; gap: 1.5rem; color: inherit; }
       .rgb-bar-wrap {
         display: flex; flex-direction: column;
         align-items: center; gap: 0.5rem;
@@ -45,14 +49,13 @@ export function mount(container, type) {
         position: relative;
         width: min(13vw, 13vh);
         height: min(39vw, 39vh); /* 3× the width so 3 bars = square pixel */
-        border-radius: 3px;
+        border-radius: var(--radius);
         overflow: hidden;
         cursor: ns-resize;
       }
       .rgb-bar-fill {
         position: absolute; bottom: 0; left: 0; right: 0;
-        transition: height 0.04s ease, background-color 0.04s ease;
-        border-radius: 3px;
+        border-radius: var(--radius);
       }
       /* Invisible native range input overlaid for interaction */
       .rgb-bar input[type=range] {
@@ -65,77 +68,27 @@ export function mount(container, type) {
         direction: rtl;
         -webkit-appearance: slider-vertical;
       }
+      .rgb-bar:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
       .rgb-bar-label {
-        font-size: 0.55rem; letter-spacing: 0.12em;
-        text-transform: uppercase; opacity: 0.5;
-      }
-      /* Value grid ────────────────────────────────────────────── */
-      .rgb-grid {
-        display: grid;
-        grid-template-columns: 3rem 1fr 1fr 1fr;
-        row-gap: 0.6rem;
-        column-gap: 0.5rem;
-        width: min(420px, 88vw);
-      }
-      .rgb-grid-corner { /* empty top-left cell */ }
-      .rgb-grid-head {
-        font-size: 0.55rem; letter-spacing: 0.12em;
-        text-transform: uppercase; opacity: 0.5;
-        text-align: center;
-      }
-      .rgb-grid-label {
-        font-size: 0.5rem; letter-spacing: 0.1em;
-        text-transform: uppercase; opacity: 0.35;
-        display: flex; align-items: center;
-      }
-      .rgb-grid-val {
-        font-size: clamp(0.7rem, 2vw, 1rem);
-        letter-spacing: 0.04em;
-        font-variant-numeric: tabular-nums;
-        text-align: center;
-        opacity: 0.85;
-      }
-      .rgb-grid-val.bin {
-        font-size: clamp(0.42rem, 1.1vw, 0.58rem);
-        letter-spacing: 0.02em;
-        opacity: 0.7;
+        letter-spacing: var(--tracking-caps);
+         opacity: 0.5;
       }
     </style>
 
-    <div class="rgb-wrap" id="rgb-bg">
+    <div class="rgb-wrap demo-root" id="rgb-bg">
       <div class="rgb-pixel">
         ${CHANNELS.map((ch, i) => `
           <div class="rgb-bar-wrap">
-            <span class="rgb-bar-label">${ch.label}</span>
+            <span class="rgb-bar-label caps-label">${ch.label}</span>
             <div class="rgb-bar" id="bar-${i}" style="background:${ch.bg}">
               <div class="rgb-bar-fill" id="fill-${i}"></div>
-              <input type="range" id="sl-${i}" min="0" max="255" value="${[r,g,b][i]}">
+              <input type="range" id="sl-${i}" aria-label="${['Red', 'Green', 'Blue'][i]} channel" min="0" max="255" value="${[r,g,b][i]}">
             </div>
           </div>
         `).join('')}
       </div>
 
-      <div class="rgb-grid">
-        <span class="rgb-grid-corner"></span>
-        <span class="rgb-grid-head">R</span>
-        <span class="rgb-grid-head">G</span>
-        <span class="rgb-grid-head">B</span>
-
-        <span class="rgb-grid-label">dec</span>
-        <span class="rgb-grid-val" id="val-dec-r"></span>
-        <span class="rgb-grid-val" id="val-dec-g"></span>
-        <span class="rgb-grid-val" id="val-dec-b"></span>
-
-        <span class="rgb-grid-label">hex</span>
-        <span class="rgb-grid-val" id="val-hex-r"></span>
-        <span class="rgb-grid-val" id="val-hex-g"></span>
-        <span class="rgb-grid-val" id="val-hex-b"></span>
-
-        <span class="rgb-grid-label">8-bit</span>
-        <span class="rgb-grid-val bin" id="val-bin-r"></span>
-        <span class="rgb-grid-val bin" id="val-bin-g"></span>
-        <span class="rgb-grid-val bin" id="val-bin-b"></span>
-      </div>
+      <div class="rgb-css"><code class="css-tag" id="rgb-css-dec"></code><code class="css-tag" id="rgb-css-hex"></code></div>
     </div>
   `;
 
@@ -143,32 +96,65 @@ export function mount(container, type) {
 
   // Cache all refs
   const fills  = [0, 1, 2].map(i => container.querySelector(`#fill-${i}`));
-  const decEls = ['r', 'g', 'b'].map(c => container.querySelector(`#val-dec-${c}`));
-  const hexEls = ['r', 'g', 'b'].map(c => container.querySelector(`#val-hex-${c}`));
-  const binEls = ['r', 'g', 'b'].map(c => container.querySelector(`#val-bin-${c}`));
 
   function render() {
     const vals = [r, g, b];
-    if (type !== 'black') {
-      bg.style.backgroundColor = `rgb(${r},${g},${b})`;
-      bg.style.color = textOnBg(r, g, b);
-    } else {
-      bg.style.color = '#fff';
-    }
+    const pct = Math.round(bgAmount * 1000) / 10;
+    bg.style.setProperty('--rgb-bg', pct >= 100 ? `rgb(${r},${g},${b})` : pct <= 0 ? '#000' : `color-mix(in oklch, rgb(${r},${g},${b}) ${pct}%, #000)`);
+    container.querySelector('#rgb-css-dec').textContent = `rgb(${r} ${g} ${b})`;
+    container.querySelector('#rgb-css-hex').textContent = `#${vals.map(toHex2).join('')}`;
 
     vals.forEach((v, i) => {
       fills[i].style.height = `${(v / 255 * 100).toFixed(1)}%`;
       fills[i].style.backgroundColor = CHANNELS[i].fill(v);
-      decEls[i].textContent = v;
-      hexEls[i].textContent = toHex2(v);
-      binEls[i].textContent = toBin8(v);
     });
   }
 
-  container.querySelector('#sl-0').addEventListener('input', e => { r = +e.target.value; render(); });
-  container.querySelector('#sl-1').addEventListener('input', e => { g = +e.target.value; render(); });
-  container.querySelector('#sl-2').addEventListener('input', e => { b = +e.target.value; render(); });
+  const sliders = [0, 1, 2].map(i => container.querySelector(`#sl-${i}`));
+  const stop = () => { if (frame) cancelAnimationFrame(frame); frame = 0; };
+  sliders[0].addEventListener('input', e => { stop(); r = +e.target.value; render(); });
+  sliders[1].addEventListener('input', e => { stop(); g = +e.target.value; render(); });
+  sliders[2].addEventListener('input', e => { stop(); b = +e.target.value; render(); });
+
+  const apply = v => {
+    [r, g, b] = v.slice(0, 3).map(Math.round);
+    bgAmount = v[3];
+    sliders.forEach((el, i) => { el.value = [r, g, b][i]; });
+    render();
+  };
+  // Glide the bars and the background to [r, g, b, bgAmount].
+  function glide(to) {
+    stop();
+    const from = [r, g, b, bgAmount];
+    if (motion.matches) { apply(to); return; }
+    const duration = 900;
+    let start = 0;
+    const tick = now => {
+      start ||= now;
+      const t = Math.min(1, (now - start) / duration);
+      const e = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      apply(from.map((v, i) => v + (to[i] - v) * e));
+      frame = t < 1 ? requestAnimationFrame(tick) : 0;
+    };
+    frame = requestAnimationFrame(tick);
+  }
+  const target = i => [...STEPS[Math.min(Math.max(i, 0), STEPS.length - 1)], 1];
+  // The engine calls step right after mount: that first call jumps, later
+  // ones glide. The black slide has no steps.
+  let stepped = false;
+  function step(i) {
+    if (type === 'black') return;
+    if (stepped) glide(target(i));
+    else { stepped = true; stop(); apply(target(i)); }
+  }
+  // Going to the colour slide glides to its step; going back to the black
+  // slide keeps the bars where they are and fades the colour out.
+  function update(nextType, bgIdx = 0) {
+    type = nextType;
+    stepped = true;
+    glide(type === 'black' ? [r, g, b, 0] : target(bgIdx));
+  }
 
   render();
-  return () => { container.innerHTML = ''; };
+  return { cleanup: () => { stop(); container.innerHTML = ''; }, update, step };
 }

@@ -1,7 +1,6 @@
 // ── Named CSS Colours ────────────────────────────────────────────────────────
 // All 148 CSS named colours (CSS Color Level 4).
 // RGB values resolved at runtime via the browser's CSS parser.
-
 const COLOR_NAMES = [
   'aliceblue','antiquewhite','aqua','aquamarine','azure','beige','bisque',
   'black','blanchedalmond','blue','blueviolet','brown','burlywood','cadetblue',
@@ -77,29 +76,13 @@ function sortByHue(colors) {
   return [...chromatic, ...neutral];
 }
 
-// WCAG relative luminance of an sRGB channel (0–255)
-function srgbLuminance(c8) {
-  const c = c8 / 255;
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-}
-function relativeLuminance(r, g, b) {
-  return 0.2126 * srgbLuminance(r) + 0.7152 * srgbLuminance(g) + 0.0722 * srgbLuminance(b);
-}
-// Returns '#000' or '#fff' — whichever gives higher contrast against the bg
-function legibleTextColor(r, g, b) {
-  const L = relativeLuminance(r, g, b);
-  const contrastBlack = (L + 0.05) / 0.05;
-  const contrastWhite = 1.05 / (L + 0.05);
-  return contrastBlack >= contrastWhite ? '#000' : '#fff';
-}
-
 export function mount(container) {
   const colors = sortByHue(resolveColors());
 
   container.innerHTML = `
     <style>
       .cc-wrap {
-        position: fixed; inset: 0;
+        position: absolute; inset: 0;
         overflow: hidden;
         background: #111;
       }
@@ -108,14 +91,17 @@ export function mount(container) {
         width: 100%; height: 100%;
       }
       .cc-cell {
+        background: var(--cell-color);
+        color: var(--ink);
+        color: contrast-color(var(--cell-color));
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
       }
       .cc-name {
-        font: 0.5rem/1.2 'Silkscreen', monospace;
-        letter-spacing: 0.02em;
+        font: var(--text-label)/1.2 var(--font-display);
+        letter-spacing: normal;
         text-align: center;
         word-break: break-word;
       }
@@ -127,21 +113,20 @@ export function mount(container) {
 
   const grid = container.querySelector('#cc-grid');
 
-  for (const { name, r, g, b } of colors) {
+  for (const { name } of colors) {
     const cell = document.createElement('div');
     cell.className = 'cc-cell';
-    cell.style.backgroundColor = name;
+    cell.style.setProperty('--cell-color', name);
     const label = document.createElement('span');
     label.className = 'cc-name';
     label.textContent = name;
-    label.style.color = legibleTextColor(r, g, b);
     cell.appendChild(label);
     grid.appendChild(cell);
   }
 
-  // Find column count that makes cells as square as possible for the given viewport
+  // Find column count for the available stage, not the viewport behind its bars.
   function applyGrid() {
-    const W = window.innerWidth, H = window.innerHeight;
+    const W = container.clientWidth, H = container.clientHeight;
     const count = colors.length;
     let bestCols = 1, bestScore = Infinity;
     const TARGET_RATIO = 3; // cells should be ~3× wider than tall
@@ -156,11 +141,12 @@ export function mount(container) {
     grid.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
   }
 
+  const observer = new ResizeObserver(applyGrid);
+  observer.observe(container);
   applyGrid();
-  window.addEventListener('resize', applyGrid);
 
   return () => {
-    window.removeEventListener('resize', applyGrid);
+    observer.disconnect();
     container.innerHTML = '';
   };
 }

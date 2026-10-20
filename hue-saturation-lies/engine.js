@@ -1,26 +1,30 @@
 import { SLIDES } from "./slides.js";
+import { renderTimeline } from "./timeline.js";
+import { renderScriptBody } from "./script-format.js";
 
-// viz.js builds a THREE.WebGLRenderer at module scope, which throws outright
-// where WebGL is unavailable (blocklisted GPU, disabled by policy, hardened
-// privacy browsers). A static import would take this whole module down with it
-// and render nothing at all, so load it defensively and fall back to no-ops:
-// the slides, narration and demos then still work, minus the 3D gamut view.
+// Render the first slide before loading the 3D view. WebGL can be unavailable;
+// no-op controls keep the deck usable until the import resolves or fails.
 let setVizOffset = () => {};
 let setVizRotate = () => {};
 let setVizVisible = () => {};
-try {
-  ({ setVizOffset, setVizRotate, setVizVisible } = await import("./viz.js"));
-} catch (err) {
-  console.warn(
-    "3D colour-space view unavailable (needs WebGL); continuing without it.",
-    err,
-  );
-  document.body.classList.add("no-viz");
-}
 
-const hashSlide = parseInt(location.hash.slice(1), 10);
-let currentSlide = hashSlide >= 0 && hashSlide < SLIDES.length ? hashSlide : 0;
+// The hash names the slide, by id or by index. -1 when it names none.
+function slideFromHash() {
+  const hash = decodeURIComponent(location.hash.slice(1));
+  const index = /^\d+$/.test(hash) ? Number(hash) : SLIDES.findIndex(({ id }) => id === hash);
+  return index >= 0 && index < SLIDES.length ? index : -1;
+}
+let currentSlide = Math.max(slideFromHash(), 0);
 let transitioning = false;
+
+// Timers that wait for a CSS fade read the same motion token, so they follow
+// it (and drop to 0 under prefers-reduced-motion).
+function motionMs(token = "--motion-slow") {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  const amount = parseFloat(value);
+  if (!Number.isFinite(amount)) return 0;
+  return /^[\d.]+ms/.test(value) ? amount : amount * 1000;
+}
 let activeBgLayer = 0;
 let currentBgIndex = 0;
 let currentTitle = "";
@@ -35,67 +39,120 @@ const slideTitleEl = document.querySelector("#slide-title");
 const slideBodyEl = document.querySelector("#slide-body");
 const slideTitleOverlay = document.querySelector("#slide-title-overlay");
 const slideBodyCenterEl = document.querySelector("#slide-body-center");
-const statusEl = document.querySelector("#slide-status");
-const hudEl = document.querySelector("#slide-hud");
-const hudTitleEl = document.querySelector("#hud-title");
-const hudAttrEl = document.querySelector("#hud-attribution");
-const hudCounterEl = document.querySelector("#hud-counter");
+const progressFillEl = document.querySelector("#progress-fill");
 const illustrationEl = document.querySelector("#illustration");
 const vizLayer = document.querySelector("#viz-layer");
 const demoLayer = document.querySelector("#demo-layer");
-const modeToggle = document.querySelector("#mode-toggle");
+
+// ── Slide audio ─────────────────────────────────────────────────────────
+// A slide with `audio: { src, label }` gets a play button under its body
+// text. Only the active slide's audio plays: showSlide stops it first.
+let slideAudio = null;
+const PLAY_ICON = '<path d="M9 7v10l8-5z" fill="currentColor"/>';
+const PAUSE_ICON = '<path d="M8 7h3v10H8zM13 7h3v10h-3z" fill="currentColor"/>';
+
+function stopSlideAudio() {
+  slideAudio?.pause();
+  slideAudio = null;
+}
+
+function audioButton({ src, label }) {
+  const button = document.createElement("button");
+  button.className = "slide-audio";
+  const render = (playing) => {
+    button.setAttribute("aria-label", `${playing ? "Pause" : "Play"}: ${label}`);
+    button.title = button.getAttribute("aria-label");
+    button.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${playing ? PAUSE_ICON : PLAY_ICON}</svg>`;
+  };
+  render(false);
+  button.addEventListener("click", () => {
+    if (!slideAudio) {
+      slideAudio = new Audio(src);
+      slideAudio.addEventListener("ended", () => render(false));
+    }
+    if (slideAudio.paused) {
+      slideAudio.play();
+      render(true);
+    } else {
+      slideAudio.pause();
+      render(false);
+    }
+  });
+  return button;
+}
 
 // ── Demo lifecycle ──────────────────────────────────────────────────────
 let currentDemoCleanup = null;
 let currentDemoStepFn  = null;
+// A demo that returns update(type) can carry over to the next slide when that
+// slide uses the same demo: it animates to the new state instead of fading
+// out and mounting again (srgb to srgb-2).
+let currentDemoName    = null;
+let currentDemoUpdate  = null;
+let demoCarriedOver    = false;
 
 function unmountDemo() {
   currentDemoCleanup?.();
   currentDemoCleanup = null;
   currentDemoStepFn  = null;
+  currentDemoName    = null;
+  currentDemoUpdate  = null;
   demoLayer.innerHTML = "";
   demoLayer.style.pointerEvents = "none";
 }
 
 async function mountDemo(name, type, bgIdx = 0) {
   unmountDemo();
+  const slideIdx = currentSlide;
   const { mount } = await import(`./demos/${name}.js`);
   demoLayer.style.pointerEvents = "auto";
   const result = mount(demoLayer, type) ?? null;
+  currentDemoName = name;
   if (result && typeof result === "object" && result.cleanup) {
     currentDemoCleanup = result.cleanup;
     currentDemoStepFn  = result.step ?? null;
+    currentDemoUpdate  = result.update ?? null;
   } else {
     currentDemoCleanup = result;
   }
   currentDemoStepFn?.(bgIdx);
+  if (result?.credit && currentSlide === slideIdx) {
+    const sl = SLIDES[slideIdx].slide;
+    const attribution = sl.backgrounds?.[bgIdx]?.attribution ?? sl.attribution;
+    renderTimeline({ slideIndex: slideIdx, bgIndex: bgIdx, attribution, credit: result.credit });
+  }
 }
 
-function updateCounter() {
-  hudCounterEl.textContent = `${currentSlide + 1} / ${SLIDES.length}`;
+function updateProgress() {
+  progressFillEl.style.transform = `scaleX(${(currentSlide + 1) / SLIDES.length})`;
 }
 
-function applyBgCrossfade(imageUrl) {
+function applyBgCrossfade(imageUrl, size = "cover") {
   const next = 1 - activeBgLayer;
   bgLayers[next].style.transition = "none";
+  bgLayers[next].style.backgroundSize = size;
   bgLayers[next].style.backgroundImage = imageUrl ? `url(${imageUrl})` : "";
   bgLayers[next].style.opacity = imageUrl ? "1" : "0";
   bgLayers[next].style.zIndex = "1";
   bgLayers[activeBgLayer].style.zIndex = "2";
-  bgLayers[activeBgLayer].style.transition = "opacity 0.8s ease";
+  bgLayers[activeBgLayer].style.transition = "opacity var(--motion-slow)";
   bgLayers[activeBgLayer].style.opacity = "0";
   activeBgLayer = next;
 }
 
-function setAttribution(attr) {
-  if (attr) {
-    hudAttrEl.innerHTML = attr.url
-      ? `<a href="${attr.url}" target="_blank" rel="noopener">${attr.text}</a>`
-      : attr.text;
-    hudEl.style.display = "";
-  } else {
-    hudAttrEl.innerHTML = "";
-    hudEl.style.display = "none";
+// fit: "whole" shows the whole artwork on black instead of a cover crop.
+// A background entry's fit wins over the slide's.
+function backgroundSize(sl, bgEntry) {
+  const fit = bgEntry?.fit ?? sl.fit;
+  return fit === "whole" ? "contain" : sl.backgroundSize ?? "cover";
+}
+
+function preloadAdjacentImages(idx) {
+  for (const neighbor of [SLIDES[idx - 1], SLIDES[idx + 1]]) {
+    if (!neighbor) continue;
+    const slide = neighbor.slide;
+    const images = slide.backgrounds?.map(({ image }) => image) ?? [slide.backgroundImage];
+    for (const src of images) if (src) new Image().src = src;
   }
 }
 
@@ -107,15 +164,14 @@ function showSlide(idx, bgIdx = 0) {
   // Resolve background entry: multi-bg slides use backgrounds[bgIdx]
   const bgEntry = sl.backgrounds
     ? sl.backgrounds[bgIdx]
-    : { image: sl.backgroundImage, attribution: sl.attribution };
+    : { image: sl.backgroundImage, attribution: sl.attribution, timeline: sl.timeline };
 
   slideContentEl.querySelectorAll(".slide-links").forEach((el) => el.remove());
 
   // Background crossfade: new image loads at full opacity behind the current layer,
   // then the current layer fades out on top — no flash to black.
-  applyBgCrossfade(bgEntry?.image);
-  bgLayers[activeBgLayer].style.backgroundSize = sl.backgroundSize ?? "cover";
-  setAttribution(bgEntry?.attribution);
+  applyBgCrossfade(bgEntry?.image, backgroundSize(sl, bgEntry));
+  renderTimeline({ slideIndex: idx, bgIndex: bgIdx, attribution: bgEntry?.attribution ?? sl.attribution });
 
   // Illustration: contained float, independent fade with delay
   illustrationEl.style.transition = "";
@@ -128,14 +184,21 @@ function showSlide(idx, bgIdx = 0) {
   }
 
   slideTitleEl.textContent = sc.title ?? "";
-  hudTitleEl.textContent = sc.title ?? "";
-  slideBodyEl.innerHTML = (sc.body || "").replace(/_(.*?)_/g, "<em>$1</em>");
+  slideBodyEl.innerHTML = renderScriptBody(sc.body || "");
   const centerHtml = (sl.body || "").replace(/_(.*?)_/g, "<em>$1</em>");
   slideBodyCenterEl.innerHTML = centerHtml;
   slideBodyCenterEl.className = sl.bodyClass ?? "";
   slideBodyCenterEl.style.cssText = "";
   if (sl.bodyCSS) Object.assign(slideBodyCenterEl.style, sl.bodyCSS);
   slideBodyCenterEl.style.display = sl.body ? "block" : "none";
+  if (sl.subtitle) {
+    const subtitle = document.createElement("span");
+    subtitle.className = "section-subtitle";
+    subtitle.textContent = sl.subtitle;
+    slideBodyCenterEl.append(subtitle);
+  }
+  stopSlideAudio();
+  if (sl.audio) slideBodyCenterEl.append(audioButton(sl.audio));
   slideTitleOverlay.textContent = sl.title ?? "";
   slideTitleOverlay.className = sl.titleStyle ? `title-${sl.titleStyle}` : "";
   slideTitleOverlay.style.cssText = "";
@@ -143,20 +206,25 @@ function showSlide(idx, bgIdx = 0) {
   slideTitleOverlay.style.display = sl.title ? "" : "none";
   currentTitle = sl.title ?? "";
 
+  // visibility, not display: a display:none layer has no size, and viz.js
+  // sizes the 3D view from this layer's box.
   if (sl.viz) {
-    vizLayer.style.display = "";
+    vizLayer.style.visibility = "visible";
     vizLayer.style.pointerEvents = "auto";
     document.body.classList.add("has-viz");
+    document.body.classList.toggle("viz-no-controls", sl.vizControls === false);
     setVizVisible(true);
   } else {
-    vizLayer.style.display = "none";
+    vizLayer.style.visibility = "hidden";
     vizLayer.style.pointerEvents = "none";
-    document.body.classList.remove("has-viz");
+    document.body.classList.remove("has-viz", "viz-no-controls");
     setVizVisible(false);
   }
   setVizRotate(!!sl.rotate);
 
-  if (sl.demo) {
+  if (demoCarriedOver) {
+    demoCarriedOver = false;
+  } else if (sl.demo) {
     mountDemo(sl.demo, sl.demoType, bgIdx);
   } else {
     unmountDemo();
@@ -178,7 +246,9 @@ function showSlide(idx, bgIdx = 0) {
 
   const hasSlideContent = sc.title || sc.body || sl.links?.length;
   slideText.style.display = hasSlideContent ? "" : "none";
-  updateCounter();
+  updateProgress();
+  // Start nearby image requests after the current slide gets a frame to paint.
+  requestAnimationFrame(() => requestAnimationFrame(() => preloadAdjacentImages(idx)));
 }
 
 // Updates only the background image + attribution — no text fade.
@@ -186,8 +256,8 @@ function showSlide(idx, bgIdx = 0) {
 function updateBackground(bgIdx) {
   const sl = SLIDES[currentSlide].slide;
   const bgEntry = sl.backgrounds[bgIdx];
-  applyBgCrossfade(bgEntry.image);
-  setAttribution(bgEntry.attribution);
+  applyBgCrossfade(bgEntry.image, backgroundSize(sl, bgEntry));
+  renderTimeline({ slideIndex: currentSlide, bgIndex: bgIdx, attribution: bgEntry.attribution ?? sl.attribution });
   if ('title' in bgEntry) {
     slideTitleOverlay.textContent = bgEntry.title;
     slideTitleOverlay.className = bgEntry.titleStyle ? `title-${bgEntry.titleStyle}` : "";
@@ -198,18 +268,16 @@ function updateBackground(bgIdx) {
   currentDemoStepFn?.(bgIdx);
 }
 
-function slideOut() {
+function slideOut({ keepDemo = false } = {}) {
   slideContentEl.style.opacity = "0";
-  statusEl.style.opacity = "0";
-  hudEl.style.opacity = "0";
   const nextTitle = SLIDES[currentSlide]?.slide?.title ?? "";
   if (nextTitle !== currentTitle) {
     slideTitleOverlay.style.opacity = "0";
   }
   slideBodyCenterEl.style.opacity = "0";
   vizLayer.style.opacity = "0";
-  demoLayer.style.opacity = "0";
-  illustrationEl.style.transition = "opacity 0.3s ease";
+  if (!keepDemo) demoLayer.style.opacity = "0";
+  illustrationEl.style.transition = "opacity var(--motion-slow)";
   illustrationEl.style.opacity = "0";
   // bg crossfade is handled by showSlide, not here
 }
@@ -218,35 +286,37 @@ function slideIn(idx, bgIdx = 0) {
   showSlide(idx, bgIdx);
   requestAnimationFrame(() => {
     slideContentEl.style.opacity = "1";
-    statusEl.style.opacity = "1";
-    hudEl.style.opacity = "1";
     slideTitleOverlay.style.opacity = "1";
     if (SLIDES[idx].slide.body) slideBodyCenterEl.style.opacity = "1";
     if (SLIDES[idx].slide.demo) demoLayer.style.opacity = "1";
-    // Delay viz until bg crossfade finishes (crossfade = 0.8s)
-    if (SLIDES[idx].slide.viz) setTimeout(() => { vizLayer.style.opacity = "1"; }, 800);
+    // Delay viz until the background crossfade (--motion-slow) finishes
+    if (SLIDES[idx].slide.viz) setTimeout(() => { vizLayer.style.opacity = "1"; }, motionMs());
   });
 }
 
 // ── Presenter / reader mode ─────────────────────────────────────────────
-let presenterMode = new URLSearchParams(location.search).has("presenter");
+// Presenter mode is the default; `?reader` opens the notes view. Old
+// `?presenter` links still land in presenter mode.
+let presenterMode = !new URLSearchParams(location.search).has("reader");
+// Reader mode shifts the stage right by the notes sidebar (#slide-text width in style.css).
+const readerOffset = () => (presenterMode ? 0 : 380);
 
 function setMode(presenter) {
   presenterMode = presenter;
   document.body.classList.toggle("presenter", presenterMode);
-  modeToggle.textContent = presenterMode ? "›" : "‹";
-  modeToggle.setAttribute("aria-label", presenterMode ? "Open presenter notes" : "Close presenter notes");
-  modeToggle.setAttribute("aria-pressed", String(presenterMode));
-  const offset = presenterMode ? 0 : 380;
+  const offset = readerOffset();
   setVizOffset(offset);
   demoLayer.style.left = offset ? `${offset}px` : "";
   const hash = location.hash;
-  history.replaceState(null, "", presenterMode ? `?presenter${hash}` : location.pathname + hash);
-  showSlide(currentSlide);
+  history.replaceState(null, "", presenterMode ? location.pathname + hash : `?reader${hash}`);
+  // Mid-transition, slideIn is about to show the new slide anyway. Showing it
+  // here too would remount a demo that goToSlide is carrying over.
+  if (!transitioning) showSlide(currentSlide, currentBgIndex);
 }
 
 setMode(presenterMode);
-modeToggle.addEventListener("click", () => setMode(!presenterMode));
+// Other modules (the script editor) switch modes without a button: dispatch hsl:set-mode.
+window.addEventListener("hsl:set-mode", (event) => setMode(!!event.detail?.presenter));
 
 // ── Navigation ─────────────────────────────────────────────────────────
 const KEY_DIRS = {
@@ -256,8 +326,40 @@ const KEY_DIRS = {
   ArrowUp: false,
 };
 
-const prevBtn = document.querySelector("#slide-prev");
-const nextBtn = document.querySelector("#slide-next");
+
+// Each slide change adds a history entry, so the browser's Back and Forward
+// step through slides. Background steps within a slide do not.
+function goToSlide(idx, bgIdx, { record = true } = {}) {
+  transitioning = true;
+  currentSlide = idx;
+  currentBgIndex = bgIdx;
+  if (record) history.pushState(null, "", `#${SLIDES[idx].id}`);
+  const next = SLIDES[idx].slide;
+  const carry = !!currentDemoUpdate && next.demo === currentDemoName;
+  if (carry) {
+    demoCarriedOver = true;
+    currentDemoUpdate(next.demoType, bgIdx);
+  }
+  slideOut({ keepDemo: carry });
+  setTimeout(() => {
+    transitioning = false;
+    slideIn(idx, bgIdx);
+  }, motionMs());
+}
+
+// Back, Forward, or an edited hash. Both events can fire for one change;
+// the second finds the slide already current and does nothing.
+function followHash() {
+  const idx = slideFromHash();
+  if (idx < 0 || idx === currentSlide) return;
+  if (transitioning) {
+    setTimeout(followHash, motionMs() + 20);
+    return;
+  }
+  goToSlide(idx, 0, { record: false });
+}
+window.addEventListener("popstate", followHash);
+window.addEventListener("hashchange", followHash);
 
 function navigate(goingForward) {
   if (transitioning) return;
@@ -272,15 +374,7 @@ function navigate(goingForward) {
     }
     const nextSlide = Math.min(currentSlide + 1, SLIDES.length - 1);
     if (nextSlide === currentSlide) return;
-    transitioning = true;
-    currentSlide = nextSlide;
-    currentBgIndex = 0;
-    history.replaceState(null, "", `#${currentSlide}`);
-    slideOut();
-    setTimeout(() => {
-      transitioning = false;
-      slideIn(currentSlide, 0);
-    }, 300);
+    goToSlide(nextSlide, 0);
   } else {
     if (currentBgIndex > 0) {
       currentBgIndex--;
@@ -289,23 +383,14 @@ function navigate(goingForward) {
     }
     const nextSlide = Math.max(currentSlide - 1, 0);
     if (nextSlide === currentSlide) return;
-    transitioning = true;
-    currentSlide = nextSlide;
-    const prevSl = SLIDES[currentSlide].slide;
-    currentBgIndex = prevSl.backgrounds ? prevSl.backgrounds.length - 1 : 0;
-    history.replaceState(null, "", `#${currentSlide}`);
-    slideOut();
-    setTimeout(() => {
-      transitioning = false;
-      slideIn(currentSlide, currentBgIndex);
-    }, 300);
+    const prevSl = SLIDES[nextSlide].slide;
+    goToSlide(nextSlide, prevSl.backgrounds ? prevSl.backgrounds.length - 1 : 0);
   }
 }
 
-prevBtn?.addEventListener("click", () => navigate(false));
-nextBtn?.addEventListener("click", () => navigate(true));
-
 window.addEventListener("keydown", (e) => {
+  if (document.querySelector('#slide-sorter')?.hidden === false ||
+      e.target.closest?.('input, textarea, select, [contenteditable]')) return;
   if (e.key === "p" || e.key === "P") {
     setMode(!presenterMode);
     return;
@@ -316,3 +401,18 @@ window.addEventListener("keydown", (e) => {
 });
 
 slideIn(currentSlide);
+// Start in the background right after first paint, even when this is not a viz slide.
+// Apply the latest slide and mode, not the state captured when the import began.
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  import("./viz.js").then((viz) => {
+    ({ setVizOffset, setVizRotate, setVizVisible } = viz);
+    const slide = SLIDES[currentSlide].slide;
+    setVizOffset(readerOffset());
+    setVizVisible(!!slide.viz);
+    setVizRotate(!!slide.rotate);
+    // The axis buttons show only from here on, since viz.js wires their clicks.
+    document.body.classList.add("viz-ready");
+  }).catch((err) => {
+    console.warn("3D colour-space view unavailable (needs WebGL); continuing without it.", err);
+  });
+}));

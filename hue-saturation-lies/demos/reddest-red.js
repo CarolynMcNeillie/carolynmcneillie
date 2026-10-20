@@ -11,8 +11,8 @@ export function mount(container) {
   container.innerHTML = `
     <style>
       .rr-wrap {
-        position: fixed; inset: 0;
-        font-family: 'Silkscreen', monospace;
+        position: absolute; inset: 0;
+        font-family: var(--font-body);
       }
       .rr-halves {
         display: flex;
@@ -26,66 +26,27 @@ export function mount(container) {
         position: relative;
       }
       .rr-half-label {
-        font-size: clamp(1.4rem, 4vw, 3rem);
-        letter-spacing: 0.06em;
+        font: 2rem/1.3 var(--font-display);
+        letter-spacing: var(--tracking-caps);
         text-transform: uppercase;
-        color: rgba(255,255,255,0.85);
+        color: var(--ink);
         text-align: center; line-height: 1.3;
       }
-      .rr-half-code {
-        font-size: clamp(0.6rem, 1.4vw, 1rem);
-        letter-spacing: 0.08em;
-        color: rgba(255,255,255,0.55);
-      }
+      .rr-half-code { color: var(--ink); }
       /* sRGB half */
       .rr-srgb  { background: rgb(255, 0, 0); }
       /* P3 half — on sRGB displays this looks the same as srgb; on P3 it's more vivid */
       .rr-p3    { background: color(display-p3 1 0 0); }
 
       .rr-controls {
-        position: absolute;
-        bottom: 2rem; left: 50%; transform: translateX(-50%);
-        display: flex; flex-direction: column;
-        align-items: center; gap: 0.8rem;
-        width: min(520px, 90vw);
-        padding: 1rem 1.4rem 1.2rem;
-        background: rgba(0,0,0,0.55);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: 0.5rem;
+        position: absolute; bottom: 1rem; left: 0; right: 0;
+        display: flex; justify-content: center;
         pointer-events: none;
       }
-      .rr-controls > * { pointer-events: auto; }
-      .rr-badge {
-        font-size: 0.5rem; letter-spacing: 0.1em;
-        text-transform: uppercase;
-        padding: 0.35rem 0.85rem; border-radius: 2px;
-        display: inline-block;
-      }
-      .rr-badge.p3-yes  { background: rgba(100,230,100,0.25); color: rgba(150,255,150,1); }
-      .rr-badge.p3-no   { background: rgba(255,200,80,0.25);  color: rgba(255,210,100,1); }
-
-      .rr-sim-btn {
-        background: none;
-        border: 1px solid rgba(255,255,255,0.35);
-        color: rgba(255,255,255,0.8);
-        font-family: 'Silkscreen', monospace;
-        font-size: 0.5rem; letter-spacing: 0.1em;
-        text-transform: uppercase;
-        padding: 0.5rem 1.2rem; border-radius: 2px;
-        cursor: pointer;
-        transition: border-color 0.15s, color 0.15s, background 0.15s;
-      }
-      .rr-sim-btn.active {
-        border-color: rgba(255,210,100,0.9);
-        color: rgba(255,210,100,1);
-        background: rgba(255,200,80,0.15);
-      }
-      .rr-caption {
-        font-size: 0.5rem; letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.65);
-        text-align: center; max-width: 480px; line-height: 1.7;
+      .rr-sim-btn { min-height: 44px; pointer-events: auto; }
+      .rr-sim-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      @media (max-width: 600px) {
+        .rr-half { justify-content: flex-start; padding-top: 8rem; }
       }
 
       /* sim mode: overlay a muted rectangle on the sRGB half */
@@ -93,9 +54,12 @@ export function mount(container) {
         position: absolute; inset: 0;
         pointer-events: none;
         background: color-mix(in srgb, rgb(180,0,0) 40%, transparent);
-        opacity: 0; transition: opacity 0.3s ease;
+        opacity: 0; transition: opacity var(--motion-slow);
       }
       .rr-sim-overlay.visible { opacity: 1; }
+      @media (prefers-reduced-motion: reduce) {
+        .rr-sim-overlay { transition: none; }
+      }
     </style>
 
     <div class="rr-wrap">
@@ -103,44 +67,30 @@ export function mount(container) {
         <div class="rr-half rr-srgb" id="rr-srgb">
           <div class="rr-sim-overlay" id="rr-sim-overlay"></div>
           <span class="rr-half-label">sRGB<br>maximum red</span>
-          <span class="rr-half-code">rgb(255, 0, 0)</span>
+          <code class="css-tag rr-half-code">rgb(255 0 0)</code>
         </div>
         <div class="rr-half rr-p3">
           <span class="rr-half-label">Display P3<br>maximum red</span>
-          <span class="rr-half-code">oklch(64.9% 0.2994 29.2)</span>
+          <code class="css-tag rr-half-code">color(display-p3 1 0 0)</code>
         </div>
       </div>
 
       <div class="rr-controls">
-        <span class="rr-badge ${hasP3 ? "p3-yes" : "p3-no"}" id="rr-badge">
-          ${hasP3 ? "P3 display detected — difference is real" : "sRGB display detected — colours are clipped"}
-        </span>
-        <button class="rr-sim-btn ${simMode ? "active" : ""}" id="rr-sim-btn" aria-pressed="${simMode}">
+        <button class="rr-sim-btn pill-button ${simMode ? "active" : ""}" id="rr-sim-btn" aria-pressed="${simMode}">
           ${simMode ? "simulation: on" : "simulation: off"}
         </button>
-        <span class="rr-caption" id="rr-caption"></span>
       </div>
     </div>
   `;
 
   const simOverlay = container.querySelector("#rr-sim-overlay");
   const simBtn = container.querySelector("#rr-sim-btn");
-  const caption = container.querySelector("#rr-caption");
 
   function render() {
     simOverlay.classList.toggle("visible", simMode);
     simBtn.classList.toggle("active", simMode);
     simBtn.textContent = simMode ? "simulation: on" : "simulation: off";
 
-    if (hasP3) {
-      caption.textContent = simMode
-        ? "Simulation overlay active. The left half is dimmed to approximate what the right gains — roughly 25% more chromatic red than sRGB can express."
-        : "Your display supports Display P3. The right half is genuinely more vivid — not a colour filter, not post-processing. More red photons.";
-    } else {
-      caption.textContent = simMode
-        ? "Simulation mode: the left half is dimmed to show what sRGB is missing. Your display clips both to the same red. A P3 screen would show the right half as a richer, more saturated red."
-        : "Your display can only show sRGB — both halves are clipped to the same red. Enable simulation to see what a P3 display gains.";
-    }
   }
 
   simBtn.addEventListener("click", () => {
@@ -150,7 +100,8 @@ export function mount(container) {
   });
   render();
 
-  return () => {
-    container.innerHTML = "";
+  return {
+    credit: hasP3 ? "Your device supports Display P3" : "Your device supports sRGB",
+    cleanup: () => { container.innerHTML = ""; },
   };
 }

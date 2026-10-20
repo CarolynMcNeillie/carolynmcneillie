@@ -6,31 +6,26 @@ const MODES = [
   {
     id: "complementary",
     label: "Complementary",
-    desc: "One step across the wheel. Pure contrast.",
     offsets: [0, 180],
   },
   {
     id: "analogous",
     label: "Analogous",
-    desc: "Neighbours on the wheel. Natural harmony.",
     offsets: [-30, 0, 30],
   },
   {
     id: "triadic",
     label: "Triadic",
-    desc: "Three colours, 120° apart. Balanced energy.",
     offsets: [0, 120, 240],
   },
   {
     id: "split",
     label: "Split-complementary",
-    desc: "Base + the two neighbours of its complement.",
     offsets: [0, 150, 210],
   },
   {
     id: "tetradic",
     label: "Tetradic",
-    desc: "Four colours, 90° apart. Rich and complex.",
     offsets: [0, 90, 180, 270],
   },
 ];
@@ -46,16 +41,17 @@ export function mount(container) {
   container.innerHTML = `
     <style>
       .har-wrap {
-        position: absolute; inset: 0;
+
         background: #111;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         gap: 1rem;
         padding: 1.2rem 2rem 1.5rem;
-        font-family: 'Silkscreen', monospace;
+
         box-sizing: border-box;
       }
       #har-canvas { display: block; cursor: crosshair; flex-shrink: 0; }
+      #har-canvas:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
       .har-modes {
         display: flex; gap: 0.4rem; flex-wrap: wrap;
         justify-content: center;
@@ -64,48 +60,43 @@ export function mount(container) {
       }
       .har-mode-btn {
         background: none;
-        border: 1px solid rgba(255,255,255,0.15);
-        color: rgba(255,255,255,0.4);
-        font-family: 'Silkscreen', monospace;
-        font-size: 0.42rem; letter-spacing: 0.08em;
+        border: 1px solid var(--line);
+        color: var(--ink-muted);
+        font-family: var(--font-display);
+        font-size: var(--text-label); letter-spacing: var(--tracking-caps);
         text-transform: uppercase;
-        padding: 0.4rem 0.75rem; border-radius: 2px;
+        padding: 0.4rem 0.75rem; border-radius: var(--radius);
         cursor: pointer;
-        transition: border-color 0.15s, color 0.15s, background 0.15s;
+        transition: border-color var(--motion-fast), color var(--motion-fast), background var(--motion-fast);
       }
       .har-mode-btn.active {
-        border-color: rgba(255,255,255,0.6);
-        color: rgba(255,255,255,0.9);
-        background: rgba(255,255,255,0.07);
+        border-color: var(--line);
+        color: var(--ink);
+        background: var(--fill);
       }
+      /* Four swatches is the most a scheme has; each must fit its CSS string. */
       .har-swatches {
         display: flex; gap: 6px;
-        width: min(560px, 92vw);
+        width: min(880px, 92vw);
         flex-shrink: 0;
       }
       .har-swatch {
-        flex: 1; height: 52px; border-radius: 4px;
-        transition: background-color 0.2s ease;
-      }
-      .har-desc {
-        font-size: 0.48rem; letter-spacing: 0.08em; text-transform: uppercase;
-        color: rgba(255,255,255,0.3); text-align: center;
-        max-width: 460px; line-height: 1.7;
-        flex-shrink: 0;
+        flex: 1; height: 64px; border-radius: var(--radius);
+        display: grid; place-items: center;
+        background: var(--swatch);
+        color: var(--ink); color: contrast-color(var(--swatch));
       }
     </style>
-    <div class="har-wrap" id="har-wrap">
-      <canvas id="har-canvas" role="img" aria-label="OKLCH colour harmony wheel — drag to rotate hue"></canvas>
+    <div class="har-wrap demo-root" id="har-wrap">
+      <canvas id="har-canvas" tabindex="0" role="slider" aria-label="OKLCH colour harmony wheel" aria-valuemin="0" aria-valuemax="359" aria-valuenow="200" aria-valuetext="Base hue 200 degrees"></canvas>
       <div class="har-swatches" id="har-swatches"></div>
       <div class="har-modes" id="har-modes"></div>
-      <span class="har-desc" id="har-desc"></span>
     </div>
   `;
 
   const canvas = container.querySelector("#har-canvas");
   const wrap = container.querySelector("#har-wrap");
   const modesEl = container.querySelector("#har-modes");
-  const descEl = container.querySelector("#har-desc");
   const swatchesEl = container.querySelector("#har-swatches");
   const ctx = canvas.getContext("2d");
 
@@ -127,6 +118,8 @@ export function mount(container) {
   }
 
   function draw() {
+    canvas.setAttribute('aria-valuenow', String(Math.round(hue)));
+    canvas.setAttribute('aria-valuetext', `Base hue ${Math.round(hue)} degrees`);
     const dpr = window.devicePixelRatio || 1;
     const size = canvas.width / dpr;
     const cx = size / 2,
@@ -163,7 +156,7 @@ export function mount(container) {
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.closePath();
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -188,7 +181,8 @@ export function mount(container) {
       ctx.arc(ex, ey, dotR, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = i === 0 ? "white" : "rgba(255,255,255,0.65)";
+      // Canvas cannot read var(): resolve the token.
+      ctx.strokeStyle = i === 0 ? "white" : getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
       ctx.lineWidth = i === 0 ? 2.5 : 1.5;
       ctx.stroke();
     });
@@ -207,29 +201,31 @@ export function mount(container) {
       hues.forEach(() => {
         const el = document.createElement("div");
         el.className = "har-swatch";
+        el.append(Object.assign(document.createElement("code"), { className: "css-tag" }));
         swatchesEl.appendChild(el);
       });
     }
     swatchesEl.querySelectorAll(".har-swatch").forEach((el, i) => {
-      el.style.backgroundColor = `oklch(${OKL} ${OKC} ${hues[i]})`;
+      const css = `oklch(${OKL.toFixed(2)} ${OKC.toFixed(2)} ${Math.round(hues[i]) % 360})`;
+      el.style.setProperty("--swatch", css);
+      el.firstElementChild.textContent = css;
     });
 
-    // Update buttons + description
+    // Update buttons
     modesEl
       .querySelectorAll(".har-mode-btn")
       .forEach((btn, i) => {
         btn.classList.toggle("active", i === modeIdx);
         btn.setAttribute("aria-pressed", String(i === modeIdx));
       });
-    const mode = MODES[modeIdx];
-    descEl.textContent = mode.desc + "  ·  All at OKLCH L=0.68 C=0.18.";
   }
 
   // ── Sizing ──────────────────────────────────────────────────────────────────
   function resize() {
     const wrapRect = wrap.getBoundingClientRect();
-    // Rough fixed height for buttons row + desc + gaps + padding
-    const reserved = 120;
+    // Leave room below the wheel for the swatches and mode buttons.
+    // Height kept below the wheel for the labelled swatches and the scheme buttons.
+    const reserved = 150;
     const sz = Math.min(wrapRect.width - 40, wrapRect.height - reserved, 500);
     if (sz < 10) return;
     const dpr = window.devicePixelRatio || 1;
@@ -254,12 +250,24 @@ export function mount(container) {
   canvas.addEventListener("pointerdown", (e) => {
     dragging = true;
     canvas.setPointerCapture(e.pointerId);
-    hue = hueFromPointer(e);
+    hue = Math.round(hueFromPointer(e)) % 360;
     draw();
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!dragging) return;
-    hue = hueFromPointer(e);
+    hue = Math.round(hueFromPointer(e)) % 360;
+    draw();
+  });
+  canvas.addEventListener('keydown', (event) => {
+    const next = {
+      ArrowLeft: hue - 5, ArrowDown: hue - 5,
+      ArrowRight: hue + 5, ArrowUp: hue + 5,
+      Home: 0, End: 359,
+    }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    event.stopPropagation();
+    hue = Math.max(0, Math.min(359, Math.round(next)));
     draw();
   });
   canvas.addEventListener("pointerup", () => {

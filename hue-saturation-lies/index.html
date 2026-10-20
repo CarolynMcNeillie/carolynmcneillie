@@ -31,45 +31,61 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Silkscreen&family=Tangerine:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400&family=Ovo&family=Silkscreen&display=swap"
       rel="stylesheet"
     />
     <script type="importmap">
       {
         "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/",
-          "delaunator": "https://cdn.jsdelivr.net/npm/delaunator@5.0.1/+esm"
+          "three": "./vendor/three/build/three.module.min.js",
+          "three/addons/": "./vendor/three/addons/",
+          "delaunator": "./vendor/delaunator/index.js",
+          "robust-predicates": "./vendor/robust-predicates/index.js"
         }
       }
     </script>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="sorter.css" />
+    <link rel="stylesheet" href="script-editor.css" />
   </head>
   <body>
+    <!-- Grayscale by luminance, for the .grayscale class. Each pixel becomes the grey
+         with its own WCAG relative luminance (the weights act on linear light).
+         CSS grayscale() weights the stored, gamma-encoded numbers instead, which
+         turns pure blue nearly black (18 instead of 76). -->
+    <svg class="filter-defs" aria-hidden="true" width="0" height="0">
+      <filter id="luminance-gray" color-interpolation-filters="linearRGB">
+        <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"/>
+      </filter>
+    </svg>
     <div id="slide-bg-a" class="slide-bg-layer" aria-hidden="true"></div>
     <div id="slide-bg-b" class="slide-bg-layer" aria-hidden="true"></div>
     <div id="illustration" aria-hidden="true"></div>
     <div id="viz-layer"></div>
     <div id="demo-layer"></div>
-    <div id="rotation-controls" role="group" aria-label="View axis">
-      <button data-axis="x" aria-pressed="false">Lightness</button>
-      <button data-axis="z" aria-pressed="false">Chroma</button>
-      <button data-axis="y" aria-pressed="false">Hue</button>
-      <button id="viz-grayscale" aria-pressed="false">Grayscale</button>
+    <div id="rotation-controls" role="group" aria-label="View controls">
+      <button class="pill-button" data-axis="x" aria-pressed="false">Lightness</button>
+      <button class="pill-button" data-axis="z" aria-pressed="false">Chroma</button>
+      <button class="pill-button" data-axis="y" aria-pressed="false">Hue</button>
+      <button class="icon-button" id="viz-grayscale" aria-label="Grayscale" title="Grayscale" aria-pressed="false"></button>
     </div>
     <div id="slide-text" role="complementary" aria-label="Presenter notes">
       <div id="slide-content">
-        <div id="slide-title"></div>
+        <div id="slide-title" class="caps-label"></div>
         <p id="slide-body"></p>
+        <div id="script-editor" hidden>
+          <label for="script-edit-title">Script title</label>
+          <input id="script-edit-title" type="text" />
+          <label for="script-edit-body">Script body</label>
+          <textarea id="script-edit-body" rows="8"></textarea>
+          <div class="script-meta"><span id="script-edit-count"></span><span id="script-edit-status" role="status" aria-live="polite"></span></div>
+        </div>
       </div>
     </div>
-    <div id="slide-status" role="status" aria-label="Current slide info">
-      <span id="hud-title"></span>
-      <span id="hud-counter-sep" class="hud-sep" aria-hidden="true">·</span>
-      <span id="hud-counter"></span>
-    </div>
-    <div id="slide-hud">
-      <span id="hud-attribution"></span>
+    <div id="timeline-band"><div id="timeline-row"></div></div>
+    <div id="slide-footer">
+      <div id="progress-bar" aria-hidden="true"><div id="progress-fill"></div></div>
+      <div id="timeline-content"></div>
     </div>
     <div id="slide-title-overlay"></div>
     <div id="slide-body-center"></div>
@@ -116,7 +132,7 @@
         <text
           x="18"
           y="45.2"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="middle"
@@ -126,7 +142,7 @@
         <text
           x="82.5"
           y="45.2"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="middle"
@@ -136,7 +152,7 @@
         <text
           x="50"
           y="41.7"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.7"
           fill="rgba(255,215,100,0.45)"
           text-anchor="middle"
@@ -179,7 +195,7 @@
         <text
           x="31"
           y="45.5"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="middle"
@@ -189,7 +205,7 @@
         <text
           x="72"
           y="18"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="middle"
@@ -199,7 +215,7 @@
         <text
           x="54"
           y="33"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.7"
           fill="rgba(255,215,100,0.45)"
           text-anchor="middle"
@@ -244,7 +260,7 @@
         <text
           x="86.8"
           y="11.2"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="end"
@@ -254,7 +270,7 @@
         <text
           x="86.8"
           y="45.8"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.8"
           fill="rgba(255,215,100,0.8)"
           text-anchor="end"
@@ -264,7 +280,7 @@
         <text
           x="86.8"
           y="29"
-          font-family="'Silkscreen',monospace"
+          class="svg-display"
           font-size="0.7"
           fill="rgba(255,215,100,0.45)"
           text-anchor="end"
@@ -274,10 +290,33 @@
       </svg>
     </div>
 
-    <button id="slide-prev" title="Previous slide (←)" aria-label="Previous slide">‹</button>
-    <button id="slide-next" title="Next slide (→)" aria-label="Next slide">›</button>
-    <button id="mode-toggle" title="Toggle presenter / reader mode (P)" aria-pressed="false" aria-label="Open presenter notes">‹</button>
+    <div id="draft-banner" hidden>
+      <button id="draft-review-button" type="button"><span id="draft-count"></span></button>
+      <button id="draft-export" type="button">Export drafts</button>
+      <div id="draft-review" hidden></div>
+    </div>
+
+    <div id="slide-sorter" role="dialog" aria-modal="true" aria-labelledby="sorter-title" hidden>
+      <div class="sorter-shell">
+        <header class="sorter-header">
+          <div>
+            <span class="sorter-eyebrow">Hue, Saturation, Lies / editor</span>
+            <h2 id="sorter-title">Slide sorter</h2>
+            <p id="sorter-total"></p>
+          </div>
+          <div class="sorter-header-actions">
+            <span id="sorter-save-status" role="status" aria-live="polite"></span>
+            <button id="sorter-add-section" type="button">+ Section</button>
+            <button id="sorter-close" type="button">Close <span aria-hidden="true">×</span></button>
+          </div>
+        </header>
+        <p class="sorter-instructions">Drag cards between sections or use the move buttons. Hidden slides stay in the list but leave the deck.</p>
+        <div id="sorter-sections"></div>
+      </div>
+    </div>
 
     <script type="module" src="engine.js"></script>
+    <script type="module" src="sorter.js"></script>
+    <script type="module" src="script-editor.js"></script>
   </body>
 </html>

@@ -1,22 +1,5 @@
 // ── Color math ─────────────────────────────────────────────────────────────
-
-function oklchToLinearRGB(L, C, H) {
-  const hr = H * Math.PI / 180;
-  const a  = C * Math.cos(hr);
-  const b  = C * Math.sin(hr);
-
-  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
-
-  const lc = l_ ** 3, mc = m_ ** 3, sc = s_ ** 3;
-
-  return [
-     4.0767416621 * lc - 3.3077115913 * mc + 0.2309699292 * sc,
-    -1.2684380046 * lc + 2.6097574011 * mc - 0.3413193965 * sc,
-    -0.0041960863 * lc - 0.7034186147 * mc + 1.7076147010 * sc,
-  ];
-}
+import { oklchToLinearRGB } from './colour-utils.js';
 
 function linearRGBToOKLCH(r, g, b) {
   r = Math.max(0, r); g = Math.max(0, g); b = Math.max(0, b);
@@ -109,7 +92,8 @@ function buildShapeTest(type, W, H) {
   const ctx  = canvas.getContext('2d');
   const size = Math.min(W, H) * 0.82;
   ctx.fillStyle = 'white';
-  ctx.font = `900 ${size}px Arial Black, Arial, sans-serif`;
+  const displayFont = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim();
+  ctx.font = `900 ${size}px ${displayFont}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(digit, W / 2, H / 2);
@@ -128,7 +112,8 @@ const CVD_TYPES = ['deuteranomaly', 'protanomaly', 'tritanopia', 'achromatopsia'
 // figure/ground pair lies on that type's confusion axis and collapses
 // dramatically under simulation.
 // figL/bgL: fixed OKLCH lightness for figure/background (overrides shared L).
-// Chosen so (bgL³ + 0.05) / (figL³ + 0.05) ≥ 4.5 (WCAG AA).
+// Chosen with an L³ shortcut; checked with real WCAG 2 luminance (sRGB-clamped):
+// every a11y figure/background pair is 5.00:1 to 6.76:1, so AA (4.5:1) holds.
 const TYPE_HUES = {
   deuteranomaly:       { fig: [20,  30], bg: [130, 40], c: [0.14, 0.06] }, // red-orange vs green
   protanomaly:         { fig: [20,  30], bg: [130, 40], c: [0.14, 0.06] }, // same pair
@@ -165,8 +150,7 @@ function buildCircles(W, H, type) {
 
       const figure = inShape(cx, cy);
 
-      // L shared across types — Ishihara principle:
-      // brightness alone cannot reveal the heart.
+      // L shared across types: lightness alone cannot reveal the shape.
       const L = 0.62 + crand() * 0.12;
 
       // Per-type: hue pair + chroma optimised for that type's confusion axis.
@@ -200,10 +184,14 @@ function buildCircles(W, H, type) {
 }
 
 // ── mount ────────────────────────────────────────────────────────────────────
+// Deuteranomaly opens fully simulated, so the room first sees the plate as a
+// deuteranope would, then drags back to normal vision.
+const START_SEVERITY = { deuteranomaly: 1 };
+
 export function mount(container, type = 'deuteranomaly') {
   let circles = [];
   let els     = [];
-  let severity = 0;
+  let severity = START_SEVERITY[type] ?? 0;
 
   const label      = CVD_LABELS[type] ?? (type.charAt(0).toUpperCase() + type.slice(1));
   const common     = CVD_COMMON[type];
@@ -213,76 +201,59 @@ export function mount(container, type = 'deuteranomaly') {
   container.innerHTML = `
     <style>
       .cvd-wrap {
-        position: absolute; inset: 0;
+
         background: #111;
-        font-family: 'Silkscreen', monospace;
       }
       .cvd-svg { display: block; }
-      .cvd-controls {
+      .cvd-controls.glass-panel {
+        background: var(--fill);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .cvd-controls { padding: 0.6em 1.2em 0.8em;
         position: absolute;
-        bottom: 2.5rem;
+        bottom: 1rem;
         left: 50%;
         transform: translateX(-50%);
         display: flex; flex-direction: column;
         align-items: center; gap: 0.85rem;
-        padding: 0.6em 1.2em 0.8em;
-        background: rgba(0,0,0,0.5);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+
         min-width: min(500px, 72%);
       }
       .cvd-type-label {
-        font: clamp(1rem, 3vw, 1.8rem)/1 'Silkscreen', monospace;
-        letter-spacing: 0.06em; text-transform: uppercase;
-        color: rgba(255,255,255,0.9);
+        font: 32px/1 var(--font-display); /* 8px grid for Silkscreen */
+        letter-spacing: var(--tracking-caps); text-transform: uppercase;
+        color: var(--ink);
       }
       .cvd-common {
-        font: 0.58rem/1 'Silkscreen', monospace;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        color: rgba(255,255,255,0.45);
+        line-height: 1;
+        color: var(--ink-soft);
         margin-top: 0.4em;
       }
       .cvd-slider-row {
         display: flex; align-items: center; gap: 1.25rem;
         width: 100%;
-        font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
-        color: rgba(255,255,255,0.4);
+
+        color: var(--ink-soft);
       }
-      .cvd-slider-row input[type=range] {
-        flex: 1; height: 2rem; cursor: pointer; accent-color: white;
-      }
+      .cvd-slider-row input[type=range] { flex: 1; }
       .cvd-toggle-row {
         display: flex; gap: 0.5rem;
       }
-      .cvd-toggle {
-        font: 600 0.62rem/1 monospace;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        color: rgba(255,255,255,0.45);
-        background: rgba(255,255,255,0.07);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 999px;
-        padding: 0.35rem 0.8rem;
-        cursor: pointer;
-        transition: color 0.15s, background 0.15s;
-      }
-      .cvd-toggle.active {
-        color: #fff;
-        background: rgba(255,255,255,0.2);
-        border-color: rgba(255,255,255,0.4);
-      }
+
     </style>
-    <div class="cvd-wrap">
-      <svg class="cvd-svg" role="img" aria-label="Ishihara-style colour blindness test pattern"></svg>
-      <div class="cvd-controls">
+    <div class="cvd-wrap demo-root">
+      <svg class="cvd-svg" role="img" aria-label="Dot pattern simulating ${label.toLowerCase()}"></svg>
+      <div class="cvd-controls glass-panel">
         <span class="cvd-type-label">${label}</span>
-        <span class="cvd-common">${common}</span>
+        <span class="cvd-common caps-label ">${common}</span>
         ${isA11yType ? `<div class="cvd-toggle-row">
-          <button class="cvd-toggle active" data-a11y="false" aria-pressed="true">Before</button>
-          <button class="cvd-toggle" data-a11y="true" aria-pressed="false">After</button>
+          <button class="cvd-toggle pill-button active" data-a11y="false" aria-pressed="true">Before</button>
+          <button class="cvd-toggle pill-button" data-a11y="true" aria-pressed="false">After</button>
         </div>` : ''}
-        <div class="cvd-slider-row">
+        <div class="cvd-slider-row caps-label ">
           <span>Normal</span>
-          <input type="range" id="cvd-range" min="0" max="1" step="0.005" value="0" aria-label="Simulation severity">
+          <input type="range" id="cvd-range" min="0" max="1" step="0.005" value="${severity}" aria-label="Simulation severity">
           <span>Simulated</span>
         </div>
       </div>
@@ -302,8 +273,8 @@ export function mount(container, type = 'deuteranomaly') {
   }
 
   function rebuild() {
-    const W = container.clientWidth  || window.innerWidth;
-    const H = container.clientHeight || window.innerHeight;
+    const W = container.clientWidth;
+    const H = container.clientHeight;
     svg.setAttribute('width',   W);
     svg.setAttribute('height',  H);
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -339,12 +310,12 @@ export function mount(container, type = 'deuteranomaly') {
   }
 
   let resizeTimer;
-  const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(rebuild, 150); };
-  window.addEventListener('resize', onResize);
+  const observer = new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(rebuild, 150); });
+  observer.observe(container);
 
   rebuild();
   return () => {
-    window.removeEventListener('resize', onResize);
+    observer.disconnect();
     clearTimeout(resizeTimer);
     container.innerHTML = '';
   };

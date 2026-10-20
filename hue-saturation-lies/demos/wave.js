@@ -1,32 +1,4 @@
-// ── Visible spectrum: frequency (THz) → OKLCH hue, chroma, natural lightness
-// Anchor points derived from spectral sRGB values via full OKLCH pipeline.
-// Natural lightness = the L of that spectral colour at full sRGB saturation.
-// Piecewise linear interpolation — the mapping is highly nonlinear.
-const SPECTRUM = [
-  // [freq_THz, hue°, chroma, natural_L]
-  [430,  29.2, 0.258, 0.628],  // Red     700 nm
-  [492,  42.0, 0.208, 0.690],  // Orange  610 nm
-  [517,  95.3, 0.182, 0.887],  // Yellow  580 nm
-  [566, 142.5, 0.295, 0.866],  // Green   530 nm
-  [612, 194.8, 0.155, 0.905],  // Cyan    490 nm
-  [652, 260.8, 0.241, 0.563],  // Blue    460 nm
-  [714, 291.0, 0.293, 0.521],  // Violet  420 nm
-];
-
-const FREQ_MIN = SPECTRUM[0][0];
-const FREQ_MAX = SPECTRUM[SPECTRUM.length - 1][0];
-
-// Returns [hue, chroma, naturalL] — all three interpolated from anchors
-function freqToSpectrum(freq) {
-  if (freq <= FREQ_MIN) return SPECTRUM[0].slice(1);
-  if (freq >= FREQ_MAX) return SPECTRUM[SPECTRUM.length - 1].slice(1);
-  for (let i = 1; i < SPECTRUM.length; i++) {
-    if (freq <= SPECTRUM[i][0]) {
-      const t = (freq - SPECTRUM[i - 1][0]) / (SPECTRUM[i][0] - SPECTRUM[i - 1][0]);
-      return [1, 2, 3].map(k => SPECTRUM[i - 1][k] + t * (SPECTRUM[i][k] - SPECTRUM[i - 1][k]));
-    }
-  }
-}
+import { FREQ_MIN, FREQ_MAX, freqToSpectrum } from './spectrum-colours.js';
 
 // Color name for readout
 const COLOR_NAMES = [
@@ -48,13 +20,12 @@ export function mount(container) {
   container.innerHTML = `
     <style>
       .wave-demo {
-        position: absolute; inset: 0;
+
         padding: 4rem 0;
         display: flex; flex-direction: column; align-items: center;
         background: var(--wave-bg, black);
         color: var(--fg, white);
-        transition: background 0.25s ease, color 0.25s ease;
-        font-family: 'Silkscreen', monospace;
+        transition: background var(--motion-fast), color var(--motion-fast);
       }
       .wave-wrap {
         position: absolute; top: 50%; transform: translateY(-50%);
@@ -70,8 +41,8 @@ export function mount(container) {
       }
       .wave-readout {
         display: flex; gap: 3rem;
-        font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-        letter-spacing: 0.08em; text-transform: uppercase;
+        font-size: var(--text-label);
+        letter-spacing: var(--tracking-caps); text-transform: uppercase;
         opacity: 0.75; margin-top: 1.5rem;
       }
       .wave-controls {
@@ -81,21 +52,18 @@ export function mount(container) {
       }
       .wave-dial {
         display: flex; align-items: center; gap: 4rem;
-        font-size: clamp(0.6rem, 1.2vw, 0.75rem);
-        letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+        font-size: var(--text-label);
+        letter-spacing: var(--tracking-caps); text-transform: uppercase; cursor: pointer;
       }
       .wave-dial-label { flex-shrink: 0; width: 6em; }
-      .wave-dial input[type=range] {
-        flex: 1; height: 2rem; cursor: pointer; accent-color: currentColor;
-      }
+      .wave-dial input[type=range] { flex: 1; }
     </style>
-    <div class="wave-demo">
+    <div class="wave-demo demo-root">
       <div class="wave-wrap">
         <svg class="wave-svg"><path class="wave-path"></path></svg>
       </div>
       <div class="wave-readout">
         <span class="wave-freq-readout"></span>
-        <span class="wave-amp-readout"></span>
       </div>
       <div class="wave-controls">
         <label class="wave-dial">
@@ -117,7 +85,6 @@ export function mount(container) {
   const svg         = container.querySelector(".wave-svg");
   const path        = container.querySelector(".wave-path");
   const freqReadout = container.querySelector(".wave-freq-readout");
-  const ampReadout  = container.querySelector(".wave-amp-readout");
 
   container.querySelector(".wave-freq-input")
     .addEventListener("input", e => { freq = parseFloat(e.target.value); update(); });
@@ -128,9 +95,24 @@ export function mount(container) {
   let phase = 0;
   let rafId = null;
   let cachedW = 0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  function buildPath(tNorm) {
-    const W   = waveWrap.clientWidth || window.innerWidth;
+  // The drawing keeps the physics' proportions, magnified:
+  // - Waves on screen scale with frequency, 3 at red (430 THz) and 5 at
+  //   violet (714 THz), so 3 red waves (700 nm) span 5 violet (420 nm).
+  // - Height is linear in amplitude. Brightness is not: see update().
+  // - Every colour's crests cross the screen at the same speed, as all
+  //   light travels at c, so a higher frequency oscillates faster.
+  const wavesOnScreen = () => 3 * freq / FREQ_MIN;
+  // Radians per second, per wave on screen. Timed by the clock, not by frames,
+  // so the speed is the same on 60 Hz and 120 Hz screens: red oscillates
+  // 0.29 times a second, about 1.5 quadrillion times slower than 430 THz.
+  const CREST_SPEED = 0.6;
+  let lastTime = null;
+
+  function buildPath() {
+    const W   = waveWrap.clientWidth;
+    if (!Number.isFinite(W) || W <= 0 || !Number.isFinite(freq) || !Number.isFinite(amp) || !Number.isFinite(phase)) return;
     const H   = 260;
     const mid = H / 2;
 
@@ -142,8 +124,8 @@ export function mount(container) {
       cachedW = W;
     }
 
-    const cycles  = 2 + tNorm * 6;
-    const waveAmp = mid * 0.85 * Math.pow(amp, 0.7);
+    const cycles  = wavesOnScreen();
+    const waveAmp = mid * 0.85 * amp;
     const steps   = Math.ceil(W);
     const pts     = [];
 
@@ -155,17 +137,38 @@ export function mount(container) {
     path.setAttribute("d", pts.join(" "));
   }
 
-  function animate() {
-    const tNorm = (freq - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
-    phase += 0.02 + tNorm * 0.04;
-    buildPath(tNorm);
-    rafId = requestAnimationFrame(animate);
+  function draw() {
+    buildPath();
   }
+  function animate(now) {
+    rafId = null;
+    // Cap the step so a frame after a pause does not jump the wave.
+    if (now !== undefined && lastTime !== null) phase += CREST_SPEED * wavesOnScreen() * Math.min(now - lastTime, 100) / 1000;
+    lastTime = now ?? null;
+    draw();
+    if (!reducedMotion.matches) rafId = requestAnimationFrame(animate);
+  }
+  function motionChanged() {
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    rafId = null;
+    lastTime = null;
+    if (reducedMotion.matches) {
+      phase = 0;
+      draw();
+    } else {
+      animate();
+    }
+  }
+  reducedMotion.addEventListener('change', motionChanged);
+  const resizeObserver = new ResizeObserver(() => draw());
+  resizeObserver.observe(waveWrap);
 
   // ── Update colors via CSS custom properties ───────────────────────────
   function update() {
     const [hue, chroma, naturalL] = freqToSpectrum(freq);
-    const L  = amp * naturalL;
+    // Light's energy goes with amplitude squared, and OKLCH lightness is
+    // about the cube root of light, so lightness goes with amplitude^(2/3).
+    const L  = naturalL * Math.cbrt(amp * amp);
     const fg = L > 0.55 ? "black" : "white";
     // Fade chroma to 0 near black — ensures oklch(0 0 0) = unambiguous black
     const C  = L < 0.05 ? chroma * (L / 0.05) : chroma;
@@ -175,15 +178,17 @@ export function mount(container) {
     root.style.setProperty("--fg", fg);
 
     freqReadout.textContent = `${Math.round(freq)} THz · ${freqToName(freq)}`;
-    ampReadout.textContent  = `amplitude ${amp.toFixed(2)}`;
+    if (reducedMotion.matches) draw();
   }
 
   update();
-  animate();
+  if (!reducedMotion.matches) animate();
 
   // ── cleanup ───────────────────────────────────────────────────────────
   return function cleanup() {
-    cancelAnimationFrame(rafId);
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    reducedMotion.removeEventListener('change', motionChanged);
+    resizeObserver.disconnect();
     container.innerHTML = "";
   };
 }

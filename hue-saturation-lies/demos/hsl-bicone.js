@@ -28,69 +28,66 @@ function hslToLinear(h, s, l) {
 
 const STEPS_H = 72;
 const STEPS_L = 49;
+const activeMounts = new WeakMap();
 
 export function mount(container) {
-  container.style.background = '#0e0e0e';
+  activeMounts.get(container)?.();
+  container.style.background = 'var(--scrim)';
 
   // ── Renderer ────────────────────────────────────────────────────────────────
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setClearColor(0x0e0e0e, 1);
+  renderer.setClearColor(0x000000, 1);
   container.appendChild(renderer.domElement);
-  renderer.domElement.style.cssText = 'display:block;position:absolute;inset:0;';
+  renderer.domElement.style.cssText = 'display:block;position:absolute;inset:2rem 1rem 7rem;width:calc(100% - 2rem);height:calc(100% - 9rem);';
 
   // ── HSL toy ─────────────────────────────────────────────────────────────────
   const toy = document.createElement('div');
   toy.innerHTML = `
     <style>
       .hsl-toy {
-        position: absolute;
-        bottom: 2rem; right: 2rem;
-        display: flex; flex-direction: column; gap: 0.6rem;
-        padding: 0.9rem 1rem;
-        background: rgba(0,0,0,0.55);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: 0.5rem;
-        font-family: 'Silkscreen', monospace;
-        font-size: 0.52rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.5);
-        min-width: 180px;
+        position: absolute; bottom: .75rem; left: 50%;
+        transform: translateX(-50%);
+        width: min(840px, calc(100% - 4rem));
+        display: flex; flex-direction: column; align-items: center; gap: 1.25rem;
+        color: var(--ink-muted);
         pointer-events: auto;
       }
-      .hsl-toy-chip {
-        width: 100%; height: 2.5rem;
-        border-radius: 0.3rem;
-        transition: background-color 0.1s ease;
-      }
-      .hsl-toy-row {
-        display: flex; align-items: center; gap: 0.6rem;
-      }
+      .hsl-toy-sample { display: flex; align-items: center; gap: 1rem; }
+      .hsl-toy-chip { width: 3rem; height: 3rem; border-radius: var(--radius); }
+      .hsl-toy-code { color: var(--ink); }
+      .hsl-toy-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; width: 100%; }
+      .hsl-toy-row { display: flex; align-items: center; gap: .65rem; min-height: 44px; }
       .hsl-toy-label { width: 1.4rem; flex-shrink: 0; }
-      .hsl-toy-row input[type=range] {
-        flex: 1; height: 1.5rem; cursor: pointer; accent-color: white;
+      .hsl-toy-row input[type=range] { flex: 1; min-width: 0; }
+      .hsl-toy-val { min-width: 4ch; text-align: right; flex-shrink: 0; white-space: nowrap; }
+      @media (max-width: 650px) {
+        .hsl-toy { bottom: 1rem; gap: .5rem; }
+        .hsl-toy-controls { grid-template-columns: 1fr; gap: 0; }
       }
-      .hsl-toy-val { width: 2.2rem; text-align: right; flex-shrink: 0; }
     </style>
-    <div class="hsl-toy">
-      <div class="hsl-toy-chip" id="hsl-chip"></div>
-      <div class="hsl-toy-row">
-        <span class="hsl-toy-label">H</span>
-        <input type="range" id="hsl-h" min="0" max="360" step="1" value="200">
-        <span class="hsl-toy-val" id="hsl-hv"></span>
+    <div class="hsl-toy caps-label">
+      <div class="hsl-toy-sample">
+        <div class="hsl-toy-chip" id="hsl-chip" role="img" aria-label="Selected HSL colour"></div>
+        <code class="css-tag hsl-toy-code"></code>
       </div>
-      <div class="hsl-toy-row">
-        <span class="hsl-toy-label">S</span>
-        <input type="range" id="hsl-s" min="0" max="100" step="1" value="80">
-        <span class="hsl-toy-val" id="hsl-sv"></span>
-      </div>
-      <div class="hsl-toy-row">
-        <span class="hsl-toy-label">L</span>
-        <input type="range" id="hsl-l" min="0" max="100" step="1" value="50">
-        <span class="hsl-toy-val" id="hsl-lv"></span>
+      <div class="hsl-toy-controls">
+        <div class="hsl-toy-row">
+          <label class="hsl-toy-label" for="hsl-h">H</label>
+          <input type="range" id="hsl-h" aria-label="Hue" min="0" max="360" step="1" value="200">
+          <span class="hsl-toy-val" id="hsl-hv"></span>
+        </div>
+        <div class="hsl-toy-row">
+          <label class="hsl-toy-label" for="hsl-s">S</label>
+          <input type="range" id="hsl-s" aria-label="Saturation" min="0" max="100" step="1" value="80">
+          <span class="hsl-toy-val" id="hsl-sv"></span>
+        </div>
+        <div class="hsl-toy-row">
+          <label class="hsl-toy-label" for="hsl-l">L</label>
+          <input type="range" id="hsl-l" aria-label="Lightness" min="0" max="100" step="1" value="50">
+          <span class="hsl-toy-val" id="hsl-lv"></span>
+        </div>
       </div>
     </div>
   `;
@@ -104,26 +101,33 @@ export function mount(container) {
   const valS  = toy.querySelector('#hsl-sv');
   const valL  = toy.querySelector('#hsl-lv');
 
+  let moveMarker = () => {};
   function renderToy() {
     const h = +slH.value, s = +slS.value, l = +slL.value;
-    chip.style.backgroundColor = `hsl(${h},${s}%,${l}%)`;
+    const css = `hsl(${h} ${s}% ${l}%)`;
+    chip.style.backgroundColor = css;
+    toy.querySelector('.hsl-toy-code').textContent = css;
     valH.textContent = h + '°';
     valS.textContent = s + '%';
     valL.textContent = l + '%';
+    moveMarker(h, s / 100, l / 100);
   }
   [slH, slS, slL].forEach(sl => sl.addEventListener('input', renderToy));
   renderToy();
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
-  camera.position.set(2.8, 2.2, 3.8);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 30);
+  camera.position.set(3.2, 2.3, 4);
+  camera.zoom = 1.9;
+  camera.updateProjectionMatrix();
   camera.lookAt(0, 0, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 2.0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // No auto-rotation: the model holds still until someone drags it.
+  controls.enableDamping = !reducedMotion.matches;
 
   // ── Bicone geometry ─────────────────────────────────────────────────────────
   const posArr = [];
@@ -135,7 +139,7 @@ export function mount(container) {
     for (let hi = 0; hi < STEPS_H; hi++) {
       const H   = (hi / STEPS_H) * 360;
       const rad = H * Math.PI / 180;
-      posArr.push(maxR * Math.cos(rad), (L - 0.5) * 2, maxR * Math.sin(rad));
+      posArr.push(maxR * Math.cos(rad), (L - 0.5) * 2, -maxR * Math.sin(rad));
       colArr.push(...hslToLinear(H, 1, L));
     }
   }
@@ -158,45 +162,105 @@ export function mount(container) {
 
   const mat  = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.rotation.z = 0.35;
   scene.add(mesh);
+
+  // Keep the selected colour legible even when it lies inside the solid cone.
+  const markerGeometry = new THREE.SphereGeometry(.047, 16, 12);
+  const markerRing = new THREE.Mesh(markerGeometry, new THREE.MeshBasicMaterial({ color: 0x111111, depthTest: false }));
+  const markerDot = new THREE.Mesh(markerGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }));
+  markerDot.scale.setScalar(.72);
+  markerRing.renderOrder = 2;
+  markerDot.renderOrder = 3;
+  scene.add(markerRing, markerDot);
+  renderer.domElement.hslPosition = markerRing.position;
+  const markerTarget = new THREE.Vector3();
+  let markerStart = markerRing.position.clone();
+  let markerStarted = 0;
+  const markerDuration = 300;
+  moveMarker = (h, s, l) => {
+    const radius = s * (1 - Math.abs(2 * l - 1));
+    const angle = h * Math.PI / 180;
+    markerTarget.set(radius * Math.cos(angle), (l - .5) * 2, -radius * Math.sin(angle));
+    markerStart = markerRing.position.clone();
+    markerStarted = performance.now();
+    if (reducedMotion.matches) markerRing.position.copy(markerTarget);
+    markerDot.position.copy(markerRing.position);
+    requestRender();
+  };
 
   // ── Render loop ─────────────────────────────────────────────────────────────
   let alive = true;
-  let rafId;
+  let rafId = 0;
+  let updating = false;
 
-  function animate() {
-    if (!alive) return;
-    rafId = requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
+  function requestRender() {
+    if (alive && !rafId) rafId = requestAnimationFrame(animate);
   }
-  animate();
+  function animate() {
+    rafId = 0;
+    if (!alive) return;
+    updating = true;
+    // update() returns true while a drag is still easing to a stop.
+    const moving = controls.update();
+    updating = false;
+    const elapsed = performance.now() - markerStarted;
+    const dotMoving = !reducedMotion.matches && elapsed < markerDuration && !markerRing.position.equals(markerTarget);
+    if (dotMoving) {
+      const t = Math.min(1, elapsed / markerDuration);
+      markerRing.position.lerpVectors(markerStart, markerTarget, t * t * (3 - 2 * t));
+    } else markerRing.position.copy(markerTarget);
+    markerDot.position.copy(markerRing.position);
+    renderer.render(scene, camera);
+    if (moving || dotMoving) requestRender();
+  }
+  function motionChanged() {
+    controls.enableDamping = !reducedMotion.matches;
+    if (reducedMotion.matches) cancelAnimationFrame(rafId);
+    if (reducedMotion.matches) rafId = 0;
+    if (reducedMotion.matches) markerRing.position.copy(markerTarget);
+    requestRender();
+  }
+  reducedMotion.addEventListener('change', motionChanged);
+  const controlsChanged = () => { if (!updating) requestRender(); };
+  controls.addEventListener('change', controlsChanged);
+  requestRender();
 
   // ── Resize ──────────────────────────────────────────────────────────────────
   function resize() {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
+    const w = renderer.domElement.clientWidth;
+    const h = renderer.domElement.clientHeight;
     if (!w || !h) return;
-    renderer.setSize(w, h);
+    renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    requestRender();
   }
   const ro = new ResizeObserver(resize);
   ro.observe(container);
   resize();
+  moveMarker(+slH.value, +slS.value / 100, +slL.value / 100);
 
   // ── Cleanup ─────────────────────────────────────────────────────────────────
-  return () => {
+  const cleanup = () => {
+    if (activeMounts.get(container) === cleanup) activeMounts.delete(container);
     alive = false;
     cancelAnimationFrame(rafId);
     ro.disconnect();
+    reducedMotion.removeEventListener('change', motionChanged);
+    controls.removeEventListener('change', controlsChanged);
     controls.dispose();
     geo.dispose();
     mat.dispose();
+    markerGeometry.dispose();
+    markerRing.material.dispose();
+    markerDot.material.dispose();
+    delete renderer.domElement.hslPosition;
     renderer.dispose();
+    renderer.forceContextLoss();
     container.style.background = '';
     toy.remove();
     container.innerHTML = '';
   };
+  activeMounts.set(container, cleanup);
+  return cleanup;
 }
