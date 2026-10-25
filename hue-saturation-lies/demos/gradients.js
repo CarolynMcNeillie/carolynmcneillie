@@ -52,6 +52,7 @@ export function mount(container) {
         color: var(--ink);
         color: contrast-color(var(--gr-mid));
       }
+      .gr-keyword { font-weight: 800; font-size: 1.3em; }
       .gr-divider { height: 3px; background: var(--scrim); flex-shrink: 0; }
       /* Its own strip under the bands, so it never covers a gradient. */
       .gr-controls {
@@ -92,8 +93,12 @@ export function mount(container) {
       const ends = (space === 'oklch' ? oklchEnds(ca, cb) : [hex(ca), hex(cb)]).join(', ');
       bands[i].style.background = `linear-gradient(to right in ${space}, ${ends})`;
       bands[i].style.setProperty('--gr-mid', `color-mix(in ${space}, ${ends})`);
-      bands[i].firstElementChild.textContent =
-        `linear-gradient(to right in ${space}, ${hex(ca)}, ${hex(cb)})`;
+      const tag = bands[i].firstElementChild;
+      tag.replaceChildren(
+        document.createTextNode('linear-gradient(to right '),
+        Object.assign(document.createElement('strong'), { className: 'gr-keyword', textContent: `in ${space}` }),
+        document.createTextNode(`, ${hex(ca)}, ${hex(cb)})`),
+      );
     });
   }
 

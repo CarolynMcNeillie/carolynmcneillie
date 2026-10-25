@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hue, Saturation, Lies — script</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- A printable script, built from running-order.js and script.md at load, so
+     it cannot drift from the deck. Hidden slides are left out. -->
+<link rel="stylesheet" href="./print.css">
+</head>
+<body>
+<main id="script"><p class="loading">Building the script…</p></main>
+<script type="module">
+import { parseScript, renderScriptBody, spokenWords } from './script-format.js';
+import { LIBRARY } from './slide-library.js';
+import ORDER from './running-order.js';
+
+const WPM = 135;
+
+const response = await fetch('./script.md');
+const scripts = parseScript(await response.text());
+
+const sections = ORDER.sections
+  .map(({ name, items }) => ({
+    name,
+    slides: items
+      .filter(({ hidden }) => !hidden)
+      .map(({ id }) => {
+        const script = scripts[id] ?? { title: '', body: '' };
+        return { id, ...script, words: spokenWords(script.body), demo: LIBRARY[id]?.slide?.demo ?? null };
+      }),
+  }))
+  .filter(({ slides }) => slides.length);
+
+const total = sections.reduce((sum, s) => sum + s.slides.reduce((n, x) => n + x.words, 0), 0);
+const mmss = (minutes) => {
+  const whole = Math.floor(minutes);
+  return `${whole}:${String(Math.round((minutes - whole) * 60)).padStart(2, '0')}`;
+};
+
+const main = document.querySelector('#script');
+main.replaceChildren();
+const el = (tag, className, text) => {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+// ── Cover and pacing sheet ──────────────────────────────────────────────
+const cover = el('header', 'cover');
+cover.append(el('h1', null, 'Hue, Saturation, Lies'));
+cover.append(el('p', 'byline', 'Carolyn McNeillie · FITC'));
+cover.append(el('p', 'stat', `${sections.reduce((n, s) => n + s.slides.length, 0)} slides · ${total.toLocaleString()} spoken words · ${mmss(total / WPM)} at ${WPM} words a minute`));
+
+const table = el('table', 'pacing');
+const head = el('tr');
+for (const label of ['Section', 'Slides', 'Words', 'Length', 'Be here by']) head.append(el('th', null, label));
+table.append(el('thead').appendChild(head).parentNode);
+const tbody = el('tbody');
+let elapsed = 0;
+for (const section of sections) {
+  const words = section.slides.reduce((n, x) => n + x.words, 0);
+  const row = el('tr');
+  row.append(el('td', 'section-name', section.name));
+  row.append(el('td', 'num', String(section.slides.length)));
+  row.append(el('td', 'num', String(words)));
+  row.append(el('td', 'num', mmss(words / WPM)));
+  row.append(el('td', 'num cue', mmss(elapsed)));
+  tbody.append(row);
+  elapsed += words / WPM;
+}
+table.append(tbody);
+cover.append(table);
+cover.append(el('p', 'note', 'Timings count spoken words only. Demo dwell, laughs and the afterimage exercise are on top.'));
+main.append(cover);
+
+// ── The script ──────────────────────────────────────────────────────────
+elapsed = 0;
+for (const section of sections) {
+  const block = el('section', 'section');
+  const heading = el('h2');
+  heading.append(el('span', 'section-title-text', section.name));
+  heading.append(el('span', 'section-cue', mmss(elapsed)));
+  block.append(heading);
+  for (const slide of section.slides) {
+    const item = el('article', 'slide');
+    const title = el('h3');
+    title.append(el('span', 'slide-title-text', slide.title || '(no title)'));
+    const meta = el('span', 'slide-meta');
+    meta.textContent = slide.demo ? `${slide.id} · demo: ${slide.demo}` : slide.id;
+    title.append(meta);
+    item.append(title);
+    for (const paragraph of slide.body.split('\n\n').map((p) => p.trim()).filter(Boolean)) {
+      // A step marker is a cue to press, so set it apart from the words.
+      const node = el(/^```/.test(paragraph) ? 'div' : 'p', /^\[/.test(paragraph) || /^\(Audience participation/.test(paragraph) ? 'cue-line' : null);
+      node.innerHTML = renderScriptBody(paragraph);
+      item.append(node);
+    }
+    if (!slide.body.trim()) item.append(el('p', 'cue-line', '(no narration)'));
+    block.append(item);
+    elapsed += slide.words / WPM;
+  }
+  main.append(block);
+}
+
+document.title = `Hue, Saturation, Lies — script (${mmss(total / WPM)})`;
+</script>
+</body>
+</html>

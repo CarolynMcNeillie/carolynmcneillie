@@ -45,25 +45,19 @@ const PRIMARIES = [
 ];
 
 // ── Test colours ──────────────────────────────────────────────────────────────
-// Each colour is derived by running mixPrimaries at specific weights and
-// recording the OKLCH output — so they are guaranteed reachable.
-//
-//  yellowish  R=0.90 G=0.60 B=0.00  → oklch(0.747 0.153  94)
-//  teal       R=0.00 G=0.80 B=0.80  → oklch(0.741 0.109 192)
-//  violet     R=0.80 G=0.00 B=0.80  → oklch(0.598 0.204 328)
-//  orange-red R=0.90 G=0.00 B=0.00  → oklch(0.544 0.192  35)
-//  warm white R=0.70 G=0.70 B=0.70  → oklch(0.786 0.010  90)
-const TEST_COLOURS = [
-  { L: 0.747, C: 0.153, H: 94  }, // yellowish  (R+G)
-  { L: 0.741, C: 0.109, H: 192 }, // teal       (G+B)
-  { L: 0.598, C: 0.204, H: 328 }, // violet     (R+B)
-  { L: 0.544, C: 0.192, H: 35  }, // orange-red (R only)
-  { L: 0.786, C: 0.010, H: 90  }, // warm white (R+G+B)
+// Use the same mix for the test field and the final slider positions, so
+// both halves really do match rather than rounding to nearby OKLCH values.
+const TEST_WEIGHTS = [
+  [0.90, 0.60, 0.00], // yellowish
+  [0.00, 0.80, 0.80], // teal
+  [0.80, 0.00, 0.80], // violet
+  [0.90, 0.00, 0.00], // orange-red
+  [0.70, 0.70, 0.70], // warm white
 ];
 
 function randomIdx(excluding) {
   let idx;
-  do { idx = Math.floor(Math.random() * TEST_COLOURS.length); } while (idx === excluding);
+  do { idx = Math.floor(Math.random() * TEST_WEIGHTS.length); } while (idx === excluding);
   return idx;
 }
 
@@ -89,6 +83,9 @@ function mixPrimaries(weights) {
 // ── Mount ─────────────────────────────────────────────────────────────────────
 export function mount(container) {
   const weights = [0, 0, 0];
+  let previousStep;
+  let frame = 0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   container.innerHTML = `
     <style>
@@ -199,26 +196,68 @@ export function mount(container) {
   const testEl      = container.querySelector('#cm-test');
   const mixEl       = container.querySelector('#cm-mix');
   function render() {
-    const t   = TEST_COLOURS[testIdx % TEST_COLOURS.length];
+    const t   = mixPrimaries(TEST_WEIGHTS[testIdx]);
     const mix = mixPrimaries(weights);
 
     testEl.style.setProperty('--half-color', oklchCSS(t));
     mixEl.style.setProperty('--half-color', oklchCSS(mix));
   }
 
-  container.querySelectorAll('.cm-slider').forEach(sl => {
+  const sliders = [...container.querySelectorAll('.cm-slider')];
+  function stopAnimation() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+  }
+
+  function setWeight(i, value) {
+    weights[i] = Math.round(value * 200) / 200;
+    sliders[i].value = weights[i];
+    render();
+  }
+
+  sliders.forEach(sl => {
     sl.addEventListener('input', () => {
+      stopAnimation();
       weights[+sl.dataset.i] = parseFloat(sl.value);
       render();
     });
   });
 
+  function animateMatch() {
+    const target = TEST_WEIGHTS[testIdx];
+    // Each primary has its own turn; the second pass corrects a small error.
+    const firstPass = target.map(value => value === 0 ? 0.09 : value - 0.09);
+    const turns = [...firstPass.map((value, i) => [i, value]),
+      ...target.map((value, i) => [i, value])];
+    const duration = 780;
+    let turn = 0;
+    let startTime;
+    let from = weights[0];
+
+    function tick(now) {
+      if (startTime === undefined) startTime = now;
+      const progress = Math.min(1, (now - startTime) / duration);
+      const eased = progress * progress * (3 - 2 * progress);
+      const [i, destination] = turns[turn];
+      setWeight(i, from + (destination - from) * eased);
+      if (progress === 1) {
+        turn++;
+        if (turn === turns.length) { frame = 0; return; }
+        from = weights[turns[turn][0]];
+        startTime = now;
+      }
+      frame = requestAnimationFrame(tick);
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
   function resetSliders() {
     weights.fill(0);
-    container.querySelectorAll('.cm-slider').forEach(sl => { sl.value = 0; });
+    sliders.forEach(sl => { sl.value = 0; });
   }
 
   container.querySelector('#cm-next').addEventListener('click', () => {
+    stopAnimation();
     testIdx = randomIdx(testIdx);
     resetSliders();
     render();
@@ -226,5 +265,22 @@ export function mount(container) {
 
   render();
 
-  return () => { container.innerHTML = ''; };
+  return {
+    step(index) {
+      stopAnimation();
+      if (index === 0) {
+        resetSliders();
+        render();
+      } else if (previousStep === undefined || reducedMotion.matches) {
+        TEST_WEIGHTS[testIdx].forEach((value, i) => setWeight(i, value));
+      } else if (previousStep !== index) {
+        animateMatch();
+      }
+      previousStep = index;
+    },
+    cleanup() {
+      stopAnimation();
+      container.innerHTML = '';
+    },
+  };
 }

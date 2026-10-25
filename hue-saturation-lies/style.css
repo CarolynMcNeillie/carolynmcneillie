@@ -162,6 +162,9 @@ body {
    numeric features where fonts do provide them. */
 * { font-variant-numeric: lining-nums tabular-nums !important; }
 #slide-body, #slide-body * { font-variant-numeric: oldstyle-nums proportional-nums !important; }
+#slide-body .cite, #slide-body .cue { color: var(--ink); opacity: 0.65; font-size: 0.85em; }
+#slide-body code, #slide-body pre { font-family: ui-monospace, monospace; }
+#slide-body pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0.5em 0; }
 
 /* Full-bleed background layers (two for crossfading) ─────────────── */
 .slide-bg-layer {
@@ -451,6 +454,31 @@ body.presenter #slide-text {
 #slide-title-overlay.title-pill {
   color: var(--ink);
 }
+/* A lesson title over a painting, in the title slide's type: a serif line over
+   a 96px Silkscreen heading, with no panel and no shadow. */
+#slide-title-overlay.title-lesson {
+  /* Centred in the stage, like a section title. */
+  top: calc((var(--stage-top) + 100% - var(--stage-bottom)) / 2);
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+#slide-title-overlay.title-lesson .title-kicker {
+  font: var(--text-subtitle)/1.3 var(--font-body);
+  letter-spacing: normal;
+  text-transform: none;
+}
+#slide-title-overlay.title-lesson .title-heading {
+  font-size: 96px;
+  line-height: 1.25;
+  text-wrap: balance;
+  overflow-wrap: normal;
+}
+/* The reader view's stage is narrower: 64px keeps HARMONIES on one line. */
+body:not(.presenter) #slide-title-overlay.title-lesson .title-heading { font-size: 64px; }
 #slide-body-center {
   position: fixed;
   top: calc((var(--stage-top) + 100% - var(--stage-bottom)) / 2);
@@ -528,29 +556,6 @@ body.presenter #slide-title-overlay {
   max-width: calc(100vw - 2rem);
 }
 
-/* Rotation-axis preset buttons ─────────────────────── */
-#rotation-controls {
-  position: fixed;
-  bottom: calc(var(--stage-bottom) + 1rem);
-  left: calc(190px + 50vw);
-  transform: translateX(-50%);
-  display: none;
-  gap: 0.5rem;
-  align-items: center;
-  z-index: 10;
-  transition: left var(--motion-slow);
-}
-body.presenter #rotation-controls {
-  left: 50vw;
-}
-/* viz-ready: viz.js loaded and wired these buttons. Without WebGL it never
-   loads, so the buttons never show. viz-no-controls: the slide opts out. */
-body.has-viz.viz-ready:not(.viz-no-controls) #rotation-controls {
-  display: flex;
-}
-/* Rotation buttons use the shared pill-button state and hover rules. */
-#rotation-controls { flex-wrap: wrap; justify-content: center; width: min(560px, calc(100vw - 2rem)); }
-
 @media (max-width: 600px) {
   #slide-title-overlay { left: 50vw; }
   #slide-body-center { left: 1rem; right: 1rem; }
@@ -596,3 +601,20 @@ body.presenter #viz-annotations { left: 0; }
 .viz-ann.visible {
   opacity: 1;
 }
+
+/* Presenter pointer (pointer.js): a blown-up, pixelated arrow and hand that
+   follow the mouse and fade out when it rests. The system cursor is hidden in
+   presenter view; text fields keep the text cursor. */
+body.presenter,
+body.presenter * { cursor: none !important; }
+body.presenter :is(textarea, input[type="text"], input[type="search"], [contenteditable="true"]) { cursor: text !important; }
+#presenter-pointer {
+  position: fixed; left: 0; top: 0; z-index: 2147483647;
+  pointer-events: none; user-select: none;
+  image-rendering: pixelated;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  will-change: transform;
+}
+#presenter-pointer.is-visible { opacity: 1; transition: opacity 0.08s; }
+body:not(.presenter) #presenter-pointer { display: none; }

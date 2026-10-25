@@ -7,6 +7,7 @@ import { renderScriptBody } from "./script-format.js";
 let setVizOffset = () => {};
 let setVizRotate = () => {};
 let setVizVisible = () => {};
+let setVizAxis = () => {};
 
 // The hash names the slide, by id or by index. -1 when it names none.
 function slideFromHash() {
@@ -26,7 +27,12 @@ function motionMs(token = "--motion-slow") {
   return /^[\d.]+ms/.test(value) ? amount : amount * 1000;
 }
 let activeBgLayer = 0;
-let currentBgIndex = 0;
+// ?step=N opens the slide on its Nth arrow step (0-based), for checks and
+// screenshots that cannot press keys.
+let currentBgIndex = Math.min(
+  Math.max(0, Number(new URLSearchParams(location.search).get("step")) || 0),
+  Math.max(0, (SLIDES[currentSlide]?.slide.backgrounds?.length ?? 1) - 1),
+);
 let currentTitle = "";
 
 const bgLayers = [
@@ -42,6 +48,7 @@ const slideBodyCenterEl = document.querySelector("#slide-body-center");
 const progressFillEl = document.querySelector("#progress-fill");
 const illustrationEl = document.querySelector("#illustration");
 const vizLayer = document.querySelector("#viz-layer");
+const vizAnnotations = document.querySelector("#viz-annotations");
 const demoLayer = document.querySelector("#demo-layer");
 
 // ── Slide audio ─────────────────────────────────────────────────────────
@@ -101,6 +108,21 @@ function unmountDemo() {
   demoLayer.style.pointerEvents = "none";
 }
 
+// titleStyle "lesson" splits "Lesson one: colour harmonies" at the first colon
+// into a serif line and a display heading, the title slide's two type styles.
+function setTitleOverlay(title = "", style) {
+  slideTitleOverlay.className = style ? `title-${style}` : "";
+  const split = style === "lesson" ? title.indexOf(":") : -1;
+  if (split < 0) { slideTitleOverlay.textContent = title; return; }
+  const kicker = document.createElement("span");
+  kicker.className = "title-kicker";
+  kicker.textContent = title.slice(0, split);
+  const heading = document.createElement("span");
+  heading.className = "title-heading";
+  heading.textContent = title.slice(split + 1).trim();
+  slideTitleOverlay.replaceChildren(kicker, heading);
+}
+
 async function mountDemo(name, type, bgIdx = 0) {
   unmountDemo();
   const slideIdx = currentSlide;
@@ -127,11 +149,15 @@ function updateProgress() {
   progressFillEl.style.transform = `scaleX(${(currentSlide + 1) / SLIDES.length})`;
 }
 
-function applyBgCrossfade(imageUrl, size = "cover") {
+// position: which part of a cropped (cover) image stays in view, as CSS
+// background-position, e.g. "50% 70%". Set per slide or per step.
+// scrim: a CSS gradient drawn over the image, to dim it behind a title.
+function applyBgCrossfade(imageUrl, size = "cover", position = "center", scrim) {
   const next = 1 - activeBgLayer;
   bgLayers[next].style.transition = "none";
   bgLayers[next].style.backgroundSize = size;
-  bgLayers[next].style.backgroundImage = imageUrl ? `url(${imageUrl})` : "";
+  bgLayers[next].style.backgroundPosition = position;
+  bgLayers[next].style.backgroundImage = imageUrl ? `${scrim ? `${scrim}, ` : ""}url(${imageUrl})` : "";
   bgLayers[next].style.opacity = imageUrl ? "1" : "0";
   bgLayers[next].style.zIndex = "1";
   bgLayers[activeBgLayer].style.zIndex = "2";
@@ -165,12 +191,14 @@ function showSlide(idx, bgIdx = 0) {
   const bgEntry = sl.backgrounds
     ? sl.backgrounds[bgIdx]
     : { image: sl.backgroundImage, attribution: sl.attribution, timeline: sl.timeline };
+  if (bgEntry?.vizAxis) vizAnnotations.dataset.vizAxis = bgEntry.vizAxis;
+  else delete vizAnnotations.dataset.vizAxis;
 
   slideContentEl.querySelectorAll(".slide-links").forEach((el) => el.remove());
 
   // Background crossfade: new image loads at full opacity behind the current layer,
   // then the current layer fades out on top — no flash to black.
-  applyBgCrossfade(bgEntry?.image, backgroundSize(sl, bgEntry));
+  applyBgCrossfade(bgEntry?.image, backgroundSize(sl, bgEntry), bgEntry?.backgroundPosition ?? sl.backgroundPosition, bgEntry?.backgroundScrim ?? sl.backgroundScrim);
   renderTimeline({ slideIndex: idx, bgIndex: bgIdx, attribution: bgEntry?.attribution ?? sl.attribution });
 
   // Illustration: contained float, independent fade with delay
@@ -199,12 +227,13 @@ function showSlide(idx, bgIdx = 0) {
   }
   stopSlideAudio();
   if (sl.audio) slideBodyCenterEl.append(audioButton(sl.audio));
-  slideTitleOverlay.textContent = sl.title ?? "";
-  slideTitleOverlay.className = sl.titleStyle ? `title-${sl.titleStyle}` : "";
+  // A step that sets its own title wins, also when the slide opens on that step.
+  const titled = bgEntry && "title" in bgEntry ? bgEntry : sl;
+  setTitleOverlay(titled.title, titled.titleStyle);
   slideTitleOverlay.style.cssText = "";
-  if (sl.titleCSS) Object.assign(slideTitleOverlay.style, sl.titleCSS);
-  slideTitleOverlay.style.display = sl.title ? "" : "none";
-  currentTitle = sl.title ?? "";
+  if (titled.titleCSS) Object.assign(slideTitleOverlay.style, titled.titleCSS);
+  slideTitleOverlay.style.display = titled.title ? "" : "none";
+  currentTitle = titled.title ?? "";
 
   // visibility, not display: a display:none layer has no size, and viz.js
   // sizes the 3D view from this layer's box.
@@ -212,15 +241,15 @@ function showSlide(idx, bgIdx = 0) {
     vizLayer.style.visibility = "visible";
     vizLayer.style.pointerEvents = "auto";
     document.body.classList.add("has-viz");
-    document.body.classList.toggle("viz-no-controls", sl.vizControls === false);
     setVizVisible(true);
   } else {
     vizLayer.style.visibility = "hidden";
     vizLayer.style.pointerEvents = "none";
-    document.body.classList.remove("has-viz", "viz-no-controls");
+    document.body.classList.remove("has-viz");
     setVizVisible(false);
   }
   setVizRotate(!!sl.rotate);
+  if (sl.viz) setVizAxis(bgEntry?.vizAxis);
 
   if (demoCarriedOver) {
     demoCarriedOver = false;
@@ -256,11 +285,13 @@ function showSlide(idx, bgIdx = 0) {
 function updateBackground(bgIdx) {
   const sl = SLIDES[currentSlide].slide;
   const bgEntry = sl.backgrounds[bgIdx];
-  applyBgCrossfade(bgEntry.image, backgroundSize(sl, bgEntry));
+  if (bgEntry.vizAxis) vizAnnotations.dataset.vizAxis = bgEntry.vizAxis;
+  else delete vizAnnotations.dataset.vizAxis;
+  if (sl.viz) setVizAxis(bgEntry.vizAxis);
+  applyBgCrossfade(bgEntry.image, backgroundSize(sl, bgEntry), bgEntry.backgroundPosition ?? sl.backgroundPosition, bgEntry.backgroundScrim ?? sl.backgroundScrim);
   renderTimeline({ slideIndex: currentSlide, bgIndex: bgIdx, attribution: bgEntry.attribution ?? sl.attribution });
   if ('title' in bgEntry) {
-    slideTitleOverlay.textContent = bgEntry.title;
-    slideTitleOverlay.className = bgEntry.titleStyle ? `title-${bgEntry.titleStyle}` : "";
+    setTitleOverlay(bgEntry.title, bgEntry.titleStyle);
     slideTitleOverlay.style.cssText = "";
     if (bgEntry.titleCSS) Object.assign(slideTitleOverlay.style, bgEntry.titleCSS);
     slideTitleOverlay.style.display = bgEntry.title ? "" : "none";
@@ -308,7 +339,14 @@ function setMode(presenter) {
   setVizOffset(offset);
   demoLayer.style.left = offset ? `${offset}px` : "";
   const hash = location.hash;
-  history.replaceState(null, "", presenterMode ? location.pathname + hash : `?reader${hash}`);
+  // Keep any other query settings (for example ?forest-layers=8); only the
+  // mode flag changes. Old ?presenter is dropped, as before.
+  const params = new URLSearchParams(location.search);
+  params.delete("reader");
+  params.delete("presenter");
+  const rest = params.toString();
+  const search = presenterMode ? (rest ? `?${rest}` : "") : `?reader${rest ? `&${rest}` : ""}`;
+  history.replaceState(null, "", location.pathname + search + hash);
   // Mid-transition, slideIn is about to show the new slide anyway. Showing it
   // here too would remount a demo that goToSlide is carrying over.
   if (!transitioning) showSlide(currentSlide, currentBgIndex);
@@ -400,18 +438,17 @@ window.addEventListener("keydown", (e) => {
   navigate(KEY_DIRS[e.key]);
 });
 
-slideIn(currentSlide);
+slideIn(currentSlide, currentBgIndex);
 // Start in the background right after first paint, even when this is not a viz slide.
 // Apply the latest slide and mode, not the state captured when the import began.
 requestAnimationFrame(() => requestAnimationFrame(() => {
   import("./viz.js").then((viz) => {
-    ({ setVizOffset, setVizRotate, setVizVisible } = viz);
+    ({ setVizOffset, setVizRotate, setVizVisible, setVizAxis } = viz);
     const slide = SLIDES[currentSlide].slide;
     setVizOffset(readerOffset());
     setVizVisible(!!slide.viz);
     setVizRotate(!!slide.rotate);
-    // The axis buttons show only from here on, since viz.js wires their clicks.
-    document.body.classList.add("viz-ready");
+    if (slide.viz) setVizAxis(slide.backgrounds?.[currentBgIndex]?.vizAxis);
   }).catch((err) => {
     console.warn("3D colour-space view unavailable (needs WebGL); continuing without it.", err);
   });

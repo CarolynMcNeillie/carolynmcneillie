@@ -112,7 +112,10 @@ export function mount(container) {
     valL.textContent = l + '%';
     moveMarker(h, s / 100, l / 100);
   }
-  [slH, slS, slL].forEach(sl => sl.addEventListener('input', renderToy));
+  [slH, slS, slL].forEach(sl => sl.addEventListener('input', () => {
+    sequence = null;
+    renderToy();
+  }));
   renderToy();
 
   const scene  = new THREE.Scene();
@@ -177,13 +180,13 @@ export function mount(container) {
   let markerStart = markerRing.position.clone();
   let markerStarted = 0;
   const markerDuration = 300;
-  moveMarker = (h, s, l) => {
+  moveMarker = (h, s, l, immediate = false) => {
     const radius = s * (1 - Math.abs(2 * l - 1));
     const angle = h * Math.PI / 180;
     markerTarget.set(radius * Math.cos(angle), (l - .5) * 2, -radius * Math.sin(angle));
     markerStart = markerRing.position.clone();
     markerStarted = performance.now();
-    if (reducedMotion.matches) markerRing.position.copy(markerTarget);
+    if (immediate || reducedMotion.matches) markerRing.position.copy(markerTarget);
     markerDot.position.copy(markerRing.position);
     requestRender();
   };
@@ -192,6 +195,54 @@ export function mount(container) {
   let alive = true;
   let rafId = 0;
   let updating = false;
+  let sequence = null;
+  let firstStep = true;
+  let currentStep = 0;
+  const homePosition = new THREE.Vector3(3.2, 2.3, 4);
+  const topPosition = new THREE.Vector3(0, 5.6, 0);
+  const homeUp = new THREE.Vector3(0, 1, 0);
+  const topUp = new THREE.Vector3(0, 0, -1);
+
+  function setSelection(h, s, l) {
+    slH.value = Math.round(h) % 360;
+    slS.value = Math.round(s);
+    slL.value = Math.round(l);
+    const css = `hsl(${Math.round(h) % 360} ${Math.round(s)}% ${Math.round(l)}%)`;
+    chip.style.backgroundColor = css;
+    toy.querySelector('.hsl-toy-code').textContent = css;
+    valH.textContent = slH.value + '°';
+    valS.textContent = slS.value + '%';
+    valL.textContent = slL.value + '%';
+    moveMarker(h % 360, s / 100, l / 100, true);
+  }
+
+  function setCamera(position, up) {
+    camera.position.copy(position);
+    camera.up.copy(up);
+    camera.lookAt(0, 0, 0);
+  }
+
+  function step(index) {
+    sequence = null;
+    const animated = !firstStep && !reducedMotion.matches && index > currentStep;
+    firstStep = false;
+    currentStep = index;
+    controls.enabled = index === 0;
+    if (!animated) {
+      setCamera(index === 0 || index === 3 ? homePosition : topPosition,
+        index === 0 || index === 3 ? homeUp : topUp);
+      setSelection(200, index >= 2 ? 0 : 80, 50);
+    } else {
+      sequence = {
+        index,
+        started: performance.now(),
+        position: camera.position.clone(),
+        up: camera.up.clone(),
+        h: +slH.value, s: +slS.value, l: +slL.value,
+      };
+    }
+    requestRender();
+  }
 
   function requestRender() {
     if (alive && !rafId) rafId = requestAnimationFrame(animate);
@@ -201,8 +252,35 @@ export function mount(container) {
     if (!alive) return;
     updating = true;
     // update() returns true while a drag is still easing to a stop.
-    const moving = controls.update();
+    const moving = controls.enabled && controls.update();
     updating = false;
+    if (sequence) {
+      const { index, started, position, up, h, s, l } = sequence;
+      const elapsed = performance.now() - started;
+      const cameraDuration = 1000;
+      const t = Math.min(1, elapsed / cameraDuration);
+      const ease = t * t * (3 - 2 * t);
+      const targetPosition = index === 3 ? homePosition : topPosition;
+      const targetUp = index === 3 ? homeUp : topUp;
+      setCamera(position.clone().lerp(targetPosition, ease), up.clone().lerp(targetUp, ease).normalize());
+      if (index === 1) {
+        // Finish the camera move before tracing one complete hue circle.
+        const turn = Math.min(1, Math.max(0, elapsed - cameraDuration) / 4000);
+        setSelection(h + 360 * turn, s, l);
+        if (turn === 1) sequence = null;
+      } else if (index === 2) {
+        const fade = Math.min(1, elapsed / 1600);
+        setSelection(h, s * (1 - fade * fade * (3 - 2 * fade)), l);
+        if (fade === 1) sequence = null;
+      } else {
+        // Return to the grey midpoint after visiting white and black.
+        const travel = Math.min(1, elapsed / 3600);
+        const lightness = travel < 1 / 3 ? 50 + 150 * travel
+          : travel < 2 / 3 ? 200 - 300 * travel : 150 * travel - 100;
+        setSelection(h, 0, lightness);
+        if (travel === 1) sequence = null;
+      }
+    }
     const elapsed = performance.now() - markerStarted;
     const dotMoving = !reducedMotion.matches && elapsed < markerDuration && !markerRing.position.equals(markerTarget);
     if (dotMoving) {
@@ -211,13 +289,16 @@ export function mount(container) {
     } else markerRing.position.copy(markerTarget);
     markerDot.position.copy(markerRing.position);
     renderer.render(scene, camera);
-    if (moving || dotMoving) requestRender();
+    if (moving || dotMoving || sequence) requestRender();
   }
   function motionChanged() {
     controls.enableDamping = !reducedMotion.matches;
-    if (reducedMotion.matches) cancelAnimationFrame(rafId);
-    if (reducedMotion.matches) rafId = 0;
-    if (reducedMotion.matches) markerRing.position.copy(markerTarget);
+    if (reducedMotion.matches) {
+      sequence = null;
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+      step(currentStep);
+    }
     requestRender();
   }
   reducedMotion.addEventListener('change', motionChanged);
@@ -262,5 +343,5 @@ export function mount(container) {
     container.innerHTML = '';
   };
   activeMounts.set(container, cleanup);
-  return cleanup;
+  return { step, cleanup };
 }

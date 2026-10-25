@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { buildOklchShape } from "./demos/oklch-shape.js";
-import { GRAYSCALE_ICON } from "./demos/icons.js";
 
 THREE.ColorManagement.enabled = true;
 
@@ -89,7 +88,8 @@ reducedMotion.addEventListener("change", () => {
     vizOffset = vizOffsetTarget;
     applyVizOffset();
     if (lerpTarget) {
-      camera.position.copy(lerpTarget);
+      camera.position.copy(lerpTarget.position);
+      camera.up.copy(lerpTarget.up);
       camera.lookAt(controls.target);
       lerpTarget = null;
     }
@@ -115,61 +115,31 @@ new ResizeObserver(() => {
   requestRender();
 }).observe(vizLayer);
 
-// ── Preset viewpoints ────────────────────────────────────────────────
+// The mesh uses x for lightness, y for chroma and z for hue (0 to 360).
+// Align each direction with its annotation: L increases right, C rises
+// vertically, and H increases diagonally from bottom left to top right.
+const HOME = { position: camera.position.clone(), up: camera.up.clone() };
 const PRESETS = {
-  x: new THREE.Vector3(0, 0.1, 1.5),
-  y: new THREE.Vector3(0.01, 1.5, 0.01),
-  z: new THREE.Vector3(1.5, 0.1, 0),
+  l: { position: new THREE.Vector3(0, 0.1, 1.5), up: new THREE.Vector3(0, 1, 0) },
+  c: { position: new THREE.Vector3(-1.5, 0, 0), up: new THREE.Vector3(0, 1, 0) },
+  h: { position: new THREE.Vector3(0.01, 1.5, 0.01), up: new THREE.Vector3(1, 0, 1).normalize() },
 };
-const HOME = camera.position.clone();
-
 let lerpTarget = null;
-let activeBtn = null;
-
-function updateAnnotation(axis) {
-  document
-    .querySelectorAll(".viz-ann")
-    .forEach((el) =>
-      el.classList.toggle("visible", el.dataset.for === axis),
-    );
-}
-
-document.querySelectorAll("#rotation-controls button[data-axis]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    if (btn === activeBtn) {
-      lerpTarget = HOME.clone();
-      activeBtn = null;
-      document
-        .querySelectorAll("#rotation-controls button[data-axis]")
-        .forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
-    } else {
-      lerpTarget = PRESETS[btn.dataset.axis].clone();
-      activeBtn = btn;
-      document
-        .querySelectorAll("#rotation-controls button[data-axis]")
-        .forEach((b) => { b.classList.toggle("active", b === btn); b.setAttribute("aria-pressed", String(b === btn)); });
-    }
-    if (reducedMotion.matches) {
-      camera.position.copy(lerpTarget);
-      camera.lookAt(controls.target);
-      lerpTarget = null;
-      vizJustShown = true;
-      requestRender();
-    }
-  });
-});
-
-// ── Grayscale toggle ─────────────────────────────────────────────────
-const grayBtn = document.querySelector("#viz-grayscale");
-grayBtn.innerHTML = GRAYSCALE_ICON;
-let grayActive = false;
-grayBtn.addEventListener("click", () => {
-  grayActive = !grayActive;
-  renderer.domElement.classList.toggle("grayscale", grayActive);
-  grayBtn.setAttribute("aria-pressed", String(grayActive));
-  vizJustShown = true; // force a re-render
+let firstAxis = true;
+export function setVizAxis(axis) {
+  const target = PRESETS[axis] ?? HOME;
+  if (firstAxis || reducedMotion.matches) {
+    camera.position.copy(target.position);
+    camera.up.copy(target.up);
+    camera.lookAt(controls.target);
+    lerpTarget = null;
+    vizJustShown = true;
+  } else {
+    lerpTarget = target;
+  }
+  firstAxis = false;
   requestRender();
-});
+}
 
 // The frame loop runs only while a viz slide shows: it stops itself when
 // hidden, and setVizVisible(true) starts it again.
@@ -190,9 +160,11 @@ function animate() {
   }
 
   if (lerpTarget) {
-    camera.position.lerp(lerpTarget, 0.06);
+    camera.position.lerp(lerpTarget.position, 0.06);
+    camera.up.lerp(lerpTarget.up, 0.06).normalize();
     camera.lookAt(controls.target);
-    if (camera.position.distanceTo(lerpTarget) < 0.005) lerpTarget = null;
+    if (camera.position.distanceTo(lerpTarget.position) < 0.005 &&
+        camera.up.distanceTo(lerpTarget.up) < 0.005) lerpTarget = null;
     needsRender = true;
   }
 

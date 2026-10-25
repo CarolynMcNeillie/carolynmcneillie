@@ -6,7 +6,7 @@
 
 export function mount(container) {
   const hasP3 = window.matchMedia("(color-gamut: p3)").matches;
-  let simMode = !hasP3; // default: sim on sRGB devices, off on P3
+  let simMode = false; // show the actual display colours first on every device
 
   container.innerHTML = `
     <style>
@@ -77,7 +77,7 @@ export function mount(container) {
 
       <div class="rr-controls">
         <button class="rr-sim-btn pill-button ${simMode ? "active" : ""}" id="rr-sim-btn" aria-pressed="${simMode}">
-          ${simMode ? "simulation: on" : "simulation: off"}
+          ${simMode ? "Simulation of a wider-gamut difference: on" : "Simulation: off"}
         </button>
       </div>
     </div>
@@ -89,7 +89,7 @@ export function mount(container) {
   function render() {
     simOverlay.classList.toggle("visible", simMode);
     simBtn.classList.toggle("active", simMode);
-    simBtn.textContent = simMode ? "simulation: on" : "simulation: off";
+    simBtn.textContent = simMode ? "Simulation of a wider-gamut difference: on" : "Simulation: off";
 
   }
 

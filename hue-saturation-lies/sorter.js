@@ -1,4 +1,5 @@
 import { LIBRARY, ORDER, SLIDES } from './slides.js';
+import { spokenWords } from './script-format.js';
 
 const dialog = document.querySelector('#slide-sorter');
 const sectionsEl = document.querySelector('#sorter-sections');
@@ -11,8 +12,9 @@ let dirty = false;
 let saved = false;
 let saveQueue = Promise.resolve();
 let saveFailed = false;
+let thumbIndex = {};
+let thumbRequest = 0;
 
-const words = (text = '') => (text.trim().match(/\S+/g) || []).length;
 const itemId = (item) => item.id ?? item.placeholder;
 const content = (item) => item.id ? LIBRARY[item.id] : { slide: {}, script: { title: 'Placeholder', body: item.note } };
 const visibleIds = () => order.sections.flatMap((section) => section.items.filter((item) => !item.hidden).map(itemId));
@@ -98,6 +100,17 @@ function openSlide(id) {
   // The order can change while the sorter is open; reload reads the saved order.
   close(id);
 }
+function addThumbnail(thumb, id) {
+  const version = thumbIndex[id];
+  if (!version || thumb.querySelector('img')) return;
+  const image = document.createElement('img');
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  image.alt = '';
+  image.addEventListener('error', () => image.remove(), { once: true });
+  image.src = `/thumbs/${encodeURIComponent(id)}.png?v=${encodeURIComponent(version)}`;
+  thumb.append(image);
+}
 function makeCard(item) {
   const id = itemId(item);
   const { slide, script } = content(item);
@@ -126,6 +139,7 @@ function makeCard(item) {
   thumb.className = 'sorter-thumb';
   if (image) thumb.style.backgroundImage = `url("${image.replaceAll('"', '%22')}")`;
   thumb.setAttribute('aria-hidden', 'true');
+  addThumbnail(thumb, id);
   card.append(thumb);
   const details = document.createElement('div');
   details.className = 'sorter-details';
@@ -143,7 +157,7 @@ function makeCard(item) {
   const kind = item.placeholder ? 'placeholder' : slide.demo ? `demo: ${slide.demo}` : slide.viz ? 'viz' : image ? 'image' : 'body text';
   const meta = document.createElement('span');
   meta.className = 'sorter-meta';
-  meta.textContent = `${id} · ${kind} · ${words(script.body)} words`;
+  meta.textContent = `${id} · ${kind} · ${spokenWords(script.body)} words`;
   details.append(meta);
   card.append(details);
   const controls = document.createElement('div');
@@ -177,7 +191,7 @@ function render(focusId, focusControl) {
   sectionsEl.replaceChildren();
   let total = 0;
   for (const [si, section] of order.sections.entries()) {
-    const wordCount = section.items.reduce((sum, item) => sum + (item.hidden ? 0 : words(content(item).script.body)), 0);
+    const wordCount = section.items.reduce((sum, item) => sum + (item.hidden ? 0 : spokenWords(content(item).script.body)), 0);
     total += wordCount;
     const group = document.createElement('section');
     group.className = 'sorter-section';
@@ -267,9 +281,18 @@ function open() {
   saved = false;
   saveFailed = false;
   order = structuredClone(ORDER);
+  thumbIndex = {};
+  const request = ++thumbRequest;
   render();
   updateStatus('Ready');
   dialog.hidden = false;
+  fetch('/thumbs/index.json').then((response) => response.ok ? response.json() : {}).then((index) => {
+    if (dialog.hidden || request !== thumbRequest) return;
+    thumbIndex = index;
+    for (const thumb of sectionsEl.querySelectorAll('.sorter-thumb')) {
+      addThumbnail(thumb, thumb.closest('.sorter-card').dataset.id);
+    }
+  }).catch(() => {});
   for (const sibling of document.body.children) if (sibling !== dialog && sibling.tagName !== 'SCRIPT') sibling.inert = true;
   closeButton.focus();
 }

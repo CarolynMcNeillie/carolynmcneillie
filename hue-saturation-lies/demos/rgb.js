@@ -1,10 +1,44 @@
 // ── RGB / Subpixel Demo ──────────────────────────────────────────────────────
-// One pixel. Three subpixel bars. Each bar IS the slider.
-// Type "black" keeps the background black (srgb); the default shows the
-// pixel's colour (srgb-2). update(type) carries the demo from one slide to the
-// next: the bars glide to new values and the background fades in OKLCH from
-// black to the colour, instead of a fade through black. On srgb-2 each arrow
-// press glides the bars to the next colour in STEPS.
+// The black slide has interactive channel bars. The yellow-blue slide uses
+// separate cards, so the engine remounts the demo instead of carrying the bars.
+import { luminanceGrey } from './colour-utils.js';
+
+const BLUE = 'rgb(0 0 255)';
+const YELLOW = 'rgb(255 255 0)';
+// Pure channel values are already linear at the endpoints (0 and 1).
+const WEIGHTS = [0.2126, 0.7152, 0.0722];
+const relativeLuminance = channels => channels.reduce((sum, channel, i) => sum + WEIGHTS[i] * channel, 0);
+const LUMINANCE = { blue: relativeLuminance([0, 0, 1]), yellow: relativeLuminance([1, 1, 0]) };
+
+function mountYellowBlue(container) {
+  container.innerHTML = `<style>
+    .rgb-compare { background:var(--scrim); color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2rem; padding:2rem; }
+    .rgb-compare-row { display:flex; gap:2rem; width:min(900px, 95%); justify-content:center; }
+    .rgb-compare-card { flex:1; max-width:400px; display:grid; gap:1rem; text-align:center; font-size:clamp(18px, 2vw, 28px); }
+    .rgb-compare-chip { height:clamp(120px, 24vh, 240px); border-radius:var(--radius); }
+    .rgb-compare-grey { height:2rem; border-radius:var(--radius); }
+    .rgb-compare-note { color:var(--ink-muted); font-size:var(--text-label); }
+  </style><div class="rgb-compare demo-root"><div class="rgb-compare-row"></div></div>`;
+  const row = container.querySelector('.rgb-compare-row');
+  function step(index) {
+    row.replaceChildren();
+    for (const [name, colour] of [['blue', BLUE], ['yellow', YELLOW]]) {
+      if (index === 0 && name !== 'blue' || index === 1 && name !== 'yellow') continue;
+      const card = document.createElement('div');
+      card.className = 'rgb-compare-card';
+      card.innerHTML = `<div class="rgb-compare-chip"></div><code class="css-tag"></code><div class="rgb-compare-grey"></div><span class="rgb-compare-note"></span>`;
+      card.querySelector('.rgb-compare-chip').style.backgroundColor = colour;
+      card.querySelector('code').textContent = colour;
+      const grey = card.querySelector('.rgb-compare-grey');
+      grey.style.backgroundColor = luminanceGrey(colour);
+      grey.style.display = index === 2 ? '' : 'none';
+      card.querySelector('.rgb-compare-note').textContent = index === 2 ? `Relative luminance: ${LUMINANCE[name].toFixed(3)}` : '';
+      row.appendChild(card);
+    }
+  }
+  return { step, cleanup: () => { container.innerHTML = ''; } };
+}
+
 function toHex2(n)  { return n.toString(16).padStart(2, '0').toUpperCase(); }
 
 // srgb-2's arrow steps: red, pink (green and blue to half), dark red (red to
@@ -18,6 +52,7 @@ const CHANNELS = [
 ];
 
 export function mount(container, type) {
+  if (type === 'yellow-blue') return mountYellowBlue(container);
   let r = Math.floor(Math.random() * 256);
   let g = Math.floor(Math.random() * 256);
   let b = Math.floor(Math.random() * 256);

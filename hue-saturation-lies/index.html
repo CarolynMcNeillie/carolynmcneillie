@@ -47,6 +47,14 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="sorter.css" />
     <link rel="stylesheet" href="script-editor.css" />
+    <style>
+      #viz-annotations[data-viz-axis] .viz-ann { opacity: .22; }
+      #viz-annotations[data-viz-axis="l"] .viz-ann[data-for="x"],
+      #viz-annotations[data-viz-axis="c"] .viz-ann[data-for="z"],
+      #viz-annotations[data-viz-axis="h"] .viz-ann[data-for="y"] { opacity: 1; }
+      #viz-annotations[data-viz-axis] .viz-ann line,
+      #viz-annotations[data-viz-axis] .viz-ann text { stroke-opacity: 1; fill-opacity: 1; }
+    </style>
   </head>
   <body>
     <!-- Grayscale by luminance, for the .grayscale class. Each pixel becomes the grey
@@ -63,12 +71,6 @@
     <div id="illustration" aria-hidden="true"></div>
     <div id="viz-layer"></div>
     <div id="demo-layer"></div>
-    <div id="rotation-controls" role="group" aria-label="View controls">
-      <button class="pill-button" data-axis="x" aria-pressed="false">Lightness</button>
-      <button class="pill-button" data-axis="z" aria-pressed="false">Chroma</button>
-      <button class="pill-button" data-axis="y" aria-pressed="false">Hue</button>
-      <button class="icon-button" id="viz-grayscale" aria-label="Grayscale" title="Grayscale" aria-pressed="false"></button>
-    </div>
     <div id="slide-text" role="complementary" aria-label="Presenter notes">
       <div id="slide-content">
         <div id="slide-title" class="caps-label"></div>
@@ -157,7 +159,7 @@
           fill="rgba(255,215,100,0.45)"
           text-anchor="middle"
         >
-          lightness
+          L · lightness
         </text>
       </svg>
 
@@ -220,7 +222,7 @@
           fill="rgba(255,215,100,0.45)"
           text-anchor="middle"
         >
-          hue
+          H · hue
         </text>
       </svg>
 
@@ -285,7 +287,7 @@
           fill="rgba(255,215,100,0.45)"
           text-anchor="end"
         >
-          chroma
+          C · chroma
         </text>
       </svg>
     </div>
@@ -316,6 +318,7 @@
     </div>
 
     <script type="module" src="engine.js"></script>
+    <script type="module" src="pointer.js"></script>
     <script type="module" src="sorter.js"></script>
     <script type="module" src="script-editor.js"></script>
   </body>

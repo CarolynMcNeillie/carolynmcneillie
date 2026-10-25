@@ -14,12 +14,14 @@ export function mount(container) {
   const stops = Array.from({ length: 25 }, (_, i) => `oklch(0.70 0.12 ${i * 15}) ${i * 15}deg`).join(', ');
   container.innerHTML = `
     <style>
-      .after { --a: oklch(0.70 0.12 30); --b: oklch(from var(--a) l c calc(h + 180)); background: var(--scrim); position: absolute; inset: 0; }
+      .after { --base: oklch(0.70 0.12 30); --opposite: oklch(from var(--base) l c calc(h + 180)); background: var(--scrim); position: absolute; inset: 0; }
       .after-stage { position: absolute; inset: 0; pointer-events: none; }
-      .after-square { position: absolute; top: 50%; width: min(30vw, 48vh); aspect-ratio: 1; transform: translateY(-50%); }
-      .after-left { right: calc(50% + 24px); background: var(--a); }
-      .after-right { left: calc(50% + 24px); background: var(--b); }
-      .after-dot { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); border: 3px solid var(--ink); border-radius: 50%; background: var(--scrim); }
+      .after-square { position: absolute; top: 42%; width: min(28vw, 42vh); aspect-ratio: 1; transform: translateY(-50%); display: flex; align-items: flex-end; padding: 16px; box-sizing: border-box; }
+      .after-square span { font: clamp(14px, 1.4vw, 20px)/1 var(--font-code); color: oklch(0.2 0 0); }
+      .after-code { position: absolute; left: 50%; top: calc(42% + min(14vw, 21vh) + 32px); transform: translateX(-50%); margin: 0; white-space: pre; font: clamp(16px, 1.9vw, 28px)/1.5 var(--font-code); color: var(--ink); }
+      .after-left { right: calc(50% + 24px); background: var(--base); }
+      .after-right { left: calc(50% + 24px); background: var(--opposite); }
+      .after-dot { position: absolute; left: 50%; top: 42%; width: 14px; height: 14px; transform: translate(-50%, -50%); border: 3px solid var(--ink); border-radius: 50%; background: var(--scrim); }
       .after-controls { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 28px; }
       .after-wheel { width: 112px; height: 112px; position: relative; border-radius: 50%; cursor: crosshair; touch-action: none; background: conic-gradient(${stops}); }
       .after-wheel::before { content: ''; position: absolute; inset: 16px; border-radius: 50%; background: var(--scrim); pointer-events: none; }
@@ -28,16 +30,18 @@ export function mount(container) {
       .after-marker-b { width: 10px; height: 10px; border-color: var(--ink-soft); }
       .after-light { position: relative; }
       .after[data-white] { background: #fff; }
-      .after[data-white] .after-square, .after[data-white] .after-wheel { visibility: hidden; }
+      .after[data-white] .after-square, .after[data-white] .after-wheel, .after[data-white] .after-code { visibility: hidden; }
       .after[data-white] .after-dot { border-color: #111; background: #fff; }
       .after[data-white] .after-light { opacity: 0; }
-      @media (max-width: 850px) { .after-square { width: min(30vw, 45vh); } .after-controls { bottom: 20px; } }
+      @media (max-width: 850px) { .after-controls { bottom: 20px; } }
     </style>
     <section class="after demo-root" aria-label="Afterimage colour experiment">
-      <div class="after-stage" role="img" aria-label="Two opposite colour squares with a central fixation dot">
-        <div class="after-square after-left"></div><div class="after-square after-right"></div>
+      <div class="after-stage" role="img" aria-label="Two opposite colour squares, --base and --opposite, with a central fixation dot">
+        <div class="after-square after-left"><span>--base</span></div><div class="after-square after-right"><span>--opposite</span></div>
         <div class="after-dot" aria-hidden="true"></div>
       </div>
+      <pre class="after-code"><code>--opposite:
+  oklch(from var(--base) l c calc(h + 180));</code></pre>
       <div class="after-controls">
         <div class="after-wheel" role="slider" tabindex="0" aria-label="Hue of the left square" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30">
           <span class="after-marker after-marker-a" aria-hidden="true"></span>
@@ -54,7 +58,7 @@ export function mount(container) {
   let pointerHeld = false;
   function setHue(value) {
     hue = safeHue(value);
-    root.style.setProperty('--a', `oklch(0.70 0.12 ${hue})`);
+    root.style.setProperty('--base', `oklch(0.70 0.12 ${hue})`);
     wheel.setAttribute('aria-valuenow', String(hue));
     for (const [selector, angle] of [['.after-marker-a', hue], ['.after-marker-b', hue + 180]]) {
       const radians = angle * Math.PI / 180;
@@ -113,6 +117,7 @@ export function mount(container) {
   button.addEventListener('keyup', onButtonKeyUp);
   button.addEventListener('blur', onButtonBlur);
   window.addEventListener('blur', release);
+  setHue(hue);
   return () => {
     window.removeEventListener('blur', release);
     container.replaceChildren();

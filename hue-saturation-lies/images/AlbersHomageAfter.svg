@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges">
+  <!-- Redrawn from "Grafik nach Josef Albers1.jpg" (FriedeWie, CC0, Wikimedia Commons),
+       after Albers, Homage to the Square (1964). Albers' grid: each square is 2 units
+       smaller, with 1 unit at the sides, 1.5 above and 0.5 below. Colours sampled from the file. -->
+  <rect width="10" height="10" fill="rgb(247 115 15)"/>
+  <rect x="1" y="1.5" width="8" height="8" fill="rgb(238 143 25)"/>
+  <rect x="2" y="3" width="6" height="6" fill="rgb(198 137 23)"/>
+  <rect x="3" y="4.5" width="4" height="4" fill="rgb(165 105 45)"/>
+</svg>

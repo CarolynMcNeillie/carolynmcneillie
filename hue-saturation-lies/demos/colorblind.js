@@ -79,8 +79,13 @@ const CVD_LABELS = {
   'deuteranomaly-a11y': 'Deuteranomaly',
 };
 
+// Types that reveal a heart instead of a digit.
+const HEART_TYPES = new Set(['achromatopsia', 'deuteranomaly']);
+// Types whose panel shows only the common name, without the clinical term.
+const COMMON_ONLY = new Set(['deuteranomaly']);
+
 function buildShapeTest(type, W, H) {
-  if (type === 'achromatopsia') {
+  if (HEART_TYPES.has(type)) {
     const scale = Math.min(W, H) * 0.28;
     const hcx = W / 2, hcy = H / 2 + scale * 0.05;
     return (cx, cy) => inHeart((cx - hcx) / scale, -(cy - hcy) / scale);
@@ -193,8 +198,9 @@ export function mount(container, type = 'deuteranomaly') {
   let els     = [];
   let severity = START_SEVERITY[type] ?? 0;
 
-  const label      = CVD_LABELS[type] ?? (type.charAt(0).toUpperCase() + type.slice(1));
-  const common     = CVD_COMMON[type];
+  const commonOnly = COMMON_ONLY.has(type);
+  const label      = commonOnly ? CVD_COMMON[type] : CVD_LABELS[type] ?? (type.charAt(0).toUpperCase() + type.slice(1));
+  const common     = commonOnly ? '' : CVD_COMMON[type];
   const isA11yType = TYPE_HUES[type]?.figL !== undefined;
   let useA11y = false;
 
@@ -246,7 +252,7 @@ export function mount(container, type = 'deuteranomaly') {
       <svg class="cvd-svg" role="img" aria-label="Dot pattern simulating ${label.toLowerCase()}"></svg>
       <div class="cvd-controls glass-panel">
         <span class="cvd-type-label">${label}</span>
-        <span class="cvd-common caps-label ">${common}</span>
+        ${common ? `<span class="cvd-common caps-label ">${common}</span>` : ''}
         ${isA11yType ? `<div class="cvd-toggle-row">
           <button class="cvd-toggle pill-button active" data-a11y="false" aria-pressed="true">Before</button>
           <button class="cvd-toggle pill-button" data-a11y="true" aria-pressed="false">After</button>
@@ -291,10 +297,39 @@ export function mount(container, type = 'deuteranomaly') {
     render();
   }
 
-  container.querySelector('#cvd-range').addEventListener('input', e => {
+  const range = container.querySelector('#cvd-range');
+  let glideFrame = 0;
+  range.addEventListener('input', e => {
+    cancelAnimationFrame(glideFrame);
     severity = parseFloat(e.target.value);
     render();
   });
+
+  // Arrow steps: step 0 holds the opening severity; step 1 glides the slider
+  // to Normal (far left). The engine calls step right after mount: that first
+  // call jumps, later ones glide. Reduced motion always jumps.
+  const GLIDE_MS = 1800;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let stepped = false;
+  function setSeverity(value) {
+    severity = value;
+    range.value = String(value);
+    render();
+  }
+  function step(index) {
+    const goal = index >= 1 ? 0 : (START_SEVERITY[type] ?? 0);
+    cancelAnimationFrame(glideFrame);
+    if (!stepped || reduced.matches) { stepped = true; setSeverity(goal); return; }
+    const from = severity;
+    const start = performance.now();
+    const tick = now => {
+      const t = Math.min(1, (now - start) / GLIDE_MS);
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+      setSeverity(from + (goal - from) * eased);
+      if (t < 1) glideFrame = requestAnimationFrame(tick);
+    };
+    glideFrame = requestAnimationFrame(tick);
+  }
 
   if (isA11yType) {
     container.querySelectorAll('.cvd-toggle').forEach(btn => {
@@ -314,9 +349,10 @@ export function mount(container, type = 'deuteranomaly') {
   observer.observe(container);
 
   rebuild();
-  return () => {
+  return { step, cleanup() {
+    cancelAnimationFrame(glideFrame);
     observer.disconnect();
     clearTimeout(resizeTimer);
     container.innerHTML = '';
-  };
+  } };
 }

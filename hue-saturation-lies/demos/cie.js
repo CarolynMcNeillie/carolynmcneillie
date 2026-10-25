@@ -254,15 +254,13 @@ function drawBase(canvas) {
 }
 
 // ── Gamut overlay: blit base + darken outside selected triangle ───────────────
-function drawGamut(canvas, offscreen, gamut) {
+function drawGamut(canvas, gamut, opacity) {
+  if (!gamut || opacity <= 0) return;
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
   const toPixel = makeToPixel(W, H);
-
-  ctx.clearRect(0, 0, W, H);
-  ctx.drawImage(offscreen, 0, 0);
-
-  if (!gamut) return;
+  ctx.save();
+  ctx.globalAlpha = opacity;
 
   // Even-odd compound path: horseshoe (outer) + triangle (inner).
   // Pixels inside the horseshoe but outside the triangle are filled once (odd)
@@ -303,6 +301,7 @@ function drawGamut(canvas, offscreen, gamut) {
     ctx.textAlign = dx > 0 ? 'left' : 'right';
     ctx.fillText(['R', 'G', 'B'][i], px + dx, py + dy);
   }
+  ctx.restore();
 }
 
 // ── Mount ─────────────────────────────────────────────────────────────────────
@@ -345,11 +344,41 @@ export function mount(container) {
 
   const canvas    = container.querySelector('canvas');
   const offscreen = document.createElement('canvas');
-  let selectedId  = null;
+  let selectedId = null;
+  let previousId = null;
+  let progress = 1;
+  let frame = null;
+  let startTime = 0;
+  let firstStep = true;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  function getGamut() { return GAMUTS.find(g => g.id === selectedId) ?? null; }
+  function getGamut(id) { return GAMUTS.find(g => g.id === id) ?? null; }
 
-  function redraw() { drawGamut(canvas, offscreen, getGamut()); }
+  function redraw() {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(offscreen, 0, 0);
+    drawGamut(canvas, getGamut(previousId), 1 - progress);
+    drawGamut(canvas, getGamut(selectedId), progress);
+  }
+
+  function select(id, animate = true) {
+    if (frame !== null) cancelAnimationFrame(frame);
+    previousId = selectedId;
+    selectedId = id;
+    progress = animate && !reducedMotion.matches ? 0 : 1;
+    container.querySelectorAll('.cie-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.id === selectedId));
+    redraw();
+    if (progress === 1) return;
+    startTime = performance.now();
+    function tick(now) {
+      progress = Math.min(1, (now - startTime) / 550);
+      redraw();
+      frame = progress < 1 ? requestAnimationFrame(tick) : null;
+    }
+    frame = requestAnimationFrame(tick);
+  }
 
   function resize() {
     const W = container.clientWidth;
@@ -366,10 +395,7 @@ export function mount(container) {
     const gamut = GAMUTS.find(g => g.id === btn.dataset.id);
     btn.style.setProperty('--btn-color', gamut.stroke.replace(/,[^,]+\)$/, ',1)'));
     btn.addEventListener('click', () => {
-      selectedId = selectedId === btn.dataset.id ? null : btn.dataset.id;
-      container.querySelectorAll('.cie-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.id === selectedId));
-      redraw();
+      select(selectedId === btn.dataset.id ? null : btn.dataset.id);
     });
   });
 
@@ -378,9 +404,16 @@ export function mount(container) {
   observer.observe(container);
   resize();
 
-  return () => {
-    observer.disconnect();
-    clearTimeout(resizeTimer);
-    container.innerHTML = '';
+  return {
+    step(index) {
+      select(GAMUTS[index - 1]?.id ?? null, !firstStep);
+      firstStep = false;
+    },
+    cleanup() {
+      if (frame !== null) cancelAnimationFrame(frame);
+      observer.disconnect();
+      clearTimeout(resizeTimer);
+      container.innerHTML = '';
+    },
   };
 }

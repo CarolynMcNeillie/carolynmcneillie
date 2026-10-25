@@ -49,6 +49,23 @@ function wcagLuminance(h, s, l) {
 }
 
 const CT_S = 90, CT_BG_L = 91, CT_FG_L = 60;
+// OKLCH variant (the-contrast-ratio-problem): both chromas stay inside sRGB at
+// every degree (the blue and yellow cusps limit them). The ratio stays between
+// 4.65:1 and 4.77:1 all the way round.
+const OK_BG_L = 0.85, OK_BG_C = 0.07, OK_FG_L = 0.45, OK_FG_C = 0.075;
+function oklchLuminance(l, c, h) {
+  const rad = h * Math.PI / 180;
+  const a = c * Math.cos(rad), b = c * Math.sin(rad);
+  const L = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const M = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const S = (l - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+  const rgb = [
+    4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S,
+    -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S,
+    -0.0041960863 * L - 0.7034186147 * M + 1.7076147010 * S,
+  ];
+  return rgb.reduce((sum, channel, i) => sum + channel * [0.2126, 0.7152, 0.0722][i], 0);
+}
 // The sample text is 32px (24pt) regular, which WCAG 2 counts as large text
 // (at least 18pt regular or 14pt bold), so AA needs 3:1, not 4.5:1
 // (SC 1.4.3). Change this if the text size changes. The ratio runs from
@@ -75,14 +92,21 @@ const at = (period) => -(START_H / 360) * period;
 //   which the compositor moves without repainting.
 // Each row covers the 1° centred on its hue (hence the half-step delay).
 // Removing this demo's DOM removes both animations.
-export function mount(container) {
-  const color = (h, foreground) => `hsl(${h} ${CT_S}% ${foreground ? CT_FG_L : CT_BG_L}%)`;
+export function mount(container, type) {
+  const oklch = type === 'oklch';
+  // The HSL sweep says it while the ratio collapses; the OKLCH sweep means it.
+  const message = type === 'talked' ? 'We already talked about this.' : oklch ? 'This is actually fine.' : 'This is fine.';
+  const color = (h, foreground) => oklch
+    ? `oklch(${foreground ? OK_FG_L : OK_BG_L} ${foreground ? OK_FG_C : OK_BG_C} ${h})`
+    : `hsl(${h} ${CT_S}% ${foreground ? CT_FG_L : CT_BG_L}%)`;
+  const passes = [];
   const rows = Array.from({ length: STEPS }, (_, i) => {
     const h = i * 360 / STEPS;
-    const bgLum = wcagLuminance(h, CT_S, CT_BG_L);
-    const fgLum = wcagLuminance(h, CT_S, CT_FG_L);
+    const bgLum = oklch ? oklchLuminance(OK_BG_L, OK_BG_C, h) : wcagLuminance(h, CT_S, CT_BG_L);
+    const fgLum = oklch ? oklchLuminance(OK_FG_L, OK_FG_C, h) : wcagLuminance(h, CT_S, CT_FG_L);
     const ratio = (Math.max(bgLum, fgLum) + 0.05) / (Math.min(bgLum, fgLum) + 0.05);
     const pass = ratio >= AA_LARGE;
+    passes[i] = pass;
     return `
       <div class="hc-row">
         <span class="hc-ratio-num">${shown(ratio)}:1</span>
@@ -115,6 +139,9 @@ export function mount(container) {
         color: ${color('var(--hc-h)', true)};
         user-select: none;
       }
+      /* The face is drawn in the text colour, so it has the text's contrast. */
+      .hc-face svg { width: 1.1em; height: 1.1em; vertical-align: -0.2em; margin-left: 0.3em; }
+      .hc-face svg[hidden] { display: none; }
       /* One compact, solid rail: blur over the moving stage would repaint. */
       .hc-controls {
         position: absolute;
@@ -141,7 +168,6 @@ export function mount(container) {
       .hc-badge.pass { color: var(--good); }
       .hc-badge.fail { color: var(--bad); }
       .hc-hue { margin-left: auto; min-width: 4ch; text-align: right; }
-      .hc-threshold { color: var(--ink-muted); font-size: var(--text-label); }
       .hc-root.playing :is(.hc-wrap, .hc-rows, .hc-needle) { animation-play-state: running; }
       /* Desaturate the stage only: the readout and the wheel keep their colour. */
       .hc-root.gray .hc-wrap { filter: url(#luminance-gray); }
@@ -170,7 +196,6 @@ export function mount(container) {
         .hc-controls { max-width: calc(100vw - 1rem); padding-inline: 0.5rem; }
         .hc-head { gap: 0.3rem; }
         .hc-head .hc-ticker { width: 12rem; }
-        .hc-threshold { display: none; }
       }
       /* Reduced motion: no sweep. Both step together, 10° every second. */
       @media (prefers-reduced-motion: reduce) {
@@ -181,11 +206,10 @@ export function mount(container) {
     </style>
     <div class="hc-root">
       <div class="hc-wrap">
-        <p class="hc-text">The quick brown fox jumped over the lazy dogs.</p>
+        <p class="hc-text">${message}<span class="hc-face" aria-hidden="true"><svg class="hc-smile" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="16" cy="16" r="13.5"/><circle cx="11" cy="13" r="1.5" fill="currentColor"/><circle cx="21" cy="13" r="1.5" fill="currentColor"/><path d="M9.5 19.5Q16 26 22.5 19.5"/></svg><svg class="hc-grimace" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" hidden><circle cx="16" cy="16" r="13.5"/><circle cx="11" cy="12.5" r="1.5" fill="currentColor"/><circle cx="21" cy="12.5" r="1.5" fill="currentColor"/><rect x="8.5" y="17.5" width="15" height="7" rx="2"/><path d="M8.5 21h15M12.5 17.5v7M16 17.5v7M19.5 17.5v7" stroke-width="1.5"/></svg></span></p>
       </div>
       <div class="hc-controls caps-label">
         <div class="hc-head">
-          <span class="hc-threshold">AA LARGE ≥${AA_LARGE}:1</span>
           <div class="hc-ticker"><div class="hc-rows">${rows}</div></div>
           <div class="hc-wheel-box" aria-hidden="true">
             <div class="hc-wheel"></div>
@@ -200,20 +224,45 @@ export function mount(container) {
 
   const root = container.querySelector(".hc-root");
   const button = container.querySelector(".hc-play");
-  button.addEventListener("click", () => {
-    const playing = root.classList.toggle("playing");
+  const setPlaying = (playing) => {
+    root.classList.toggle("playing", playing);
     const label = playing ? "Pause the hue sweep" : "Play the hue sweep";
     button.setAttribute("aria-label", label);
     button.title = label;
     button.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
-  });
+  };
+  button.addEventListener("click", () => setPlaying(!root.classList.contains("playing")));
+
+  // The face follows the same verdict as the readout row for the current
+  // degree. The hue lives in the animated --hc-h, so read it once a frame.
+  const wrap = container.querySelector(".hc-wrap");
+  const smile = container.querySelector(".hc-smile");
+  const grimace = container.querySelector(".hc-grimace");
+  let frame = 0;
+  let shownPass = null;
+  const tick = () => {
+    const raw = parseFloat(getComputedStyle(wrap).getPropertyValue("--hc-h"));
+    const h = Number.isFinite(raw) ? raw : START_H;
+    const pass = passes[Math.round(h) % STEPS];
+    if (pass !== shownPass) {
+      shownPass = pass;
+      smile.toggleAttribute("hidden", !pass);
+      grimace.toggleAttribute("hidden", pass);
+    }
+    frame = requestAnimationFrame(tick);
+  };
+  tick();
 
   const grayButton = container.querySelector(".hc-gray");
   grayButton.addEventListener("click", () => {
     grayButton.setAttribute("aria-pressed", String(root.classList.toggle("gray")));
   });
 
-  return () => {
-    container.innerHTML = "";
+  return {
+    step(index) { setPlaying(index > 0); },
+    cleanup() {
+      cancelAnimationFrame(frame);
+      container.innerHTML = "";
+    },
   };
 }

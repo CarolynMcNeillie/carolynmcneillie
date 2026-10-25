@@ -42,16 +42,6 @@ export function mount(container) {
         align-items: center;
         width: min(560px, 90vw);
       }
-      .sf-slider-row {
-        display: flex; align-items: center; gap: 1.2rem; width: 100%;
-      }
-      .sf-slider-label {
-        letter-spacing: var(--tracking-caps);
-        /* Wide enough for "Lightness: 100%" on one line, so the slider
-           does not move as the number grows. */
-        color: var(--ink-muted); width: 12rem; flex-shrink: 0; white-space: nowrap;
-      }
-      .sf-slider-row input[type=range] { flex: 1; }
     </style>
     <div class="sf-wrap demo-root">
       <span class="sf-label caps-label" id="sf-top-label">All at HSL Lightness ${l}%</span>
@@ -60,10 +50,6 @@ export function mount(container) {
 
       <div class="sf-controls">
         <button type="button" class="icon-button" id="sf-gray" aria-label="Grayscale" title="Grayscale" aria-pressed="false">${GRAYSCALE_ICON}</button>
-        <div class="sf-slider-row">
-          <span class="sf-slider-label caps-label " id="sl-l-label">Lightness: 50%</span>
-          <input type="range" id="sl-l" min="0" max="100" value="50" aria-label="Lightness">
-        </div>
       </div>
     </div>
   `;
@@ -85,17 +71,12 @@ export function mount(container) {
     });
     topLbl.textContent = `All at HSL Lightness ${l}%`;
     container.querySelector('.sf-code').textContent = `hsl(h 100% ${l}%)`;
-    container.querySelector("#sl-l-label").textContent = `Lightness: ${l}%`;
   }
 
   const grayBtn = container.querySelector('#sf-gray');
   grayBtn.addEventListener('click', () => {
     grayActive = !grayActive;
     grayBtn.setAttribute('aria-pressed', String(grayActive));
-    render();
-  });
-  container.querySelector("#sl-l").addEventListener("input", (e) => {
-    l = +e.target.value;
     render();
   });
 

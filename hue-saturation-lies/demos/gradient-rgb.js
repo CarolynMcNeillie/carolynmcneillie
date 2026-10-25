@@ -1,4 +1,5 @@
 import { PATH_PAIRS } from './gradient-pairs.js';
+import { createRgbCube } from './rgb-cube.js';
 
 // Blue to yellow only: the pair the narration names, and the one whose channels
 // cross in the middle. The second background step plays the sweep.
@@ -21,6 +22,8 @@ export function mount(container) {
     .g-rgb-bar { position:relative; width:clamp(2.5rem,5vw,5rem); height:clamp(7.5rem,15vw,15rem); border-radius:var(--radius); overflow:hidden; }
     .g-rgb-bar-fill { position:absolute; bottom:0; left:0; right:0; border-radius:var(--radius); }
     .g-rgb-bar-label { color:var(--ink-muted); }
+    .g-rgb-cube { position:relative; flex:none; width:clamp(14rem,30vw,26rem); aspect-ratio:1; }
+    .g-rgb-cube canvas { position:absolute; inset:0; display:block; }
     .g-rgb-swatch-col { display:flex; flex-direction:column; align-items:center; gap:.5rem; }
     .g-rgb-swatch { width:clamp(7rem,15vw,14rem); aspect-ratio:1; border-radius:var(--radius); border:1px solid var(--ink-muted); }
     .g-rgb-swatch-tag { color:var(--ink); }
@@ -31,11 +34,12 @@ export function mount(container) {
     .g-rgb-marker::before { content:''; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); border:7px solid transparent; border-top-color:var(--ink); }
     .g-rgb-range { position:absolute; inset:0; width:100%; height:64px; margin:0; opacity:0; pointer-events:none; }
     .g-rgb-strip-wrap:has(.g-rgb-range:focus-visible) { outline:2px solid var(--ink); outline-offset:3px; }
-    @media (max-width:700px) { .g-rgb { gap:1rem; padding:1rem; } .g-rgb-pixel { gap:1rem; width:100%; } .g-rgb-plot { width:100%; } .g-rgb-swatch { width:5rem; } }
+    @media (max-width:700px) { .g-rgb-cube { width:9rem; } .g-rgb { gap:1rem; padding:1rem; } .g-rgb-pixel { gap:1rem; width:100%; } .g-rgb-plot { width:100%; } .g-rgb-swatch { width:5rem; } }
   </style><div class="g-rgb demo-root">
     <div class="g-rgb-heading"><div class="caps-label" id="g-rgb-title"></div><p>Move along the gradient. Each channel travels in a straight line, on its own.</p></div>
     <div class="g-rgb-pixel">
       <div class="g-rgb-bars">${channels.map((name, i) => `<div class="g-rgb-bar-group"><span class="g-rgb-bar-label caps-label">${name[0]}</span><div class="g-rgb-bar" style="background:${['#1a0000', '#001a00', '#00001a'][i]}"><div class="g-rgb-bar-fill"></div></div></div>`).join('')}</div>
+      <div class="g-rgb-cube" role="img" aria-label="The sRGB cube standing on its black corner, white on top. The blue to yellow gradient is a straight line through it, crossing the grey at its centre."></div>
       <div class="g-rgb-swatch-col"><div class="g-rgb-swatch" role="img" aria-label="Current gradient colour"></div><code class="css-tag g-rgb-swatch-tag"></code></div>
     </div>
     <div class="g-rgb-plot"><div class="g-rgb-strip-wrap"><div class="g-rgb-strip" role="img" aria-label="Gradient from blue to yellow"></div><div class="g-rgb-marker" aria-hidden="true"></div><input class="g-rgb-range" type="range" min="0" max="1000" value="500" aria-label="Position along the gradient"></div></div>
@@ -47,6 +51,7 @@ export function mount(container) {
   const marker = container.querySelector('.g-rgb-marker');
   const range = container.querySelector('.g-rgb-range');
   const fills = [...container.querySelectorAll('.g-rgb-bar-fill')];
+  const cube = createRgbCube(container.querySelector('.g-rgb-cube'), PAIR);
 
   function renderPair() {
     const { a, b, names } = pair();
@@ -65,6 +70,7 @@ export function mount(container) {
     container.querySelector('.g-rgb-swatch').style.backgroundColor = rgb(values);
     container.querySelector('.g-rgb-swatch-tag').textContent = rgb(values);
     marker.style.left = `${t * 100}%`;
+    cube.setT(t);
     range.value = String(Math.round(t * 1000));
     range.setAttribute('aria-valuetext', `${Math.round(t * 100)} percent: red ${values[0]}, green ${values[1]}, blue ${values[2]}`);
   }
@@ -103,6 +109,7 @@ export function mount(container) {
     step,
     cleanup() {
       stop();
+      cube.dispose();
       motion.removeEventListener('change', onMotionChange);
       wrap.removeEventListener('pointermove', onStrip);
       wrap.removeEventListener('pointerdown', onStrip);

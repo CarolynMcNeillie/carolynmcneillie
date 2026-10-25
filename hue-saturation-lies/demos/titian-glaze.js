@@ -1,17 +1,11 @@
 // A colour-design analogy to glazing, not a physical pigment simulation.
-const NAMES = ['Premix with black', 'Lightness only', 'Glaze-like', 'Mix with opposite'];
+const NAMES = ['Mix towards black in sRGB', 'Lower OKLCH L', 'Lower L, reduce C, shift H'];
 function expressions(i) {
   const delta = (i * 0.07).toFixed(2);
   return [
     `color-mix(in srgb, var(--color), black ${i * 14}%)`,
     `oklch(from var(--color) calc(l - ${delta}) c h)`,
     `oklch(from var(--color) calc(l - ${delta}) calc(c * ${(1 - i * 0.08).toFixed(2)}) calc(h + ${i * 5}))`,
-    // A painter knocks a colour back with a touch of its complement, not grey.
-    // Both sides step down the same lightness as the row above. Mixing in
-    // oklch keeps the chroma and swings the hue a little toward the
-    // complement, which reads like paint. (At exactly 180 degrees the hue
-    // path is a tie: hues under 180 travel up, hues over 180 travel down.)
-    `color-mix(in oklch, oklch(from var(--color) calc(l - ${delta}) c h), oklch(from var(--color) calc(l - ${delta}) c calc(h + 180)) ${i * 3}%)`,
   ];
 }
 export function mount(container, type) {

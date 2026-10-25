@@ -1,7 +1,8 @@
-// Original colour-panel study: seeded randomness, not a reproduction of a Richter work.
+// Original Kelly-inspired colour-panel study with seeded randomness.
 const COLUMNS = 12;
 const ROWS = 8;
 const SEED = 0x52696368;
+import { oklchToLinearRGB } from './colour-utils.js';
 
 function random(seed) {
   let state = seed >>> 0;
@@ -15,16 +16,7 @@ function random(seed) {
 
 // Convert OKLCH to linear sRGB to find the largest in-gamut chroma at a fixed L and H.
 function inSRGB(l, c, h) {
-  const radians = h * Math.PI / 180;
-  const a = c * Math.cos(radians), b = c * Math.sin(radians);
-  const ll = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
-  const mm = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
-  const ss = (l - 0.0894841775 * a - 1.2914855480 * b) ** 3;
-  return [
-    4.0767416621 * ll - 3.3077115913 * mm + 0.2309699292 * ss,
-    -1.2684380046 * ll + 2.6097574011 * mm - 0.3413193965 * ss,
-    -0.0041960863 * ll - 0.7034186147 * mm + 1.7076147010 * ss,
-  ].every(channel => channel >= -0.000001 && channel <= 1.000001);
+  return oklchToLinearRGB(l, c, h).every(channel => channel >= -0.000001 && channel <= 1.000001);
 }
 
 function gamutChroma(l, c, h) {
@@ -48,10 +40,15 @@ export function mount(container, type) {
       .richter-shuffle:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
       .richter-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); gap: 2px; background: var(--scrim); }
       .richter-panel { min-width: 0; min-height: 0; }
+      .richter-code { display:none; background:#000c; padding:1rem; font:clamp(16px,2vw,26px) var(--font-code); }
+      .richter.has-code .richter-code { display:grid; gap:.5rem; }
+      .richter-code label { display:grid; grid-template-columns: 7em 1fr; gap:1rem; align-items:center; font: var(--text-small) var(--font-display); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-soft); }
+      .richter-code input { flex:1; }
     </style>
     <section class="richter demo-root" aria-label="Original random colour panel study">
       <header><button class="pill-button richter-shuffle" type="button">Shuffle</button></header>
       <div class="richter-grid" role="img" aria-label="Twelve columns and eight rows of colour panels"></div>
+      <div class="richter-code"><code></code><label>Lightness<input type="range" aria-label="Grid lightness" min="0" max="1" step="0.01" value="0.7"></label><label>Chroma<input type="range" aria-label="Grid chroma" min="0" max="0.3" step="0.01" value="0.1"></label></div>
     </section>`;
   const root = container.querySelector('.richter');
   const grid = root.querySelector('.richter-grid');
@@ -61,7 +58,8 @@ export function mount(container, type) {
     grid.append(panel);
     return panel;
   });
-  let mode = 0, shuffle = 0;
+  let mode = 0, shuffle = 0, code = false, l = .7, c = .1;
+  const sliders = [...root.querySelectorAll('input')];
   function draw() {
     const rng = random(SEED + mode * 100003 + shuffle * 9973);
     panels.forEach(panel => {
@@ -69,19 +67,36 @@ export function mount(container, type) {
         const channels = Array.from({ length: 3 }, () => Math.floor(rng() * 256));
         panel.style.backgroundColor = `rgb(${channels.join(' ')})`;
       } else {
-        const l = 0.62 + rng() * 0.16;
-        const c = 0.06 + rng() * 0.08;
         const h = rng() * 360;
         panel.style.backgroundColor = `oklch(${l.toFixed(4)} ${gamutChroma(l, c, h).toFixed(4)} ${h.toFixed(2)})`;
       }
     });
+    root.querySelector('.richter-code code').textContent = `background: oklch(${l.toFixed(2)} ${c.toFixed(2)} var(--random-h));`;
+    sliders.forEach((slider, i) => { slider.value = String(i === 0 ? l : c); });
   }
   function step(n) {
-    mode = Math.max(0, Math.min(1, n));
-    shuffle = 0;
+    if (code) {
+      mode = 1;
+      if (n === 0 || n === 3) { l = .7; c = .1; }
+      if (n === 1) { l = .5; c = .1; }
+      if (n === 2) { l = .5; c = .05; }
+      if (n === 3) shuffle++;
+    } else {
+      mode = Math.max(0, Math.min(1, n));
+      l = .7; c = .1;
+    }
     draw();
   }
+  function update(type, n = 0) {
+    code = type === 'code';
+    root.classList.toggle('has-code', code);
+    step(n);
+  }
+  sliders.forEach((slider, i) => slider.addEventListener('input', () => {
+    if (i === 0) l = Number(slider.value); else c = Number(slider.value);
+    draw();
+  }));
   root.querySelector('.richter-shuffle').addEventListener('click', () => { shuffle++; draw(); });
-  step(0);
-  return { step, cleanup() { container.replaceChildren(); } };
+  update(type, 0);
+  return { step, update, cleanup() { container.replaceChildren(); } };
 }

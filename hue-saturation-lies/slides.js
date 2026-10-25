@@ -20,9 +20,13 @@ const escapeHtml = (text) => text.replace(/[&<>"]/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;",
 })[character]);
 
+const includeHidden = typeof location !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(location.hostname) &&
+  new URLSearchParams(location.search).has('thumbs');
+
 export const SLIDES = ORDER.sections.flatMap(({ items }) =>
   items.flatMap((item) => {
-    if (item.hidden) return [];
+    if (item.hidden && !includeHidden) return [];
     if ("placeholder" in item) {
       const note = escapeHtml(item.note);
       return [{

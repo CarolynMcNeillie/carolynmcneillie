@@ -1,5 +1,5 @@
 import { LIBRARY, SLIDES } from './slides.js';
-import { normalizeScript, renderScriptBody } from './script-format.js';
+import { normalizeScript, renderScriptBody, spokenWords } from './script-format.js';
 
 if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
   const panel = document.querySelector('#slide-content');
@@ -19,7 +19,6 @@ if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
     return SLIDES[/^\d+$/.test(hash) ? Number(hash) : SLIDES.findIndex((slide) => slide.id === hash)] ?? SLIDES[0];
   };
   const text = () => ({ title: input.value, body: textarea.value });
-  const words = (body) => (body.trim().match(/\S+/g) ?? []).length;
   const drafts = () => Object.keys(localStorage).filter((name) => name.startsWith('hsl-draft:'));
   function bannerUpdate() {
     const n = drafts().length;
@@ -103,7 +102,7 @@ if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
     textarea.focus();
   }
   function count() {
-    const n = words(textarea.value);
+    const n = spokenWords(textarea.value);
     countEl.textContent = `${n} words · ${(n / 130).toFixed(1)} min`;
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;

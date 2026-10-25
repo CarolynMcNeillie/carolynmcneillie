@@ -34,7 +34,8 @@
 .sorter-card:not(.is-hidden) :is(.sorter-thumb, .sorter-details) { cursor: pointer; }
 .sorter-card:not(.is-hidden):hover { border-color: #b8a47a; background: #2b2620; }
 #slide-sorter .sorter-card:not(.is-hidden):hover .sorter-card-link { text-decoration: underline; }
-.sorter-thumb { flex: 0 0 6.5rem; height: 4rem; background-color: #4c3c2c; background-position: center; background-size: cover; }
+.sorter-thumb { flex: 0 0 9rem; aspect-ratio: 16 / 10; background-color: #4c3c2c; background-position: center; background-size: cover; overflow: hidden; }
+.sorter-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sorter-details { min-width: 0; flex: 1; }
 #slide-sorter .sorter-card-link { display: block; background: transparent; border: 0; padding: .15rem 0; text-align: left; font-size: var(--text-body); }
 .sorter-meta { display: block; overflow-wrap: anywhere; line-height: 1.5; }

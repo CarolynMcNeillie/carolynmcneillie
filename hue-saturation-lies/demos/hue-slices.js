@@ -2,7 +2,7 @@ import { oklchToLinearRGB } from './colour-utils.js';
 import { PLAY_ICON, PAUSE_ICON } from './icons.js';
 
 // Seconds for one full turn of the hue wheel when the loop is running.
-const LOOP_SECONDS = 12;
+const LOOP_SECONDS = 4;
 
 // The tallest P3 peak is about 0.363 (hue 146), so 0.4 leaves headroom for its label.
 const MAX_C = .4;
@@ -157,8 +157,8 @@ export function mount(container) {
     draw();
     loop = requestAnimationFrame(spin);
   }
-  play.addEventListener('click', () => {
-    if (loop) { stopLoop(); return; }
+  function startLoop() {
+    if (loop) return;
     if (motion.matches) {
       // Reduced motion: quarter-turn hops rather than a continuous spin.
       input.value = String((Number(input.value) + 90) % 360);
@@ -170,12 +170,29 @@ export function mount(container) {
     play.setAttribute('aria-label', 'Stop the hue loop');
     play.title = 'Stop the hue loop';
     loop = requestAnimationFrame(spin);
+  }
+  play.addEventListener('click', () => {
+    if (loop) stopLoop();
+    else startLoop();
   });
   const onMotionChange = () => { if (motion.matches) stopLoop(); };
   motion.addEventListener('change', onMotionChange);
 
+  let firstStep = true;
   schedule();
   return {
+    step(index) {
+      if (firstStep) {
+        firstStep = false;
+        if (index > 0) {
+          input.value = String((Number(input.value) + 90) % 360);
+          schedule();
+        }
+        return;
+      }
+      if (index > 0) startLoop();
+      else stopLoop();
+    },
     cleanup() {
       alive = false;
       stopLoop();

@@ -21,14 +21,14 @@ export const LIBRARY = {
 
 "pigments-from-the-earth": {
     slide: {
-      body: "Pigments\nfrom the earth",
-      bodyClass: "font-display section-title",
+      title: "Lesson six: the medium is the revolution",
+      titleStyle: "lesson",
       // Ultramarine, which the next slides are about: dark enough for the pale rock.
-      bodyCSS: { color: "oklch(0.25 0.16 270)" },
+      titleCSS: { color: "oklch(0.25 0.16 270)" },
       backgrounds: [
         {
           image: "./images/01Lascaux.avif",
-          timeline: { year: -15000, label: "c. 17,000 years ago" },
+          timeline: { year: -18000, label: "More than 20,000 years ago" },
           attribution: {
             text: "Jack Versloot · CC BY 2.0",
             url: "https://commons.wikimedia.org/wiki/File:Lascaux_II.jpg",
@@ -36,7 +36,7 @@ export const LIBRARY = {
         },
         {
           image: "./images/02Lascaux.jpg",
-          timeline: { year: -15000, label: "c. 17,000 years ago" },
+          timeline: { year: -18000, label: "More than 20,000 years ago" },
           attribution: {
             text: "Prof saxx · CC BY-SA 3.0",
             url: "https://commons.wikimedia.org/wiki/File:Lascaux_painting.jpg",
@@ -139,6 +139,22 @@ export const LIBRARY = {
     },
   },
 
+"colour-is-relative": {
+    slide: {
+      title: "Lesson five: colour is relative",
+      titleStyle: "lesson",
+      fit: "whole",
+      // Redrawn as SVG from the Commons file, so the squares stay crisp at any size.
+      backgroundImage: "./images/AlbersHomageAfter.svg",
+      // Dark brown ink: 4.2:1 on the darkest square, 6.3:1 or more on the others.
+      titleCSS: { color: "oklch(0.18 0.03 50)" },
+      attribution: {
+        text: "After Josef Albers, _Homage to the Square_ (1964) · Graphic by FriedeWie · CC0",
+        url: "https://commons.wikimedia.org/wiki/File:Grafik_nach_Josef_Albers1.jpg",
+      },
+    },
+  },
+
 "albers": {
     slide: {
       demo: "albers",
@@ -160,13 +176,14 @@ export const LIBRARY = {
 
 "titian": {
     slide: {
-      fit: "whole",
-      title: "Lesson two: don't darken with black",
-      titleStyle: "pill",
-      backgroundImage: "./images/TitianBacchus.avif",
+      title: "Lesson three: dark colours should still be rich",
+      titleStyle: "lesson",
+      // Full bleed: the crop keeps both figures, the bridge and the town.
+      backgroundImage: "./images/GiorgioneTempest.avif",
+      backgroundPosition: "50% 55%",
       attribution: {
-        text: "Titian, _Bacchus and Ariadne_ (1520–23) · Public domain · National Gallery, London",
-        url: "https://commons.wikimedia.org/wiki/File:Titian_Bacchus_and_Ariadne.jpg",
+        text: "Giorgione, _The Tempest_ (c. 1506–08) · Public domain · Gallerie dell’Accademia, Venice",
+        url: "https://commons.wikimedia.org/wiki/File:Giorgione_019.jpg",
       },
     },
   },
@@ -175,17 +192,24 @@ export const LIBRARY = {
     slide: { demo: "titian-glaze" },
   },
 
+// The paper-cut forest (images/forest-layers.svg), coloured by --layer-1..9 and --sun.
+"titian-3": {
+    // Steps: the HSL greens, the three ramps (black mix, OKLCH L, shift H), the
+    // shift cranked to its maximum, the sun, then the sun scene turning round the hue wheel.
+    slide: { demo: "forest-scene", backgrounds: [{}, {}, {}, {}, {}, {}, {}] },
+  },
+
 "monet": {
     slide: {
       demo: "grayscale-toggle",
       fit: "whole",
-      title: "Lesson three: colours that vibrate",
-      titleStyle: "pill",
-      backgroundImage: "./images/MonetSunrise.avif",
-      attribution: {
-        text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris",
-        url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg",
-      },
+      title: "Lesson two: colours that vibrate",
+      titleStyle: "lesson",
+      // The title leaves on the first press, so the painting can be discussed.
+      backgrounds: [
+        { image: "./images/MonetSunrise.avif", title: "Lesson two: colours that vibrate", titleStyle: "lesson", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
+        { image: "./images/MonetSunrise.avif", title: "", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
+      ],
     },
   },
 
@@ -194,11 +218,58 @@ export const LIBRARY = {
   },
 
 "riley": {
-    slide: { demo: "riley", backgrounds: [{}, {}] },
+    slide: {
+      demo: "riley", backgrounds: [{}, {}],
+      attribution: { text: "An original study inspired by Edna Andrade's _Turbo 1-65_ (1965)" },
+    },
+  },
+
+"chance": {
+    slide: {
+      title: "Lesson four: give chance a chance",
+      titleStyle: "lesson",
+      // A mid-lightness red sits halfway between Arp's black and white: about
+      // 3.6:1 against the black shapes and 3.9:1 against the white board.
+      titleCSS: { color: "oklch(0.55 0.19 29)" },
+      // Full bleed: the photo is cropped to the board inside the frame.
+      backgroundImage: "./images/ArpConstellation.avif",
+      attribution: {
+        text: "Jean Arp, _Constellation According to the Laws of Chance_ (c. 1930) · Public domain in Canada · Tate · Photo: Wmpearl, CC0",
+        url: "https://commons.wikimedia.org/wiki/File:%27Constellation_According_to_the_Laws_of_Chance%27_by_Jean_Arp_(Hans_Arp),_Tate_Modern.JPG",
+      },
+    },
+  },
+
+"random-hues": {
+    // Replaces richter and kelly-code (and the mosaic). A tetradic palette keyed
+    // to lightness, HSL and OKLCH side by side; the dice or a click rolls again;
+    // drop or paste an image to try another. Each arrow step recolours the next
+    // artwork (art: is read by demos/hue-shift.js, not drawn as a background).
+    slide: {
+      demo: "hue-shift",
+      backgrounds: [
+        { art: "./images/IconAmericanGothic.avif", attribution: {"text":"Grant Wood, _American Gothic_ (1930) · Public domain · Art Institute of Chicago · recoloured","url":"https://commons.wikimedia.org/wiki/File:Grant_Wood_-_American_Gothic_-_Google_Art_Project.jpg"} },
+        { art: "./images/WhistlerChelsea.avif", attribution: {"text":"James McNeill Whistler, _Nocturne: Blue and Silver – Chelsea_ (1871) · Public domain · Tate · recoloured","url":"https://commons.wikimedia.org/wiki/File:James_Abbott_McNeill_Whistler_-_Nocturne-_Blue_and_Silver_-_Chelsea_-_Google_Art_Project.jpg"} },
+        { art: "./images/IconPearlEarring.avif", attribution: {"text":"Johannes Vermeer, _Girl with a Pearl Earring_ (c. 1665) · Public domain · Mauritshuis, The Hague · recoloured","url":"https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg"} },
+        { art: "./images/IconAldrinMoon.avif", attribution: {"text":"Neil Armstrong, _Buzz Aldrin on the Moon_ (1969) · Public domain · NASA · recoloured","url":"https://commons.wikimedia.org/wiki/File:Aldrin_Apollo_11_original.jpg"} },
+      ],
+    },
+  },
+
+"mosaic": {
+    // Replaces richter and kelly-code. Random hues side by side in HSL and OKLCH
+    // (a click rolls again; drop, paste or load an image to try another).
+    slide: {
+      demo: "mosaic",
+      attribution: { text: "A mosaic after Leonardo da Vinci, _Mona Lisa_ (c. 1503–19) · tiles averaged from a generated image" },
+    },
   },
 
 "richter": {
-    slide: { demo: "richter", backgrounds: [{}, {}] },
+    slide: {
+      demo: "richter", backgrounds: [{}, {}],
+      attribution: { text: "A generative study after Ellsworth Kelly's _Spectrum Colors Arranged by Chance_" },
+    },
   },
 
 "the-medium-is-the-revolution": {
@@ -379,6 +450,11 @@ export const LIBRARY = {
 "let-s-get-physical-5": {
     slide: {
       title: "",
+      body: "eureka!",
+      bodyClass: "font-display section-title",
+      // The same lemon as the "Let’s get physical" title.
+      // Above the beam: over the rainbow, the lemon is unreadable.
+      bodyCSS: { color: "oklch(0.95 0.16 120)", top: "calc(var(--stage-top) + 8%)", transform: "none" },
       backgroundImage: "./images/22Prism.avif",
       backgroundSize: "contain",
       attribution: {
@@ -458,6 +534,8 @@ export const LIBRARY = {
     slide: {
       demo: "colorblind",
       demoType: "deuteranomaly",
+      // Step 2 glides the severity slider to Normal.
+      backgrounds: [{}, {}],
     },
   },
 
@@ -519,16 +597,31 @@ export const LIBRARY = {
     slide: { demo: "pink", backgrounds: [{}, {}, {}, {}] },
   },
 
+"speaking-the-same-language": {
+    slide: {
+      body: "Speaking the\nsame language",
+      bodyClass: "font-display section-title",
+      // Near-black ink over the pale tower: 83% of the pixels under the words
+      // reach 3:1 (white reached 46%).
+      bodyCSS: { color: "oklch(0.18 0.03 40)" },
+      backgroundImage: "./images/BruegelTowerOfBabel.avif",
+      attribution: {
+        text: "Pieter Bruegel the Elder, _The Tower of Babel_ (1563) · Public domain · Kunsthistorisches Museum, Vienna",
+        url: "https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project_-_edited.jpg",
+      },
+    },
+  },
+
 "colour-systems": {
     slide: {
       // Munsell only: Newton, Runge and Werner were cut for time on 20 Oct.
       fit: "whole",
       backgrounds: [
         {
-          image: "./images/MunsellChartC1915.avif",
+          image: "./images/MunsellColorTree.avif",
           attribution: {
-            text: "Albert H. Munsell, _Atlas of the Munsell Color System_ (1915), Chart C · Public domain · Smithsonian Libraries",
-            url: "https://commons.wikimedia.org/wiki/File:Atlas_of_the_Munsell_Color_System_page_13.jpg",
+            text: "Munsell Color Tree · Photo: Hannes Grobe · CC BY-SA 4.0",
+            url: "https://commons.wikimedia.org/wiki/File:Munsell_color-tree_hg.jpg",
           },
         },
       ],
@@ -538,12 +631,17 @@ export const LIBRARY = {
 "the-abcs-of-cie-xyz": {
     slide: {
       demo: "colormatching",
+      // The arrow sets the dials one at a time, a little off, then tweaks each.
+      backgrounds: [{}, {}],
+      attribution: { text: "Illustration of colour matching, not a reconstruction of the original apparatus" },
     },
   },
 
 "the-abcs-of-cie-xyz-2": {
     slide: {
       demo: "cie",
+      // Arrow steps highlight sRGB, then Display P3, then Rec. 2020.
+      backgrounds: [{}, {}, {}, {}],
       titleStyle: "small",
     },
   },
@@ -575,7 +673,8 @@ export const LIBRARY = {
   },
 
 "the-contrast-ratio-problem": {
-    slide: { demo: "colorblind", demoType: "deuteranomaly-a11y" },
+    // The hue-saturation-lies-3 sweep again, in OKLCH: the ratio holds near 4.7:1.
+    slide: { demo: "hsl-contrast", demoType: "oklch", backgrounds: [{}, {}] },
   },
 
 "saved-by-the-hsl": {
@@ -588,7 +687,9 @@ export const LIBRARY = {
   },
 
 "hue-saturation-lies": {
-    slide: { demo: "hsl-bicone" },
+    // Arrow steps: top view with the dot round the hues, the dot in to grey,
+    // then back to the side view with the dot up and down the lightness axis.
+    slide: { demo: "hsl-bicone", backgrounds: [{}, {}, {}, {}] },
   },
 
 "lies": {
@@ -605,7 +706,8 @@ export const LIBRARY = {
   },
 
 "hue-saturation-lies-3": {
-    slide: { demo: "hsl-contrast" },
+    // The arrow presses play on the hue sweep.
+    slide: { demo: "hsl-contrast", backgrounds: [{}, {}] },
   },
 
 "an-ok-color-space": {
@@ -627,6 +729,7 @@ export const LIBRARY = {
     slide: {
       viz: true,
       rotate: false,
+      backgrounds: [{}, { vizAxis: "l" }, { vizAxis: "c" }, { vizAxis: "h" }],
       attribution: {
         text: "3D model adapted from oklch.com · Evil Martians · MIT",
         url: "https://oklch.com",
@@ -635,8 +738,32 @@ export const LIBRARY = {
   },
 
 "oklch-slices": {
-    // One slice; the hue slider scrubs it.
-    slide: { demo: "hue-slices" },
+    // One slice; the hue slider scrubs it. The arrow presses play.
+    slide: { demo: "hue-slices", backgrounds: [{}, {}] },
+  },
+
+"oklch-syntax": {
+    slide: { demo: "oklch-picker", demoType: "syntax" },
+  },
+
+"oklch-controls": {
+    slide: { demo: "oklch-picker", demoType: "controls", backgrounds: [{}, {}, {}, {}] },
+  },
+
+"oklch-edge": {
+    slide: { demo: "oklch-picker", demoType: "edge", backgrounds: [{}, {}] },
+  },
+
+"colour-harmonies-code": {
+    slide: { demo: "harmony-code" },
+  },
+
+"kelly-code": {
+    slide: { demo: "richter", demoType: "code", backgrounds: [{}, {}, {}, {}] },
+  },
+
+"monday": {
+    slide: { demo: "monday" },
   },
 
 "an-ok-color-space-3": {
@@ -651,21 +778,58 @@ export const LIBRARY = {
     slide: {
       fit: "whole",
       title: "Lesson one: colour harmonies",
-      titleStyle: "pill",
-      // Two harmonies in paintings: complementary, analogous.
+      titleStyle: "lesson",
+      // Dark ink, so the title reads on Whistler's pale blue.
+      titleCSS: { color: "oklch(0.25 0.05 255)" },
       backgrounds: [
-        {
-          image: "./images/VanGoghNightCafe.avif",
-          attribution: {
-            text: "Vincent van Gogh, _The Night Café_ (1888) · Public domain · Yale University Art Gallery",
-            url: "https://commons.wikimedia.org/wiki/File:Van_Gogh_-_The_Night_Caf%C3%A9_(1888).jpg",
-          },
-        },
         {
           image: "./images/WhistlerChelsea.avif",
           attribution: {
             text: "James McNeill Whistler, _Nocturne: Blue and Silver – Chelsea_ (1871) · Public domain · Tate",
             url: "https://commons.wikimedia.org/wiki/File:James_Abbott_McNeill_Whistler_-_Nocturne-_Blue_and_Silver_-_Chelsea_-_Google_Art_Project.jpg",
+          },
+        },
+      ],
+    },
+  },
+
+  // HSL alone, then both wheels, then HSL leaves and one painting per scheme:
+  // complementary, analogous, triadic, split-complementary, tetradic.
+  "colour-harmonies-hsl": {
+    slide: {
+      demo: "harmonies",
+      demoType: "hsl",
+      backgrounds: [
+        {},
+        {},
+        {
+          attribution: {
+            text: "Edvard Munch, _The Scream_ (1893) · Public domain · National Museum of Art, Architecture and Design, Oslo",
+            url: "https://commons.wikimedia.org/wiki/File:Edvard_Munch,_1893,_The_Scream,_oil,_tempera_and_pastel_on_cardboard,_91_x_73_cm,_National_Gallery_of_Norway.jpg",
+          },
+        },
+        {
+          attribution: {
+            text: "Vincent van Gogh, _Sunflowers_ (1888) · Public domain · National Gallery, London",
+            url: "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Sunflowers_(1888,_National_Gallery_London).jpg",
+          },
+        },
+        {
+          attribution: {
+            text: "Henri Matisse, _Dance II_ (1910) · Public domain · State Hermitage Museum",
+            url: "https://commons.wikimedia.org/wiki/File:La_Danse_II,_par_Henri_Matisse.jpg",
+          },
+        },
+        {
+          attribution: {
+            text: "Vincent van Gogh, _Café Terrace at Night_ (1888) · Public domain · Kröller-Müller Museum",
+            url: "https://commons.wikimedia.org/wiki/File:Vincent_Willem_van_Gogh_-_Cafe_Terrace_at_Night_(Yorck).jpg",
+          },
+        },
+        {
+          attribution: {
+            text: "Henri Matisse, _Woman with a Hat_ (1905) · Public domain · San Francisco Museum of Modern Art",
+            url: "https://commons.wikimedia.org/wiki/File:Matisse-Woman-with-a-Hat.jpg",
           },
         },
       ],
@@ -682,7 +846,8 @@ export const LIBRARY = {
 
 "thank-you": {
     // Step 0: "Thank you" alone. Step 1: the P.S. fades in.
-    slide: { demo: "title", demoType: "thanks", backgrounds: [{}, {}] },
+    // One step: the hiring P.S. (second step) stays hidden until it is confirmed.
+    slide: { demo: "title", demoType: "thanks" },
   },
 
 "about-me-now": {
@@ -729,11 +894,17 @@ export const LIBRARY = {
   },
 
 "gradient-paths": {
-    slide: { demo: "gradient-paths", demoType: "hsl" },
+    // The arrow sends the spot along the path, as on gradient-rgb.
+    slide: { demo: "gradient-paths", demoType: "hsl", backgrounds: [{}, {}] },
+  },
+
+"we-already-talked-about-this": {
+    // The hue-saturation-lies-3 sweep again, after the HSL gradient path.
+    slide: { demo: "hsl-contrast", demoType: "talked", backgrounds: [{}, {}] },
   },
 
 "gradient-paths-2": {
-    slide: { demo: "gradient-paths", demoType: "oklch" },
+    slide: { demo: "gradient-paths", demoType: "oklch", backgrounds: [{}, {}] },
   },
 
 "colours-between-colours": {
@@ -796,6 +967,7 @@ export const LIBRARY = {
   },
 
 "45finale": {
-    slide: { demo: "finale" },
+    // The "What could you make from there?" overlay was removed on 25 Oct.
+    slide: { viz: true, rotate: true, vizControls: false },
   },
 };

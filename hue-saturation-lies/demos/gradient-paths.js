@@ -108,7 +108,7 @@ const oklchEnds = (a, b) => [
   isGrey(b) ? greyLike(b, a) : rgbCSS(b),
 ];
 
-export function mount(container, type = 'hsl') {
+function mountScene(container, type = 'hsl') {
   if (type !== 'hsl' && type !== 'oklch') throw new Error(`Unknown gradient model: ${type}`);
   const isOklch = type === 'oklch';
   container.innerHTML = `<style>
@@ -119,17 +119,21 @@ export function mount(container, type = 'hsl') {
     .gp-axis-label { position:absolute; left:0; top:0; white-space:nowrap; font:var(--text-body)/1.3 var(--font-body); color:var(--ink-muted); }
     .gp-strips { position:absolute; bottom:1.5rem; left:1rem; right:1rem; }
     .gp-strip { height:24px; border-radius:var(--radius); }
+    .gp-strip-wrap { position:relative; }
+    .gp-marker { position:absolute; top:0; bottom:0; width:2px; background:var(--ink); transform:translateX(-50%); pointer-events:none; filter:drop-shadow(0 0 2px var(--scrim)); }
+    .gp-marker::before { content:''; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); border:7px solid transparent; border-top-color:var(--ink); }
     @media (max-width:600px) { .gp-models {inset:1rem .5rem 4rem} .gp-strips {left:.5rem;right:.5rem} }
   </style><div class="gp-root demo-root">
     <div class="gp-models" role="img" aria-label="${isOklch ? 'OKLCH gradient on the unrolled Display P3 gamut' : 'HSL gradient on the HSL bicone'}. Drag to rotate.">
       <div class="gp-canvas"></div>
       <div class="gp-panel"><span class="gp-axis-label" aria-hidden="true">L</span>${isOklch ? '<span class="gp-axis-label" aria-hidden="true">H</span><span class="gp-axis-label" aria-hidden="true">C</span>' : ''}</div>
     </div>
-    <div class="gp-strips"><div class="gp-strip" aria-hidden="true"></div></div>
+    <div class="gp-strips"><div class="gp-strip-wrap"><div class="gp-strip" aria-hidden="true"></div><div class="gp-marker" aria-hidden="true"></div></div></div>
   </div>`;
   const root = container.querySelector('.gp-root');
   const canvas = container.querySelector('.gp-canvas');
   const strip = root.querySelector('.gp-strip');
+  const marker = root.querySelector('.gp-marker');
   const renderStrip = () => {
     const pair = PAIR;
     strip.style.background = `linear-gradient(to right in ${type}, ${(isOklch ? oklchEnds(pair.a, pair.b) : [rgbCSS(pair.a), rgbCSS(pair.b)]).join(', ')})`;
@@ -140,7 +144,7 @@ export function mount(container, type = 'hsl') {
   } catch {
     canvas.textContent = '3D view unavailable: WebGL is required.';
     renderStrip();
-    return () => { container.innerHTML = ''; };
+    return { step() {}, cleanup() { container.innerHTML = ''; } };
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -162,6 +166,7 @@ export function mount(container, type = 'hsl') {
   const onMotion = () => {
     controls.autoRotate = !reducedMotion.matches;
     controls.enableDamping = !reducedMotion.matches;
+    if (reducedMotion.matches && sweepFrame) { stop(); setT(1); }
   };
   reducedMotion.addEventListener('change', onMotion);
   controls.autoRotateSpeed = .45;
@@ -204,10 +209,19 @@ export function mount(container, type = 'hsl') {
   const pathGroup = new THREE.Group();
   (shape ? shape.group : scene).add(pathGroup);
   const sphere = keep(new THREE.SphereGeometry(.045, 12, 8));
+  const ringMaterial = keep(new THREE.MeshBasicMaterial({ color:0xffffff, depthTest:false }));
+  const riderMaterial = keep(new THREE.MeshBasicMaterial({ depthTest:false }));
+  const ring = new THREE.Mesh(sphere, ringMaterial);
+  const rider = new THREE.Mesh(sphere, riderMaterial);
+  ring.scale.setScalar(1.9 * PATH_SCALE[Number(isOklch)]);
+  rider.scale.setScalar(1.45 * PATH_SCALE[Number(isOklch)]);
+  ring.renderOrder = 4; rider.renderOrder = 5;
+  pathGroup.add(ring, rider);
+  let pathPoints = [];
   let pathResources = [];
   const pathKeep = item => { pathResources.push(item); return item; };
   function renderPair() {
-    pathGroup.clear();
+    pathGroup.remove(...pathGroup.children.filter(child => child !== ring && child !== rider));
     pathResources.forEach(r => r.dispose()); pathResources = [];
     const pair = PAIR;
     renderStrip();
@@ -223,6 +237,7 @@ export function mount(container, type = 'hsl') {
         return position;
       };
       const points = samples.map(point);
+      pathPoints = points;
       root.pathData[space] = samples.map(({lab, rgb, lch, hsl}, i) => ({lab, rgb, lch, hsl, pos:points[i].toArray()}));
       // Hue is unrolled on the OKLCH model. Break a path at the 0/360 seam
       // rather than drawing a diagonal across the whole box.
@@ -258,6 +273,31 @@ export function mount(container, type = 'hsl') {
       }
     }
   }
+  let t = 0, sweepFrame = 0, started = 0, firstStep = true;
+  function setT(value) {
+    t = value;
+    const index = Math.min(99, Math.floor(t * 100));
+    const fraction = t * 100 - index;
+    const position = pathPoints[index].clone().lerp(pathPoints[index + 1], fraction);
+    ring.position.copy(position); rider.position.copy(position);
+    riderMaterial.color.copy(colour(interpolated(PAIR, type, t).rgb));
+    marker.style.left = `${t * 100}%`;
+    root.pathT = t;
+  }
+  function stop() { if (sweepFrame) cancelAnimationFrame(sweepFrame); sweepFrame = 0; started = 0; }
+  function tick(now) {
+    if (!started) started = now;
+    setT(Math.min(1, (now - started) / 4000));
+    if (t < 1) sweepFrame = requestAnimationFrame(tick);
+    else stop();
+  }
+  function step(index) {
+    stop();
+    if (index < 1) setT(0);
+    else if (firstStep || reducedMotion.matches) setT(1);
+    else { setT(0); sweepFrame = requestAnimationFrame(tick); }
+    firstStep = false;
+  }
   const resize = () => {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;
@@ -266,7 +306,7 @@ export function mount(container, type = 'hsl') {
     renderer.setSize(width, height);
   };
   const observer = new ResizeObserver(resize);
-  observer.observe(canvas); resize(); renderPair();
+  observer.observe(canvas); resize(); renderPair(); setT(0);
   let raf = 0, active = true;
   const projectLabel = (view, height) => {
     const locations = isOklch ? [
@@ -291,13 +331,35 @@ export function mount(container, type = 'hsl') {
     raf = requestAnimationFrame(frame);
   }
   frame();
-  return () => {
-    active = false; cancelAnimationFrame(raf);
-    observer.disconnect();
-    reducedMotion.removeEventListener('change', onMotion);
-    controls.dispose();
-    pathResources.forEach(r => r.dispose()); resources.forEach(r => r.dispose()); shape?.dispose();
-    renderer.dispose(); renderer.forceContextLoss();
-    container.innerHTML = '';
+  return {
+    step,
+    cleanup() {
+      stop();
+      active = false; cancelAnimationFrame(raf);
+      observer.disconnect();
+      reducedMotion.removeEventListener('change', onMotion);
+      controls.dispose();
+      pathResources.forEach(r => r.dispose()); resources.forEach(r => r.dispose()); shape?.dispose();
+      renderer.dispose(); renderer.forceContextLoss();
+      container.innerHTML = '';
+    },
+  };
+}
+
+// The engine keeps the original callbacks when it carries this demo to the
+// next slide, so delegate through the replacement scene after a type change.
+export function mount(container, type = 'hsl') {
+  let scene = mountScene(container, type);
+  return {
+    step(index) { scene.step(index); },
+    update(nextType, index) {
+      if (nextType !== type) {
+        scene.cleanup();
+        scene = mountScene(container, nextType);
+        type = nextType;
+      }
+      scene.step(index);
+    },
+    cleanup() { scene.cleanup(); },
   };
 }

@@ -1,9 +1,42 @@
 // Script content is plain Markdown separated by explicit slide and section markers.
-export const normalizeBody = (body) => body.split('\n').map((line) => line.trim()).join('\n').trim();
+export const normalizeBody = (body) => {
+  let fenced = false;
+  return body.split('\n').map((line) => {
+    if (line.trim().startsWith('```')) { fenced = !fenced; return line.trim(); }
+    return fenced ? line.trimEnd() : line.trim();
+  }).join('\n').trim();
+};
 export const normalizeScript = ({ title, body }) => ({ title, body: normalizeBody(body) });
-export const renderScriptBody = (body) => body.replace(/[&<>]/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;',
-})[char]).replace(/_(.*?)_/g, '<em>$1</em>');
+
+const escapeHTML = (text) => text.replace(/[&<>"']/g, (char) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+})[char]);
+
+export function spokenWords(body) {
+  const clean = body
+    .replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '')
+    .replace(/\(\[[^\]]+\]\([^)]*\)\)/g, '')
+    .replace(/\[[^\]]*\](?!\([^)]*\))/g, '')
+    .replace(/\(Audience participation:[^)]*\)/gs, '');
+  return (clean.match(/\S+/g) ?? []).length;
+}
+
+export function renderScriptBody(body) {
+  const tokens = [];
+  const keep = (html) => {
+    tokens.push(html);
+    return `\u0000${tokens.length - 1}\u0000`;
+  };
+  let html = escapeHTML(body)
+    .replace(/^```[^\n]*\n([\s\S]*?)^```\s*$/gm, (_, code) => keep(`<pre><code>${code.replace(/\n$/, '')}</code></pre>`))
+    .replace(/`([^`\n]+)`/g, (_, code) => keep(`<code>${code}</code>`))
+    .replace(/\(\[([^\]]+)\]\((https?:\/\/[^)]+)\)\)/g, (_, label, url) => keep(`<a class="cite" href="${url}">(${label})</a>`))
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_, label, url) => keep(`<a href="${url}">${label}</a>`))
+    .replace(/\[([^\]\n]+)\]/g, (_, cue) => keep(`<span class="cue">[${cue}]</span>`));
+  html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/_([^_\n]+)_/g, '<em>$1</em>');
+  return html.replace(/\u0000(\d+)\u0000/g, (_, index) => tokens[Number(index)]);
+}
 
 export function parseScript(text) {
   const scripts = Object.create(null);
