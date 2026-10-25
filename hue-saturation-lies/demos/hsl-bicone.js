@@ -313,6 +313,8 @@ export function mount(container) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    // Keep the cone and its marker inside tall, narrow canvases at every step.
+    camera.zoom = w < h ? 1.9 * Math.min(1, camera.aspect / 1.3) : 1.9;
     camera.updateProjectionMatrix();
     requestRender();
   }

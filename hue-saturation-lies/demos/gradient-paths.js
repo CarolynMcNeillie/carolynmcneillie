@@ -154,7 +154,8 @@ function mountScene(container, type = 'hsl') {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, .1, 30);
   camera.position.set(3.2, 2.3, 4).multiplyScalar(isOklch ? .55 : 1);
-  camera.zoom = isOklch ? 1.8 : 1.9;
+  const desktopZoom = isOklch ? 1.8 : 1.9;
+  camera.zoom = desktopZoom;
   camera.updateProjectionMatrix();
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, 0, 0);
@@ -302,6 +303,8 @@ function mountScene(container, type = 'hsl') {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;
     camera.aspect = width / height;
+    // Retain horizontal room for the path, end dots and rider on tall canvases.
+    camera.zoom = width < height ? desktopZoom * Math.min(1, camera.aspect / 1.3) : desktopZoom;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
   };

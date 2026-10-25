@@ -19,6 +19,15 @@ export function mount(container) {
       .ph01n-bleed { position: absolute; top: 0; right: 0; width: ${ZOOM * 100}%; height: 100%; object-fit: cover; object-position: 50% ${BAND}; display: block; mask-image: linear-gradient(to right, transparent, #000 20%); }
       /* "hello." in the space left of Carolyn. Silkscreen has no lowercase, so it reads as caps. */
       .ph01n-hello { position: absolute; left: 29%; bottom: 33%; transform: translateX(-50%); margin: 0; font: 96px/1 var(--font-display); color: var(--ink); }
+      @media (max-width: 900px) {
+        .ph01n-hello { left: 30%; font-size: clamp(20px, min(9vw, 13vh), 96px); }
+      }
+      @media (max-width: 900px) and (orientation: portrait) {
+        /* Fill the stage without the left black band, and keep Carolyn's face and body in the narrow crop. */
+        .ph01n-bleed { width: 100%; object-position: right center; mask-image: none; }
+        .ph01n::after { content: ''; position: absolute; inset: 0 0 auto; height: 24%; background: linear-gradient(to bottom, rgba(0,0,0,.7), transparent); pointer-events: none; }
+        .ph01n-hello { z-index: 1; top: 5%; bottom: auto; left: 5%; transform: none; font-size: clamp(24px, 8vw, 40px); }
+      }
     </style>
     <div class="ph01n">
         <img class="ph01n-bleed" src="./images/about/now-laptop.jpg" width="3072" height="4080" alt="Carolyn at her laptop at a Shopify event">

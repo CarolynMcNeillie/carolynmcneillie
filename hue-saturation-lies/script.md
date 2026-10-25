@@ -1207,11 +1207,6 @@ Thank you.
 
 <!-- section: Staging area -->
 
-<!-- slide: mosaic -->
-## Roll the dice
-
-[The Mona Lisa as a flat mosaic, each tile its average colour. Draft: the random hue steps come next.]
-
 <!-- slide: richter -->
 ## Lesson four: give chance fewer decisions
 

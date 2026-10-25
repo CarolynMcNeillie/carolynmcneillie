@@ -34,7 +34,16 @@ export function mount(container) {
     .g-rgb-marker::before { content:''; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); border:7px solid transparent; border-top-color:var(--ink); }
     .g-rgb-range { position:absolute; inset:0; width:100%; height:64px; margin:0; opacity:0; pointer-events:none; }
     .g-rgb-strip-wrap:has(.g-rgb-range:focus-visible) { outline:2px solid var(--ink); outline-offset:3px; }
-    @media (max-width:700px) { .g-rgb-cube { width:9rem; } .g-rgb { gap:1rem; padding:1rem; } .g-rgb-pixel { gap:1rem; width:100%; } .g-rgb-plot { width:100%; } .g-rgb-swatch { width:5rem; } }
+    @media (max-width:700px) {
+      .g-rgb-cube { width:9rem; }
+      .g-rgb { gap:1rem; padding:1rem; }
+      .g-rgb-pixel { display:grid; grid-template-columns:1fr 1fr; justify-items:center; gap:0.5rem; width:100%; }
+      .g-rgb-cube { grid-column:1 / -1; grid-row:2; }
+      .g-rgb-bar { width:2rem; height:6rem; }
+      .g-rgb-plot { width:100%; }
+      .g-rgb-swatch { width:5rem; }
+      .g-rgb-swatch-tag { font-size:12px; }
+    }
   </style><div class="g-rgb demo-root">
     <div class="g-rgb-heading"><div class="caps-label" id="g-rgb-title"></div><p>Move along the gradient. Each channel travels in a straight line, on its own.</p></div>
     <div class="g-rgb-pixel">
@@ -42,7 +51,7 @@ export function mount(container) {
       <div class="g-rgb-cube" role="img" aria-label="The sRGB cube standing on its black corner, white on top. The blue to yellow gradient is a straight line through it, crossing the grey at its centre."></div>
       <div class="g-rgb-swatch-col"><div class="g-rgb-swatch" role="img" aria-label="Current gradient colour"></div><code class="css-tag g-rgb-swatch-tag"></code></div>
     </div>
-    <div class="g-rgb-plot"><div class="g-rgb-strip-wrap"><div class="g-rgb-strip" role="img" aria-label="Gradient from blue to yellow"></div><div class="g-rgb-marker" aria-hidden="true"></div><input class="g-rgb-range" type="range" min="0" max="1000" value="500" aria-label="Position along the gradient"></div></div>
+    <div class="g-rgb-plot"><div class="g-rgb-strip-wrap" data-no-swipe><div class="g-rgb-strip" role="img" aria-label="Gradient from blue to yellow"></div><div class="g-rgb-marker" aria-hidden="true"></div><input class="g-rgb-range" type="range" min="0" max="1000" value="500" aria-label="Position along the gradient"></div></div>
   </div>`;
 
   const pair = () => PAIR;
@@ -81,9 +90,22 @@ export function mount(container) {
     t = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     render();
   }
-  const onStrip = event => scrub(event, strip);
+  let activePointer = null;
+  const onStrip = event => {
+    if (event.pointerType !== 'mouse' && event.pointerId !== activePointer) return;
+    scrub(event, strip);
+  };
+  const onStripDown = event => {
+    activePointer = event.pointerId;
+    wrap.setPointerCapture(event.pointerId);
+    onStrip(event);
+  };
+  const onStripUp = () => { activePointer = null; };
   wrap.addEventListener('pointermove', onStrip);
-  wrap.addEventListener('pointerdown', onStrip);
+  wrap.addEventListener('pointerdown', onStripDown);
+  wrap.addEventListener('pointerup', onStripUp);
+  wrap.addEventListener('pointercancel', onStripUp);
+  wrap.addEventListener('lostpointercapture', onStripUp);
   range.addEventListener('input', () => { stop(); t = Number(range.value) / 1000; render(); });
   function tick(now) {
     if (!started) started = now;
@@ -112,7 +134,10 @@ export function mount(container) {
       cube.dispose();
       motion.removeEventListener('change', onMotionChange);
       wrap.removeEventListener('pointermove', onStrip);
-      wrap.removeEventListener('pointerdown', onStrip);
+      wrap.removeEventListener('pointerdown', onStripDown);
+      wrap.removeEventListener('pointerup', onStripUp);
+      wrap.removeEventListener('pointercancel', onStripUp);
+      wrap.removeEventListener('lostpointercapture', onStripUp);
       container.innerHTML = '';
     },
   };

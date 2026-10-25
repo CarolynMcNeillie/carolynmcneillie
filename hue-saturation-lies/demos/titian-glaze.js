@@ -29,9 +29,30 @@ export function mount(container, type) {
       .tg-detail { border-top: 1px solid var(--line); padding-top: 15px; display: grid; gap: 6px; }
       .tg-detail .css-tag { font-size: 18px; white-space: normal; overflow-wrap: anywhere; }
       @media (max-width: 900px) { .tg-row { grid-template-columns: 140px 1fr; } .tg { padding: 24px; } }
+      @media (max-width: 900px) and (max-height: 450px) {
+        /* Keep the ramp above the code, with the wheel in its own corner. */
+        .tg { padding: 10px 24px; gap: 6px; }
+        .tg-controls { position: absolute; top: 8px; right: 24px; }
+        .tg-wheel { width: 56px; height: 56px; }
+        .tg-wheel::before { inset: 9px; }
+        .tg-rows { margin-top: 52px; gap: 4px; }
+        .tg-row { grid-template-columns: 130px 1fr; gap: 8px; }
+        .tg-label { font-size: 12px; line-height: 1.15; }
+        .tg-swatches { gap: 5px; }
+        .tg-swatch { min-height: 32px; }
+        .tg-detail { padding-top: 5px; gap: 2px; }
+        .tg-detail .css-tag { font-size: 13px; line-height: 1.2; }
+      }
+      @media (max-width: 600px) {
+        .tg { gap: 10px; }
+        .tg-row { grid-template-columns: 145px 1fr; gap: 8px; }
+        .tg-label { font-size: 12px; }
+        .tg-swatches { gap: 5px; }
+        .tg-detail .css-tag { font-size: 14px; }
+      }
     </style>
     <section class="tg demo-root" aria-label="Glaze-like colour ramp">
-      <div class="tg-controls"><div class="tg-wheel" role="slider" tabindex="0" aria-label="Hue of the colour" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30"><span class="tg-marker" aria-hidden="true"></span></div></div>
+      <div class="tg-controls"><div class="tg-wheel" data-no-swipe role="slider" tabindex="0" aria-label="Hue of the colour" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30"><span class="tg-marker" aria-hidden="true"></span></div></div>
       <div class="tg-rows"></div><div class="tg-detail" aria-live="polite"></div>
     </section>`;
   const root = container.querySelector('.tg');
@@ -70,6 +91,7 @@ export function mount(container, type) {
   wheel.addEventListener('pointermove', event => { if (dragging) setHue(pointHue(event)); });
   wheel.addEventListener('pointerup', () => { dragging = false; });
   wheel.addEventListener('pointercancel', () => { dragging = false; });
+  wheel.addEventListener('lostpointercapture', () => { dragging = false; });
   wheel.addEventListener('keydown', event => {
     const next = { ArrowLeft: hue - 1, ArrowRight: hue + 1, Home: 0, End: 359 }[event.key];
     if (next === undefined) return;

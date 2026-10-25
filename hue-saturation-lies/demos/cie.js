@@ -239,6 +239,8 @@ function drawBase(canvas) {
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.strokeStyle = 'rgba(255,255,255,0.4)';
   ctx.lineWidth = 1;
+  const narrow = W < 400;
+  const placed = [];
   for (const nm of TICK_NM) {
     const idx = Math.round((nm - 380) / 5);
     if (idx < 0 || idx >= LOCUS.length) continue;
@@ -248,8 +250,13 @@ function drawBase(canvas) {
     const len = Math.sqrt(dx*dx + dy*dy) || 1;
     const nx = dx/len, ny = -dy/len;
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + nx*5, py + ny*5); ctx.stroke();
+    const tx = px + nx*14, ty = py + ny*14 + 3;
+    // A phone-sized plot cannot fit every wavelength label. Keep ticks and
+    // omit labels that collide with another label or the axes.
+    if (narrow && (nm < 520 || placed.some(([x, y]) => Math.abs(x - tx) < 24 && Math.abs(y - ty) < 15))) continue;
+    placed.push([tx, ty]);
     ctx.textAlign = nx > 0 ? 'left' : 'right';
-    ctx.fillText(nm, px + nx*14, py + ny*14 + 3);
+    ctx.fillText(nm, tx, ty);
   }
 }
 

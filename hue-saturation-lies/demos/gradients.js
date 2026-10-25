@@ -63,7 +63,14 @@ export function mount(container) {
       }
       @media (max-width: 600px) {
         .gr-band { min-height: 0; }
-        .gr-band-tag { left: 1rem; max-width: calc(100% - 2rem); }
+        /* The centred desktop tag overflows narrow bands, so anchor and wrap it. */
+        .gr-band-tag {
+          left: 1rem; right: 1rem; max-width: none;
+          transform: translateY(-50%);
+          white-space: normal;
+          overflow-wrap: anywhere;
+          font-size: clamp(0.75rem, 3.5vw, 1rem);
+        }
       }
     </style>
 

@@ -192,10 +192,27 @@ export function mount(container, type) {
       }
       .hc-head { display: flex; align-items: center; gap: 0.75rem; }
       .hc-head .hc-ticker { width: 20rem; flex: none; }
+      @media (max-width: 900px) {
+        /* Keep the sample proportional to the short side without changing desktop type. */
+        .hc-text {
+          font-size: clamp(1.5rem, min(8vw, 8vh), 2rem);
+          max-width: calc(100vw - 2rem);
+        }
+      }
       @media (max-width: 650px) {
-        .hc-controls { max-width: calc(100vw - 1rem); padding-inline: 0.5rem; }
-        .hc-head { gap: 0.3rem; }
-        .hc-head .hc-ticker { width: 12rem; }
+        /* The readout gets its own row so the wheel and buttons stay on screen. */
+        .hc-controls {
+          box-sizing: border-box;
+          width: calc(100vw - 1rem);
+          max-width: 22rem;
+          padding-inline: 0.5rem;
+        }
+        .hc-head { flex-wrap: wrap; justify-content: center; gap: 0.3rem; }
+        .hc-head .hc-ticker { width: 100%; flex: 0 0 100%; }
+        .hc-row { justify-content: space-between; gap: 0.25rem; }
+        .hc-ratio-num { font-size: 1.5rem; }
+        .hc-badge { font-size: 0.875rem; }
+        .hc-hue { margin-left: 0; font-size: 0.75rem; }
       }
       /* Reduced motion: no sweep. Both step together, 10° every second. */
       @media (prefers-reduced-motion: reduce) {

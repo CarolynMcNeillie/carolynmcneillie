@@ -45,8 +45,18 @@ export function mount(container) {
       }
       .rr-sim-btn { min-height: 44px; pointer-events: auto; }
       .rr-sim-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-      @media (max-width: 600px) {
-        .rr-half { justify-content: flex-start; padding-top: 8rem; }
+      @media (max-width: 600px) and (orientation: portrait) {
+        /* Leave room below the stacked colours for the simulation button. */
+        .rr-halves { bottom: 4.5rem; flex-direction: column; }
+        .rr-half { min-height: 0; gap: 0.4rem; padding: 0 0.75rem; }
+        .rr-half-label { font-size: clamp(1rem, 5vw, 1.5rem); }
+        .rr-half-code {
+          max-width: 100%;
+          font-size: clamp(0.7rem, 3.4vw, 1rem);
+          white-space: normal;
+          overflow-wrap: anywhere;
+          text-align: center;
+        }
       }
 
       /* sim mode: overlay a muted rectangle on the sRGB half */

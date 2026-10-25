@@ -256,15 +256,6 @@ export const LIBRARY = {
     },
   },
 
-"mosaic": {
-    // Replaces richter and kelly-code. Random hues side by side in HSL and OKLCH
-    // (a click rolls again; drop, paste or load an image to try another).
-    slide: {
-      demo: "mosaic",
-      attribution: { text: "A mosaic after Leonardo da Vinci, _Mona Lisa_ (c. 1503–19) · tiles averaged from a generated image" },
-    },
-  },
-
 "richter": {
     slide: {
       demo: "richter", backgrounds: [{}, {}],
@@ -605,6 +596,8 @@ export const LIBRARY = {
       // reach 3:1 (white reached 46%).
       bodyCSS: { color: "oklch(0.18 0.03 40)" },
       backgroundImage: "./images/BruegelTowerOfBabel.avif",
+      // On a narrow portrait screen the title sits above the whole painting.
+      narrowStack: true,
       attribution: {
         text: "Pieter Bruegel the Elder, _The Tower of Babel_ (1563) · Public domain · Kunsthistorisches Museum, Vienna",
         url: "https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project_-_edited.jpg",

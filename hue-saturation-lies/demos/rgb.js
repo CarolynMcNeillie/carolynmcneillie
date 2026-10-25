@@ -103,6 +103,10 @@ export function mount(container, type) {
         direction: rtl;
         -webkit-appearance: slider-vertical;
       }
+      /* Keep the channel bars large enough to drag on a narrow portrait screen. */
+      @media (max-width: 600px) and (orientation: portrait) {
+        .rgb-bar { width: 22vw; height: min(66vw, 38vh); }
+      }
       .rgb-bar:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
       .rgb-bar-label {
         letter-spacing: var(--tracking-caps);

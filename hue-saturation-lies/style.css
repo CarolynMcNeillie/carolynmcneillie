@@ -556,6 +556,49 @@ body.presenter #slide-title-overlay {
   max-width: calc(100vw - 2rem);
 }
 
+/* Small stages need the longest Silkscreen word to fit without breaking letters.
+   Inline positions and sizes on section slides need the same narrow-stage limit. */
+@media (max-width: 900px) {
+  #slide-body-center.section-title {
+    left: 1rem !important;
+    right: 1rem !important;
+    font-size: clamp(20px, min(9vw, 13vh), 96px) !important;
+    max-width: calc(100vw - 2rem);
+    line-height: 1.15;
+  }
+  #slide-title-overlay.title-lesson {
+    left: 50vw;
+    max-width: calc(100vw - 2rem);
+    width: calc(100vw - 2rem);
+    gap: 0.25rem;
+  }
+  #slide-title-overlay.title-lesson .title-heading,
+  body:not(.presenter) #slide-title-overlay.title-lesson .title-heading {
+    width: 100%;
+    font-size: clamp(20px, min(9vw, 13vh), 96px);
+    line-height: 1.15;
+  }
+  #slide-title-overlay.title-lesson .title-kicker {
+    font-size: clamp(16px, min(5vw, 5vh), 28px);
+  }
+  input[type="range"] { height: 36px; }
+  input[type="range"]::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -12px; }
+  input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; }
+}
+
+/* Slides with narrowStack set: the whole painting sits low, the title above it. */
+@media (max-width: 900px) and (orientation: portrait) {
+  body.narrow-stack #slide-bg-a,
+  body.narrow-stack #slide-bg-b {
+    background-size: contain !important;
+    background-position: 50% 62% !important;
+  }
+  body.narrow-stack #slide-body-center.section-title {
+    top: 22% !important;
+    color: var(--ink) !important;
+  }
+}
+
 @media (max-width: 600px) {
   #slide-title-overlay { left: 50vw; }
   #slide-body-center { left: 1rem; right: 1rem; }

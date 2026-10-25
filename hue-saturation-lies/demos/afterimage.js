@@ -33,7 +33,19 @@ export function mount(container) {
       .after[data-white] .after-square, .after[data-white] .after-wheel, .after[data-white] .after-code { visibility: hidden; }
       .after[data-white] .after-dot { border-color: #111; background: #fff; }
       .after[data-white] .after-light { opacity: 0; }
-      @media (max-width: 850px) { .after-controls { bottom: 20px; } }
+      @media (max-width: 850px) {
+        .after-controls { bottom: 20px; }
+        .after-square { width: min(38vw, 30vh); padding: 8px; }
+        .after-code { width: min(90vw, 560px); white-space: pre-wrap; overflow-wrap: anywhere; text-align: center; font-size: 12px; }
+      }
+      @media (max-width: 850px) and (max-height: 450px) {
+        .after-square, .after-dot { top: 38%; }
+        .after-square { width: min(27vw, 35vh); }
+        .after-code { top: 70%; font-size: 11px; line-height: 1.2; }
+        .after-wheel { width: 64px; height: 64px; }
+        .after-wheel::before { inset: 10px; }
+        .after-controls { bottom: 8px; }
+      }
     </style>
     <section class="after demo-root" aria-label="Afterimage colour experiment">
       <div class="after-stage" role="img" aria-label="Two opposite colour squares, --base and --opposite, with a central fixation dot">
@@ -43,7 +55,7 @@ export function mount(container) {
       <pre class="after-code"><code>--opposite:
   oklch(from var(--base) l c calc(h + 180));</code></pre>
       <div class="after-controls">
-        <div class="after-wheel" role="slider" tabindex="0" aria-label="Hue of the left square" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30">
+        <div class="after-wheel" data-no-swipe role="slider" tabindex="0" aria-label="Hue of the left square" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30">
           <span class="after-marker after-marker-a" aria-hidden="true"></span>
           <span class="after-marker after-marker-b" aria-hidden="true"></span>
         </div>
@@ -108,6 +120,7 @@ export function mount(container) {
   wheel.addEventListener('pointermove', onPointerMove);
   wheel.addEventListener('pointerup', stopDrag);
   wheel.addEventListener('pointercancel', stopDrag);
+  wheel.addEventListener('lostpointercapture', stopDrag);
   wheel.addEventListener('keydown', onWheelKey);
   button.addEventListener('pointerdown', hold);
   button.addEventListener('pointerup', release);

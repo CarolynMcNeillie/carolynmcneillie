@@ -111,7 +111,7 @@ export function mount(container, type = "oklch") {
         color: var(--ink-muted); font-size: var(--text-label);
         letter-spacing: var(--tracking-caps); text-transform: uppercase;
       }
-      .har-canvas { display: block; cursor: crosshair; flex-shrink: 0; }
+      .har-canvas { display: block; cursor: crosshair; flex-shrink: 0; touch-action: none; }
       .har-canvas:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
       .har-wrap[data-layout="both"] .har-hsl { transform: translate(calc(-50% - 23vw), -50%); }
       .har-wrap[data-layout="both"] .har-oklch { transform: translate(calc(-50% + 23vw), -50%); }
@@ -192,12 +192,26 @@ export function mount(container, type = "oklch") {
         color: var(--ink); color: contrast-color(var(--swatch));
       }
       .har-swatch code { font-size: inherit; white-space: normal; overflow-wrap: anywhere; }
+      @media (max-width: 900px) {
+        .har-panel { width: 46vw; }
+        .har-swatch { font-size: 10px; }
+        .har-modes { width: 96vw; }
+      }
+      @media (max-height: 450px) and (max-width: 900px) {
+        /* Reserve the bottom of the stage for the two rows of scheme buttons. */
+        .har-panel { top: calc(50% - 27px); gap: 0.3rem; }
+        .har-canvas { width: 110px !important; height: 110px !important; }
+        .har-swatch { min-height: 38px; }
+        .har-modes { bottom: 0.3rem; }
+        .har-mode-btn { padding: 0.25rem 0.5rem; }
+        .har-paintings { height: 48vh; top: calc(50% - 25px); }
+      }
     </style>
     <div class="har-wrap demo-root har-initial" id="har-wrap" data-layout="${model}">
       ${["hsl", "oklch"].map((name) => `
         <div class="har-panel har-${name}" data-model="${name}">
           <span class="har-label">${MODEL_LABEL[name]}</span>
-          <canvas class="har-canvas" tabindex="0" role="slider" aria-label="${MODEL_LABEL[name]} colour harmony wheel" aria-valuemin="0" aria-valuemax="359" aria-valuenow="200" aria-valuetext="Base hue 200 degrees"></canvas>
+          <canvas class="har-canvas" data-no-swipe tabindex="0" role="slider" aria-label="${MODEL_LABEL[name]} colour harmony wheel" aria-valuemin="0" aria-valuemax="359" aria-valuenow="200" aria-valuetext="Base hue 200 degrees"></canvas>
           <div class="har-swatches"></div>
         </div>
       `).join("")}

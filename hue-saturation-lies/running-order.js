@@ -208,10 +208,6 @@ export default {
       "name": "Staging area",
       "items": [
         {
-          "id": "mosaic",
-          "hidden": true
-        },
-        {
           "id": "richter",
           "hidden": true
         },

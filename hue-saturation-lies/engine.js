@@ -168,8 +168,14 @@ function applyBgCrossfade(imageUrl, size = "cover", position = "center", scrim) 
 
 // fit: "whole" shows the whole artwork on black instead of a cover crop.
 // A background entry's fit wins over the slide's.
+// On a phone held sideways a whole painting is pillarboxed, and a lesson title
+// runs past it onto the black, where its dark ink vanishes. Fill the screen there.
+const smallLandscape = matchMedia("(max-width: 900px) and (orientation: landscape)");
 function backgroundSize(sl, bgEntry) {
   const fit = bgEntry?.fit ?? sl.fit;
+  const titled = bgEntry && "title" in bgEntry ? bgEntry : sl;
+  const lessonShown = (titled.titleStyle ?? sl.titleStyle) === "lesson" && !!titled.title;
+  if (fit === "whole" && lessonShown && smallLandscape.matches) return "cover";
   return fit === "whole" ? "contain" : sl.backgroundSize ?? "cover";
 }
 
@@ -216,6 +222,9 @@ function showSlide(idx, bgIdx = 0) {
   const centerHtml = (sl.body || "").replace(/_(.*?)_/g, "<em>$1</em>");
   slideBodyCenterEl.innerHTML = centerHtml;
   slideBodyCenterEl.className = sl.bodyClass ?? "";
+  // narrowStack: on a narrow portrait screen, show the whole painting with the
+  // title above it on black (style.css), for paintings too busy to letter over.
+  document.body.classList.toggle("narrow-stack", !!sl.narrowStack);
   slideBodyCenterEl.style.cssText = "";
   if (sl.bodyCSS) Object.assign(slideBodyCenterEl.style, sl.bodyCSS);
   slideBodyCenterEl.style.display = sl.body ? "block" : "none";
@@ -425,6 +434,31 @@ function navigate(goingForward) {
     goToSlide(nextSlide, prevSl.backgrounds ? prevSl.backgrounds.length - 1 : 0);
   }
 }
+
+// Demo authors can put data-no-swipe on a drag surface or its wrapper.
+// Leave controls and the rotatable 3D canvas to their own pointer handlers.
+let swipeStart = null;
+window.addEventListener("pointerdown", (e) => {
+  swipeStart = null;
+  if (e.pointerType !== "touch" && e.pointerType !== "pen") return;
+  if (document.querySelector('#slide-sorter')?.hidden === false) return;
+  const blocked = e.composedPath().some((node) => node instanceof Element && (
+    node.matches('input, button, select, textarea, label, a, [role="slider"], [role="button"], [data-no-swipe]') ||
+    (node.matches('canvas') && node.closest('#viz-layer')) ||
+    getComputedStyle(node).touchAction.split(/\s+/).includes('none')
+  ));
+  if (!blocked) swipeStart = { id: e.pointerId, x: e.clientX, y: e.clientY, time: performance.now() };
+}, true);
+window.addEventListener("pointerup", (e) => {
+  if (!swipeStart || e.pointerId !== swipeStart.id) return;
+  const { x, y, time } = swipeStart;
+  swipeStart = null;
+  const dx = e.clientX - x;
+  if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(e.clientY - y) * 1.5 && performance.now() - time < 700) {
+    navigate(dx < 0);
+  }
+});
+window.addEventListener("pointercancel", () => { swipeStart = null; });
 
 window.addEventListener("keydown", (e) => {
   if (document.querySelector('#slide-sorter')?.hidden === false ||

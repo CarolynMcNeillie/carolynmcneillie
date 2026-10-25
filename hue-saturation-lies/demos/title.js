@@ -15,6 +15,11 @@ export function mount(container, type = 'title') {
       /* 96px keeps Silkscreen on its 8px grid. */
       .ttl-title { margin: 0; font: 96px/1.25 var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
       .ttl-sub { margin: 0; font: var(--text-subtitle)/1.3 var(--font-body); color: var(--ink-soft); transition: opacity var(--motion-slow); }
+      @media (max-width: 900px) {
+        .ttl-root { padding: 1rem; gap: min(32px, 4vh); }
+        .ttl-title { font-size: clamp(20px, min(9vw, 13vh), 96px); line-height: 1.15; }
+        .ttl-sub { font-size: clamp(16px, min(5vw, 5vh), 28px); }
+      }
       /* Hidden, not removed, so the heading does not move when the P.S. appears. */
       .ttl-sub.is-waiting { opacity: 0; visibility: hidden; }
     </style>

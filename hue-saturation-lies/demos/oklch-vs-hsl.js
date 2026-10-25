@@ -98,6 +98,37 @@ export function mount(container) {
         color: var(--ink-muted); width: 17rem; flex-shrink: 0; white-space: nowrap;
       }
       .vs-row input[type=range] { flex: 1; }
+      @media (max-width: 900px) {
+        .vs-wrap { box-sizing: border-box; padding: 1rem; gap: 1rem; }
+        .vs-columns { width: 100%; gap: 1rem; }
+        .vs-col { min-width: 0; gap: 0.4rem; }
+        .vs-col-label, .vs-code { font-size: clamp(0.7rem, 2vw, 1rem); }
+        .vs-note { font-size: clamp(0.7rem, 1.7vw, 0.9rem); }
+        .vs-grey-label { font-size: clamp(0.65rem, 1.5vw, 0.85rem); }
+        .vs-controls { width: min(100%, 500px); padding-right: 2.5rem; box-sizing: border-box; }
+        .vs-row { gap: 0.5rem; }
+        .vs-row-label { width: 10rem; font-size: 0.7rem; }
+        .vs-gray-control { right: 0.5rem; bottom: 0.5rem; }
+      }
+      @media (max-width: 600px) {
+        .vs-columns { flex-direction: column; gap: 0.6rem; }
+        .vs-col { gap: 0.2rem; }
+        .vs-col-label, .vs-code { font-size: 0.8rem; }
+        .vs-note { font-size: 0.75rem; margin: 0; }
+        .vs-grey-label { font-size: 0.68rem; }
+        .vs-swatch { height: clamp(48px, 10vh, 80px); }
+        .vs-grey-row .vs-swatch { height: 20px; }
+        .vs-row-label { width: 9rem; }
+      }
+      @media (max-height: 450px) and (min-width: 601px) {
+        .vs-wrap { gap: 0.4rem; padding: 0.4rem 1rem; }
+        .vs-col { gap: 0.2rem; }
+        .vs-swatches .vs-swatch { height: 80px; }
+        .vs-grey-row .vs-swatch { height: 18px; }
+        .vs-controls { flex-direction: row; gap: 1rem; }
+        .vs-row { flex: 1; min-width: 0; }
+        .vs-row-label { width: auto; }
+      }
     </style>
     <div class="vs-wrap demo-root">
       <div class="vs-columns">

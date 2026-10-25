@@ -92,12 +92,18 @@ export function mount(container) {
       .fs-strength input { width: 180px; }
       .fs-strength-value { color: var(--ink); min-width: 13em; }
       .fs-strength[hidden] { display: none; }
+      @media (max-width: 600px) {
+        /* The default value width pushes both ends of this slider off a phone. */
+        .fs-strength { box-sizing: border-box; width: 100%; gap: 6px; font-size: 10px; }
+        .fs-strength input { width: 70px; min-width: 60px; flex: 1; }
+        .fs-strength-value { min-width: 0; max-width: 90px; white-space: normal; }
+      }
     </style>
     <div class="fs demo-root">
       <div class="fs-wrap demo-root"></div>
       <div class="fs-corner">
         <button type="button" class="icon-button fs-order"></button>
-        <div class="fs-wheel" role="slider" tabindex="0" aria-label="Hue of the base colour" aria-valuemin="0" aria-valuemax="359"><span class="fs-marker" aria-hidden="true"></span></div>
+        <div class="fs-wheel" data-no-swipe role="slider" tabindex="0" aria-label="Hue of the base colour" aria-valuemin="0" aria-valuemax="359"><span class="fs-marker" aria-hidden="true"></span></div>
       </div>
       <div class="fs-bottom">
         <label class="fs-strength glass-chip"><span class="fs-strength-text"></span><input type="range"><span class="fs-strength-value"></span></label>
@@ -190,6 +196,7 @@ export function mount(container) {
   wheel.addEventListener("pointermove", (event) => { if (dragging) setHue(pointHue(event)); });
   wheel.addEventListener("pointerup", () => { dragging = false; });
   wheel.addEventListener("pointercancel", () => { dragging = false; });
+  wheel.addEventListener("lostpointercapture", () => { dragging = false; });
   wheel.addEventListener("keydown", (event) => {
     const next = { ArrowLeft: hue - 5, ArrowRight: hue + 5, ArrowDown: hue - 1, ArrowUp: hue + 1, Home: 0, End: 359 }[event.key];
     if (next === undefined) return;

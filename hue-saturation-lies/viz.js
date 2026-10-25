@@ -57,12 +57,16 @@ let vizOffsetTarget = SIDEBAR_W;
 function applyVizOffset() {
   const w = vizLayer.clientWidth;
   const h = vizLayer.clientHeight;
-  const stageX = Math.round(vizOffset);
+  // The reader sidebar is absent on narrow portrait screens; keep the model centred.
+  const portrait = w < h && w <= 900;
+  const stageX = portrait ? 0 : Math.round(vizOffset);
   const stageW = w - stageX;
   renderer.setViewport(stageX, 0, stageW, h);
   renderer.setScissor(stageX, 0, stageW, h);
   renderer.setScissorTest(stageX > 0);
   camera.aspect = stageW / h;
+  // Preserve horizontal room for the shape at every camera preset and on resize.
+  camera.zoom = portrait ? Math.min(1, camera.aspect / (1060 / 900)) : 1;
   camera.updateProjectionMatrix();
 }
 
