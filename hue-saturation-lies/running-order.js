@@ -83,11 +83,11 @@ export default {
           "id": "the-abcs-of-cie-xyz-3"
         },
         {
-          "id": "gradient-paths",
-          "hidden": false
+          "id": "we-already-talked-about-this"
         },
         {
-          "id": "we-already-talked-about-this"
+          "id": "gradient-paths",
+          "hidden": false
         }
       ]
     },
@@ -183,7 +183,8 @@ export default {
           "id": "pigments-from-the-earth"
         },
         {
-          "id": "ultramarine"
+          "id": "pigments-from-the-earth-2",
+          "hidden": false
         },
         {
           "id": "the-medium-is-the-revolution"
@@ -194,6 +195,10 @@ export default {
         },
         {
           "id": "the-medium-is-the-revolution-4",
+          "hidden": false
+        },
+        {
+          "id": "swatches",
           "hidden": false
         },
         {
@@ -210,6 +215,10 @@ export default {
     {
       "name": "Staging area",
       "items": [
+        {
+          "id": "ultramarine",
+          "hidden": true
+        },
         {
           "id": "richter",
           "hidden": true
@@ -323,19 +332,11 @@ export default {
           "hidden": true
         },
         {
-          "id": "pigments-from-the-earth-2",
-          "hidden": true
-        },
-        {
           "id": "the-pigment-economy",
           "hidden": true
         },
         {
           "id": "ultramarine-2",
-          "hidden": true
-        },
-        {
-          "id": "swatches",
           "hidden": true
         }
       ]

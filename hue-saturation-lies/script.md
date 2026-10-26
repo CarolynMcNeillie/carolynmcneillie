@@ -169,7 +169,7 @@ Our eyes are sensors that respond to light. Our visual system turns those respon
 
 And unfortunately for HSL, the creature is us. And we make things weird.
 
-HSL’s lightness number describes the HSL channels in our screens, which doesn't have much to do with how light the colour will look once it’s been processed through our squishy heads.
+HSL’s lightness number describes the red, green, and blue channels in our screens, which doesn't have much to do with how light the colour will look once it’s been processed through our squishy heads.
 
 So if we want our colour numbers to describe something closer to what we see, we need to understand a little about how we see it.
 
@@ -307,21 +307,23 @@ This system is really tidy and hue, saturation and lightness is easier to reason
 <!-- slide: the-abcs-of-cie-xyz-3 -->
 ## The sRGB range
 
-[The CIE chart again, with no text: just the sRGB triangle, already marked.]
+So first of all, HSL is a different model for describing the exact same colour range that RGB and hexadecimal colour notation is. There's no added rage, just the same colours arranged in a different way.
 
-<!-- slide: gradient-paths -->
-## Gradient paths: HSL
-
-However, our gradients do get a lot cuter. Even though we have exactly the same 16 million-ish colours as before to work with, instead of interpolating across three channels to create a gradient, HSL interpolates the shortest distance across our lovely little bicone.
-
-Ok, case closed. We fixed it. Talk over. We can all go home.
-
-Except, remember our twelve colours, and how changing the hue changed the contrast? HSL describes the same colours as RGB and hex, not a new set calibrated to our eyes. We changed the grammar. We didn't change what the numbers were organized around.
+And because the colour relationships are still based on the properties of our screens, and now how colour is actually perceived, it doesn't wind up being as practical as we would hope it would.
 
 <!-- slide: we-already-talked-about-this -->
 ## We already talked about this
 
-[The HSL contrast sweep again. Arrow: play.]
+Regardless of the notation, we're still left manually plucking colours with an eyedropper at the end of the day.
+
+<!-- slide: gradient-paths -->
+## Gradient paths: HSL
+
+The one place that I might reach for HSL is gradients.
+
+Instead of interpolating across three channels to create a gradient, HSL interpolates the shortest distance across our lovely little bicone, so instead of passing through grey, between blue and yellow we arc through teal and lime which depending on your application might be much more up your alley.
+
+But there's a lot of room left for CSS to do colour a lot better.
 
 <!-- section: Three decisions, better separated -->
 
@@ -330,7 +332,7 @@ Except, remember our twelve colours, and how changing the hue changed the contra
 
 Apparently pandemics are productive times for colour science.
 
-In December 2020, Björn Ottosson published a post called _A perceptual color space for image processing_.
+This is Björn Ottosson, and in December 2020 he published a post called _A perceptual colour space for image processing_.
 
 He wanted a useful separation between lightness, chroma, and hue, and better behaviour for operations like colour blending.
 
@@ -340,13 +342,7 @@ Because it was an OK Lab colour space.
 
 Not Perfectlab.
 
-I appreciate the expectation management.
-
 OKLCH expresses that same system using lightness, chroma, and a hue angle.
-
-([bottosson.github.io](https://bottosson.github.io/posts/oklab/))
-
-Let's see what those controls buy us.
 
 <!-- slide: an-ok-color-space-3 -->
 ## Repeat the opening test
@@ -974,18 +970,10 @@ Not simply “Which colour do I want?”
 
 **“Which colour can I get?”**
 
-<!-- slide: ultramarine -->
-## A colour you had to acquire
+<!-- slide: pigments-from-the-earth-2 -->
+## Pigments from the earth
 
-Natural ultramarine was made from lapis lazuli.
-
-Think about that as a creative constraint. Before that blue could become a decision in a painting, someone had to acquire and prepare the material.
-
-Now think about how casually we type a number.
-
-That's an extraordinary freedom.
-
-But getting more colours isn't the only way a tool can change what we make.
+These paintings are at least 17,000 years old. Watch the images change: Egyptian portraits, manuscripts, then modern paintings. The same earth pigments keep showing up.
 
 <!-- slide: the-medium-is-the-revolution -->
 ## The medium changes the process
@@ -1019,6 +1007,29 @@ But the exact same pigments suspended in a different binder completely changed w
 And the ideas that artists worked out in the new media trained their eye and hand and taste, so even images rendered in more traditional “stiffer” media began to take on the qualities developed in oil painting, like in this example, Botticelli's Primavera which is painted in egg tempera.
 
 Just the capacity to hold colour in a new way served as a catalyst that restructured how we imagined what we could create.
+
+<!-- slide: swatches -->
+## The camera
+
+And that's not the only time that technology was a catalyst to reinvent painting.
+
+[Step 1] In 1839, Louis Daguerre announced the daguerreotype to the world. This is his _Boulevard du Temple_, from 1838. It's a busy Paris street, but the exposure took so long that everything moving simply vanished. The only people who stood still long enough to be recorded are down in the corner, a man and, it seems, someone shining his boots. It's one of the earliest photographs with a person in it.
+
+For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her. Suddenly a machine could do that faster, cheaper and more accurately than any painter alive. Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
+
+But painting didn't die. It got weird. (Affectionately.) Once a machine could do the rendering, painters were free to ask what else a painting could be for. Monet and the Impressionists stopped painting things and started painting light. The Cubists painted one thing from several sides at once. And it kept going.
+
+[Step 2] Henri Rousseau painted jungles he never saw. He never left France. His tropics came from the botanical garden in Paris, magazine pictures and his own imagination.
+
+[Step 3] Chuck Close turned around and painted the camera itself: a photograph of his own face, nearly nine feet tall, so you can see exactly what a lens does to a person.
+
+[Step 4] Jean-Michel Basquiat threw out the rules of rendering entirely, and painted like he was writing on a wall.
+
+[Step 5] Chinyee left the picture behind altogether, and painted colour and gesture for their own sake.
+
+[Step 6] And artists like Swoon keep pulling new tools into the conversation. This is her stop-motion animation, _Cicada_, from 2019.
+
+We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
 
 <!-- slide: the-medium-is-the-revolution-2 -->
 ## Another way to work
@@ -1102,6 +1113,19 @@ Thank you.
 [Hiring P.S., held until confirmed: "And a small postscript: we're hiring. If this is the sort of work you'd like to do, come find me afterwards."]
 
 <!-- section: Staging area -->
+
+<!-- slide: ultramarine -->
+## A colour you had to acquire
+
+Natural ultramarine was made from lapis lazuli.
+
+Think about that as a creative constraint. Before that blue could become a decision in a painting, someone had to acquire and prepare the material.
+
+Now think about how casually we type a number.
+
+That's an extraordinary freedom.
+
+But getting more colours isn't the only way a tool can change what we make.
 
 <!-- slide: richter -->
 ## Lesson four: give chance fewer decisions
@@ -1503,11 +1527,6 @@ As in Homer's time, there are languages and cultures today with no distinct word
 
 For example, Himba speakers in Namibia use five colour categories. Their word _burou_ covers what we would separately call blue and green. In sorting experiments, Himba participants were noticeably faster and more accurate than English speakers at distinguishing shades of green that their language names separately, but struggled differentiating blue from green.
 
-<!-- slide: pigments-from-the-earth-2 -->
-## Pigments from the earth
-
-These paintings are at least 17,000 years old. Watch the images change: Egyptian portraits, manuscripts, then modern paintings. The same earth pigments keep showing up.
-
 <!-- slide: the-pigment-economy -->
 ## The pigment economy
 
@@ -1521,26 +1540,3 @@ At that time prices and origins of different pigments were so varied and meaning
 Commissioning a religious painting with ultramarine was a legible twofold signal to every person who walked into a church and saw it: one, of The Virgin Mary's importance, cloaked in the rarest and most expensive colour; and two, of the patron's wealth and devotion.
 
 The colour meant something because acquiring it cost so much.
-
-<!-- slide: swatches -->
-## The camera
-
-And that's not the only time that technology was a catalyst to reinvent painting.
-
-[Step 1] In 1839, Louis Daguerre announced the daguerreotype to the world. This is his _Boulevard du Temple_, from 1838. It's a busy Paris street, but the exposure took so long that everything moving simply vanished. The only people who stood still long enough to be recorded are down in the corner, a man and, it seems, someone shining his boots. It's one of the earliest photographs with a person in it.
-
-For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her. Suddenly a machine could do that faster, cheaper and more accurately than any painter alive. Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
-
-But painting didn't die. It got weird. (Affectionately.) Once a machine could do the rendering, painters were free to ask what else a painting could be for. Monet and the Impressionists stopped painting things and started painting light. The Cubists painted one thing from several sides at once. And it kept going.
-
-[Step 2] Henri Rousseau painted jungles he never saw. He never left France. His tropics came from the botanical garden in Paris, magazine pictures and his own imagination.
-
-[Step 3] Chuck Close turned around and painted the camera itself: a photograph of his own face, nearly nine feet tall, so you can see exactly what a lens does to a person.
-
-[Step 4] Jean-Michel Basquiat threw out the rules of rendering entirely, and painted like he was writing on a wall.
-
-[Step 5] Chinyee left the picture behind altogether, and painted colour and gesture for their own sake.
-
-[Step 6] And artists like Swoon keep pulling new tools into the conversation. This is her stop-motion animation, _Cicada_, from 2019.
-
-We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
