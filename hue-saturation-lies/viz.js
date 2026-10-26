@@ -31,6 +31,7 @@ camera.position.set(0.9, 0.17, 0.63);
 
 const { group } = buildOklchShape();
 scene.add(group);
+const shapeBox = new THREE.Box3().setFromObject(group);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 mouseOnlyControls(renderer.domElement);
@@ -56,6 +57,7 @@ const SIDEBAR_W = 380;
 let vizOffset = SIDEBAR_W;
 let vizOffsetTarget = SIDEBAR_W;
 
+let stage = { x: 0, w: 1, h: 1 };
 function applyVizOffset() {
   const w = vizLayer.clientWidth;
   const h = vizLayer.clientHeight;
@@ -63,6 +65,7 @@ function applyVizOffset() {
   const portrait = w < h && w <= 900;
   const stageX = portrait ? 0 : Math.round(vizOffset);
   const stageW = w - stageX;
+  stage = { x: stageX, w: stageW, h };
   renderer.setViewport(stageX, 0, stageW, h);
   renderer.setScissor(stageX, 0, stageW, h);
   renderer.setScissorTest(stageX > 0);
@@ -132,7 +135,36 @@ const PRESETS = {
 };
 let lerpTarget = null;
 let firstAxis = true;
+let currentAxis = null;
+
+// The hue view's scale runs from 0 to 360 degrees along the shape's own hue
+// axis, through the middle of the shape, wherever the camera puts it.
+const hueAnn = document.querySelector('#viz-annotations .viz-ann[data-for="y"]');
+function alignHueAnnotation() {
+  const line = hueAnn?.querySelector(':scope > line');
+  const texts = hueAnn?.querySelectorAll(':scope > text');
+  const ctm = hueAnn?.getScreenCTM();
+  if (!line || texts.length < 3 || !ctm) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  const toSvg = (z) => {
+    const c = shapeBox.getCenter(new THREE.Vector3());
+    const ndc = new THREE.Vector3(c.x, c.y, z).project(camera);
+    const px = rect.left + stage.x + (ndc.x + 1) / 2 * stage.w;
+    const py = rect.top + (1 - ndc.y) / 2 * stage.h;
+    return new DOMPoint(px, py).matrixTransform(ctm.inverse());
+  };
+  const a = toSvg(shapeBox.min.z), b = toSvg(shapeBox.max.z);
+  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  const dx = (b.x - a.x) / len, dy = (b.y - a.y) / len;
+  const set = (el, attrs) => { for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v.toFixed(2)); };
+  set(line, { x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+  set(texts[0], { x: a.x - dx * 2.5, y: a.y - dy * 2.5 + 0.3 });
+  set(texts[1], { x: b.x + dx * 2.5, y: b.y + dy * 2.5 + 0.3 });
+  set(texts[2], { x: (a.x + b.x) / 2 - dy * 2.5, y: (a.y + b.y) / 2 + dx * 2.5 + 0.3 });
+}
+
 export function setVizAxis(axis) {
+  currentAxis = axis ?? null;
   const target = PRESETS[axis] ?? HOME;
   if (firstAxis || reducedMotion.matches) {
     camera.position.copy(target.position);
@@ -179,5 +211,8 @@ function animate() {
   updating = false;
 
   if (vizJustShown) { needsRender = true; vizJustShown = false; }
-  if (vizVisible && needsRender) renderer.render(scene, camera);
+  if (vizVisible && needsRender) {
+    renderer.render(scene, camera);
+    if (currentAxis === "h") alignHueAnnotation();
+  }
 }

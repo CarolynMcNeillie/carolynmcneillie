@@ -140,19 +140,17 @@ function unmountDemo() {
   demoLayer.style.pointerEvents = "none";
 }
 
-// titleStyle "lesson" splits "Lesson one: colour harmonies" at the first colon
-// into a serif line and a display heading, the title slide's two type styles.
+// titleStyle "lesson" shows only what follows the first colon of
+// "Lesson one: colour harmonies", as a display heading. The serif
+// "Lesson one" line was dropped on 26 Oct: it was hard to read.
 function setTitleOverlay(title = "", style) {
   slideTitleOverlay.className = style ? `title-${style}` : "";
   const split = style === "lesson" ? title.indexOf(":") : -1;
   if (split < 0) { slideTitleOverlay.textContent = title; return; }
-  const kicker = document.createElement("span");
-  kicker.className = "title-kicker";
-  kicker.textContent = title.slice(0, split);
   const heading = document.createElement("span");
   heading.className = "title-heading";
   heading.textContent = title.slice(split + 1).trim();
-  slideTitleOverlay.replaceChildren(kicker, heading);
+  slideTitleOverlay.replaceChildren(heading);
 }
 
 async function mountDemo(name, type, bgIdx = 0) {

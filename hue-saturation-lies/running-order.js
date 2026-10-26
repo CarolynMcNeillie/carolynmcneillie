@@ -80,6 +80,9 @@ export default {
           "id": "hue-saturation-lies"
         },
         {
+          "id": "the-abcs-of-cie-xyz-3"
+        },
+        {
           "id": "gradient-paths",
           "hidden": false
         },

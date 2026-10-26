@@ -145,7 +145,7 @@ The glass wasn’t adding colours. It was separating what was already there.
 
 It doesn’t yet explain why yellow looks so much lighter than blue.
 
-For that, we need the other half of the experiment:
+For that, we need the other half of the question:
 
 The person looking at it.
 
@@ -165,13 +165,11 @@ We call them “visible” because our eyes can detect them.
 <!-- slide: the-biology-of-colour -->
 ## The biology of colour
 
-But detecting light and experiencing colour aren’t the same thing.
-
 Our eyes are sensors that respond to light. Our visual system turns those responses into the colours we experience. Colour happens in the head of the creature receiving the light.
 
 And unfortunately for HSL, the creature is us. And we make things weird.
 
-HSL’s lightness number comes from a calculation on RGB channels, not a prediction of how light the colour will look once it’s been processed through our squishy heads.
+HSL’s lightness number describes the HSL channels in our screens, which doesn't have much to do with how light the colour will look once it’s been processed through our squishy heads.
 
 So if we want our colour numbers to describe something closer to what we see, we need to understand a little about how we see it.
 
@@ -184,11 +182,7 @@ Most of us have three types: S, M, and L, for short, medium, and long wavelength
 
 We often call them blue, green, and red cones.
 
-But those names are taking some liberties.
-
-[Point to the L curve.]
-
-Our so-called red cone doesn’t even peak in the red.
+For the pedantic in the audience, I'll save you the trouble at question period and acknowledge now that what we call the red cone peeks closer to goldenrod.
 
 And more importantly, look at how much these curves overlap.
 
@@ -203,93 +197,56 @@ Our visual system works with the pattern of responses across them—not three se
 <!-- slide: deuteranomaly -->
 ## Different observers
 
-The machinery varies between people, too.
+But there is a lot of variation in cones from person to person.
 
-Here's a colour distinction carrying some information.
+Here is a simulation of how things might appear to someone experiencing red-green colour blindness.
 
-[Indicate the figure in the dot pattern, then move the simulation control.]
+But even among people who have what we consider "normal" vision, the distribution of our cones can vary widely. For example it's considered normal to have anywhere from a 1:1 ratio of red and green cones up to 16:1.
 
-Watch that distinction become harder to use.
-
-This is a simulation, not a way to borrow someone else's eyes. But it illustrates a practical problem.
-
-If a chart, status, or instruction depends on distinguishing these colours, some people may miss the information.
-
-So give the colour some help.
-
-A label. A symbol. A pattern. Something besides hue.
-
-**Never give colour an important job it has to do alone.**
-
-([w3.org](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html))
-
-But we still need shared colour numbers, even though we don't all have identical eyes.
-
-How do we agree on what those numbers mean?
+The cones in our eyes are as unique from person to person as our height or the shape of our nose, so while we can describe the physical properties of light very objectively, describing human vision is a bit murkier.
 
 <!-- section: Shared languages of colour -->
 
 <!-- slide: speaking-the-same-language -->
 ## Speaking the same language
 
-[Title over three plates from Patrick Syme, _Werner's Nomenclature of Colours_ (1821): named colours matched to birds, plants and minerals, so naturalists could describe a colour in the same words.]
+But even if there's not one objective single way that humans see colour, we still need some shared system to describe it.
 
 <!-- slide: colour-systems -->
 ## A painter's grammar
 
-Albert Munsell was a painter and teacher who wanted a more systematic way to describe colour.
+Here's one of my favourite attempts.
 
-His three properties were hue, value, and chroma.
+This system was developed by painter and art teacher Albert Munsell.
 
-What kind of colour?
+He developed a system of sorting colours by hue, value, and chroma.
 
-How light or dark?
+His system was one of the first that accounts for the fact that different colours have different ranges, so each of the colours in his tree branch into different shapes.
 
-How far from neutral?
-
-[Point to the neutral column, then follow a coloured branch outwards.]
-
-Now look at the shape.
-
-The branches aren't equal lengths. And the strongest available colours don't all occur at the same height.
-
-Munsell represented those unequal ranges instead of forcing everything into a tidy sphere.
-
-([munsell.com](https://munsell.com/wp-content/uploads/2014/03/atlas-munsell-color.pdf))
-
-Remember those branches.
-
-Our hedgehog has ancestors.
+This is the ancestor of our spiky friend OKLCH.
 
 <!-- slide: the-abcs-of-cie-xyz -->
 ## A shared reference
 
-A shared vocabulary helps. But how do we establish a shared measurement?
+But between the two world wars, scientists came together to find a way to measure colour perception more systemically.
 
-Here's the basic idea of a colour-matching experiment.
+Here's a simulation of an experiment they used.
 
-On one side, a test light. On the other, a mixture of adjustable primary lights.
+On one side, we have a test colour.
+On the other we have dials for three primary lights.
 
-[Adjust the mixture towards the sample.]
+The test subject changes the mixture until the two sides match.
 
-The observer changes the mixture until the two sides match.
-
-Experiments like these helped establish the CIE's 1931 standard observer and XYZ colour measurement.
-
-A way to describe colour matches using three numbers.
-
-The important word is **standard**.
-
-Not everyone's eyes. A shared reference.
-
-([cie.co.at](https://www.cie.co.at/publications/colorimetry-part-1-cie-standard-colorimetric-observers-0))
+The data collected from experiments  like these helped establish the CIE's 1931 standard observer and XYZ colour measurement.
 
 <!-- slide: the-abcs-of-cie-xyz-2 -->
 ## Coordinates and limits
 
-From XYZ we can derive this chromaticity diagram.
+From XYZ we can derive this chromaticity diagram, the horseshoe, which represents the average range of human colour vision.
 
-It leaves out the light–dark dimension, but it's useful for comparing colour gamuts: the ranges different systems can reproduce.
+This is a slice of the overall colour space that leaves out the darkness/lightness axis.
+
+This is used across all sorts of industries from textile design, to paint colours, to electronic devices. Any other colour space is a subset of this one.
 
 [Show the sRGB outline.]
 
@@ -314,104 +271,43 @@ The coordinates give us an address. The gamut tells us whether that address is i
 <!-- slide: srgb -->
 ## Instructions for a screen
 
-RGB describes colours using red, green, and blue channels.
-
-Hexadecimal is another way to write those channel values.
-
-Different spelling. Same basic instructions.
-
-[Indicate the channel values and resulting colour.]
-
-We can make a huge range of colours this way. But there's no single channel for “how light this looks.”
-
-Changing the mixture and predicting its appearance are different jobs.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/rgb))
+RGB and hexadecimal colour notation are describing colour in essentially the same way, which is by describing the strength of each of three colour channels, red green and blue.
 
 <!-- slide: srgb-2 -->
 ## Finally: why yellow and blue differ
 
-Now we can answer our opening question.
+You can see here we get red when we dial just the red channel to the top.
 
-[Step 1]
+We can lighten the colour by adding green and red to mix together as white light.
 
-Here's full blue in sRGB.
+Or we can get a darker shade by dimming the channel.
 
-[Step 2]
+The closer the three channels are in value, the more desaturated the colour you will see.
 
-Here's full yellow: red and green together.
-
-Those channels don't contribute equally to relative luminance.
-
-The calculation weights green most heavily, then red, then blue. Those weights account for the visual response, rather than treating all three channels equally.
-
-[Step 3]
-
-So these particular yellow and blue colours have very different relative luminances.
-
-And that's what this greyscale comparison makes visible.
-
-([w3.org](https://www.w3.org/WAI/WCAG21/Understanding/relative-luminance.html))
-
-But HSL gives both of them fifty percent lightness.
-
-Why?
-
-Because HSL is doing a different calculation.
+And you can see yellow, which is generated by mixing yellow and red, is in this model the opposite of blue.
 
 <!-- slide: gradient-rgb -->
 ## Who chose the middle?
 
-Here's another place the coordinates affect the result.
+So when you understand how this works, you can see why rgb colours do some of the weird things they do.
 
-[Show the blue-to-yellow sRGB gradient. Move the marker towards its midpoint.]
-
-We chose blue and yellow.
-
-But we also need colours between them.
-
-In this sRGB interpolation, the channels average towards the same value.
-
-That's our grey middle.
-
-The browser isn't mixing blue and yellow paint.
-
-It's following instructions for interpolating numbers.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color-interpolation-method))
-
-Change those instructions, and we change the journey.
+For example, a yellow to blue gradient might be the most disappointing one in the browser.
 
 <!-- slide: hue-saturation-lies -->
 ## Same colours, different coordinates
 
-Here's one way to picture those controls.
+Now let's have a look at HSL which approaches things a little differently.
 
-Hue takes us around.
+Instead of directly describing RGB channels, HSL notation organizes colours into hue, saturation, and lightness. And this is what that looks like.
 
-Lightness takes us from black to white.
+The closer you are to the equator, the more saturated your colour is. Lightness and darkness are arranged from top to bottom.
 
-Saturation adjusts the colour towards or away from neutral at that hue and lightness.
+This system is really tidy and hue, saturation and lightness is easier to reason about than RGB channels, but you might already be thinking that this really simple shape is a bit of a red flag. we know that blue and yellow aren't perceptually the same lightness, so to achieve this shape the colour relationships are stretch and warped. I almost never reach for hsl.
 
-Now look at the calculation for lightness.
+<!-- slide: the-abcs-of-cie-xyz-3 -->
+## The sRGB range
 
-Take the highest RGB channel value and the lowest, and average them.
-
-Yellow: highest one, lowest zero.
-
-Blue: highest one, lowest zero.
-
-Fifty percent in both cases.
-
-**Same HSL lightness. Different luminance.**
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/hsl))
-
-That's the disagreement we started with.
-
-We expected the control to preserve a visual relationship it wasn't designed to preserve.
-
-So what happens if we organise the controls around perception instead?
+[The CIE chart again, with no text: just the sRGB triangle, already marked.]
 
 <!-- slide: gradient-paths -->
 ## Gradient paths: HSL

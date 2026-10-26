@@ -125,7 +125,6 @@ export const LIBRARY = {
 "painters-in-css": {
     slide: {
       body: "Art school\nspeedrun",
-      subtitle: "An OKLCH meet-cute",
       bodyClass: "font-display section-title",
       // Sky blue on black (any saturated colour passes 3:1 here); a hue no other title uses.
       bodyCSS: { color: "oklch(0.80 0.13 230)" },
@@ -629,6 +628,15 @@ export const LIBRARY = {
       demo: "cie",
       // Arrow steps highlight sRGB, then Display P3, then Rec. 2020.
       backgrounds: [{}, {}, {}, {}],
+      titleStyle: "small",
+    },
+  },
+
+"the-abcs-of-cie-xyz-3": {
+    slide: {
+      demo: "cie",
+      // The same chart with no text, the sRGB triangle already marked.
+      demoType: "srgb",
       titleStyle: "small",
     },
   },

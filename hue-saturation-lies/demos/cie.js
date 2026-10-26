@@ -155,9 +155,10 @@ function makeToPixel(W, H) {
 }
 
 // ── Base draw: rasterise + chrome (slow — cache to offscreen canvas) ──────────
-function drawBase(canvas) {
+function drawBase(canvas, text = true) {
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
+  const label = text ? (...a) => ctx.fillText(...a) : () => {};
   const DW = W - ML - MR, DH = H - MT - MB;
   const toPixel = makeToPixel(W, H);
   const poly = buildPolygon();
@@ -200,7 +201,7 @@ function drawBase(canvas) {
   ctx.font = `600 12px ${bodyFont}`;
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.textAlign = 'left';
-  ctx.fillText('D65', wpx + 6, wpy + 4);
+  label('D65', wpx + 6, wpy + 4);
 
   // Axes
   ctx.strokeStyle = 'rgba(255,255,255,0.3)';
@@ -211,11 +212,11 @@ function drawBase(canvas) {
   ctx.font = `500 14px ${bodyFont}`;
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.textAlign = 'center';
-  ctx.fillText('x', ML + DW / 2, H - 8);
+  label('x', ML + DW / 2, H - 8);
   ctx.save();
   ctx.translate(12, MT + DH / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('y', 0, 0);
+  label('y', 0, 0);
   ctx.restore();
 
   ctx.font = `12px ${bodyFont}`;
@@ -223,12 +224,12 @@ function drawBase(canvas) {
   for (let v = 0.1; v < 0.75; v += 0.1) {
     const px = ML + ((v - X0) / (X1 - X0)) * DW;
     ctx.textAlign = 'center';
-    ctx.fillText(v.toFixed(1), px, MT + DH + 14);
+    label(v.toFixed(1), px, MT + DH + 14);
   }
   ctx.textAlign = 'right';
   for (let v = 0.1; v < 0.85; v += 0.1) {
     const py = MT + (1 - (v - Y0) / (Y1 - Y0)) * DH;
-    ctx.fillText(v.toFixed(1), ML - 4, py + 4);
+    label(v.toFixed(1), ML - 4, py + 4);
   }
 
   // Wavelength ticks
@@ -256,15 +257,16 @@ function drawBase(canvas) {
     if (narrow && (nm < 520 || placed.some(([x, y]) => Math.abs(x - tx) < 24 && Math.abs(y - ty) < 15))) continue;
     placed.push([tx, ty]);
     ctx.textAlign = nx > 0 ? 'left' : 'right';
-    ctx.fillText(nm, tx, ty);
+    label(nm, tx, ty);
   }
 }
 
 // ── Gamut overlay: blit base + darken outside selected triangle ───────────────
-function drawGamut(canvas, gamut, opacity) {
+function drawGamut(canvas, gamut, opacity, text = true) {
   if (!gamut || opacity <= 0) return;
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
+  const label = text ? (...a) => ctx.fillText(...a) : () => {};
   const toPixel = makeToPixel(W, H);
   ctx.save();
   ctx.globalAlpha = opacity;
@@ -306,13 +308,14 @@ function drawGamut(canvas, gamut, opacity) {
     const [px, py] = toPixel(gamut.primaries[i][0], gamut.primaries[i][1]);
     const [dx, dy] = gamut.labelOffsets[i];
     ctx.textAlign = dx > 0 ? 'left' : 'right';
-    ctx.fillText(['R', 'G', 'B'][i], px + dx, py + dy);
+    label(['R', 'G', 'B'][i], px + dx, py + dy);
   }
   ctx.restore();
 }
 
 // ── Mount ─────────────────────────────────────────────────────────────────────
-export function mount(container) {
+export function mount(container, type) {
+  const bare = type === 'srgb';
   container.innerHTML = `
     <style>
       .cie-wrap {
@@ -343,9 +346,9 @@ export function mount(container) {
     </style>
     <div class="cie-wrap">
       <canvas class="cie-canvas"></canvas>
-      <div class="cie-buttons">
+      ${bare ? '' : `<div class="cie-buttons">
         ${GAMUTS.map(g => `<button class="cie-btn" data-id="${g.id}">${g.label}</button>`).join('')}
-      </div>
+      </div>`}
     </div>
   `;
 
@@ -365,8 +368,8 @@ export function mount(container) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(offscreen, 0, 0);
-    drawGamut(canvas, getGamut(previousId), 1 - progress);
-    drawGamut(canvas, getGamut(selectedId), progress);
+    drawGamut(canvas, getGamut(previousId), 1 - progress, !bare);
+    drawGamut(canvas, getGamut(selectedId), progress, !bare);
   }
 
   function select(id, animate = true) {
@@ -390,11 +393,11 @@ export function mount(container) {
   function resize() {
     const W = container.clientWidth;
     const H = container.clientHeight;
-    const btnH = 48;
+    const btnH = bare ? 0 : 48;
     const size = Math.min(W - 20, H - btnH - 28, 680);
     canvas.width = offscreen.width  = size;
     canvas.height = offscreen.height = Math.round(size * 0.88);
-    drawBase(offscreen);
+    drawBase(offscreen, !bare);
     redraw();
   }
 
@@ -413,7 +416,8 @@ export function mount(container) {
 
   return {
     step(index) {
-      select(GAMUTS[index - 1]?.id ?? null, !firstStep);
+      if (bare) select('srgb', false);
+      else select(GAMUTS[index - 1]?.id ?? null, !firstStep);
       firstStep = false;
     },
     cleanup() {
