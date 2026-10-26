@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mouseOnlyControls } from './touch-free.js';
 
 // The sRGB cube for gradient-rgb, drawn like the HSL and OKLCH path models on
 // gradient-paths: a darkened solid with the gradient's path in full colour.
@@ -34,6 +35,7 @@ export function createRgbCube(host, pair) {
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 30);
   camera.position.set(2.7, 1.35, 2.7);
   const controls = new OrbitControls(camera, renderer.domElement);
+  mouseOnlyControls(renderer.domElement);
   controls.enablePan = false;
   controls.enableZoom = false;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');

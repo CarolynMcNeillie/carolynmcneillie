@@ -24,16 +24,9 @@ export const LIBRARY = {
       title: "Lesson six: the medium is the revolution",
       titleStyle: "lesson",
       // Ultramarine, which the next slides are about: dark enough for the pale rock.
-      titleCSS: { color: "oklch(0.25 0.16 270)" },
+      titleCSS: { color: "oklch(0.25 0.16 270)", "--title-halo": "oklch(0.864 0.023 45.6)" /* #E0CEC6 */ },
+      // One image since 25 Oct (the Lascaux II photo was dropped).
       backgrounds: [
-        {
-          image: "./images/01Lascaux.avif",
-          timeline: { year: -18000, label: "More than 20,000 years ago" },
-          attribution: {
-            text: "Jack Versloot · CC BY 2.0",
-            url: "https://commons.wikimedia.org/wiki/File:Lascaux_II.jpg",
-          },
-        },
         {
           image: "./images/02Lascaux.jpg",
           timeline: { year: -18000, label: "More than 20,000 years ago" },
@@ -147,7 +140,7 @@ export const LIBRARY = {
       // Redrawn as SVG from the Commons file, so the squares stay crisp at any size.
       backgroundImage: "./images/AlbersHomageAfter.svg",
       // Dark brown ink: 4.2:1 on the darkest square, 6.3:1 or more on the others.
-      titleCSS: { color: "oklch(0.18 0.03 50)" },
+      titleCSS: { color: "oklch(0.18 0.03 50)", "--title-halo": "oklch(0.675 0.136 75.8)" /* #C68917 */ },
       attribution: {
         text: "After Josef Albers, _Homage to the Square_ (1964) · Graphic by FriedeWie · CC0",
         url: "https://commons.wikimedia.org/wiki/File:Grafik_nach_Josef_Albers1.jpg",
@@ -178,6 +171,7 @@ export const LIBRARY = {
     slide: {
       title: "Lesson three: dark colours should still be rich",
       titleStyle: "lesson",
+      titleCSS: { "--title-halo": "oklch(0.246 0.037 126.8)" /* #1C2410 */ },
       // Full bleed: the crop keeps both figures, the bridge and the town.
       backgroundImage: "./images/GiorgioneTempest.avif",
       backgroundPosition: "50% 55%",
@@ -207,7 +201,7 @@ export const LIBRARY = {
       titleStyle: "lesson",
       // The title leaves on the first press, so the painting can be discussed.
       backgrounds: [
-        { image: "./images/MonetSunrise.avif", title: "Lesson two: colours that vibrate", titleStyle: "lesson", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
+        { image: "./images/MonetSunrise.avif", title: "Lesson two: colours that vibrate", titleStyle: "lesson", titleCSS: { "--title-halo": "oklch(0.520 0.031 184.7)" /* #556F6B */ }, attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
         { image: "./images/MonetSunrise.avif", title: "", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
       ],
     },
@@ -352,7 +346,7 @@ export const LIBRARY = {
       body: "Let’s get\nphysical",
       bodyClass: "font-display section-title",
       // Lemon: light enough for the dark portrait while staying saturated.
-      bodyCSS: { color: "oklch(0.95 0.16 120)" },
+      bodyCSS: { color: "oklch(0.95 0.16 120)", "--title-halo": "oklch(0.155 0.029 21.0)" /* #170707 */ },
       // Story time (Newton's prism experiments), not the 1702 portrait's date.
       timeline: { year: 1665 },
       backgrounds: [
@@ -501,7 +495,7 @@ export const LIBRARY = {
       body: "The biology\nof colour",
       bodyClass: "font-display section-title",
       // Blood red: dark enough for the pale paper (96% of letter pixels at 3:1).
-      bodyCSS: { color: "oklch(0.30 0.12 20)" },
+      bodyCSS: { color: "oklch(0.30 0.12 20)", "--title-halo": "oklch(0.811 0.100 88.3)" /* #DCBE73 */ },
       backgroundImage: "./images/26Vitruvian.jpg",
       timeline: { year: 1492, label: "c. 1492" },
       attribution: {
@@ -592,15 +586,15 @@ export const LIBRARY = {
     slide: {
       body: "Speaking the\nsame language",
       bodyClass: "font-display section-title",
-      // Near-black ink over the pale tower: 83% of the pixels under the words
-      // reach 3:1 (white reached 46%).
-      bodyCSS: { color: "oklch(0.18 0.03 40)" },
-      backgroundImage: "./images/BruegelTowerOfBabel.avif",
-      // On a narrow portrait screen the title sits above the whole painting.
+      // Near-black ink on the pale paper. Three plates (blues, greens, orange)
+      // from the Smithsonian scan, side by side; Bruegel's tower was too busy.
+      bodyCSS: { color: "oklch(0.18 0.03 40)", "--title-halo": "oklch(0.719 0.083 86.6)" /* #BBA166 */ },
+      backgroundImage: "./images/WernerNomenclature.avif",
+      // On a narrow portrait screen the title sits above the whole spread.
       narrowStack: true,
       attribution: {
-        text: "Pieter Bruegel the Elder, _The Tower of Babel_ (1563) · Public domain · Kunsthistorisches Museum, Vienna",
-        url: "https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project_-_edited.jpg",
+        text: "Patrick Syme, _Werner's Nomenclature of Colours_ (1821) · Public domain · Smithsonian Libraries",
+        url: "https://archive.org/details/wernersnomencla00wern",
       },
     },
   },
@@ -709,7 +703,7 @@ export const LIBRARY = {
       bodyClass: "font-display section-title",
       // Top centre, on the red hair, at 64px (on Silkscreen's grid): pale aqua
       // keeps 94 to 95% of letter pixels at 3:1 at 1920 and 1440 wide.
-      bodyCSS: { color: "oklch(0.90 0.12 180)", top: "6rem", left: "4rem", right: "4rem", transform: "none", textAlign: "center", fontSize: "64px" },
+      bodyCSS: { color: "oklch(0.90 0.12 180)", "--title-halo": "oklch(0.476 0.118 34.2)" /* #933F2C */, top: "6rem", left: "4rem", right: "4rem", transform: "none", textAlign: "center", fontSize: "64px" },
       backgroundImage: "./images/32Bjorn.avif",
       attribution: {
         text: "AI-generated portrait · Created with Nano Banana · Inspired by Björn Ottosson's profile photo",
@@ -773,7 +767,7 @@ export const LIBRARY = {
       title: "Lesson one: colour harmonies",
       titleStyle: "lesson",
       // Dark ink, so the title reads on Whistler's pale blue.
-      titleCSS: { color: "oklch(0.25 0.05 255)" },
+      titleCSS: { color: "oklch(0.25 0.05 255)", "--title-halo": "oklch(0.719 0.065 236.5)" /* #7DABC8 */ },
       backgrounds: [
         {
           image: "./images/WhistlerChelsea.avif",

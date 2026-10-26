@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { mouseOnlyControls } from "./demos/touch-free.js";
 import { buildOklchShape } from "./demos/oklch-shape.js";
 
 THREE.ColorManagement.enabled = true;
@@ -32,6 +33,7 @@ const { group } = buildOklchShape();
 scene.add(group);
 
 const controls = new OrbitControls(camera, renderer.domElement);
+mouseOnlyControls(renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;

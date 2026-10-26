@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mouseOnlyControls } from './touch-free.js';
 // Blue to yellow only: the pair the narration names on both path slides.
 import { PATH_PAIRS } from './gradient-pairs.js';
 const PAIR = PATH_PAIRS[0];
@@ -158,6 +159,7 @@ function mountScene(container, type = 'hsl') {
   camera.zoom = desktopZoom;
   camera.updateProjectionMatrix();
   const controls = new OrbitControls(camera, renderer.domElement);
+  mouseOnlyControls(renderer.domElement);
   controls.target.set(0, 0, 0);
   controls.enableDamping = true;
   controls.enablePan = false;

@@ -1,7 +1,7 @@
 // ── Reddest Red Demo ─────────────────────────────────────────────────────────
 // sRGB maximum red vs Display P3 maximum red.
 // On a P3 display the right half is visibly more vivid.
-// On an sRGB-only display both halves look the same — that IS the point.
+// On an sRGB-only display both halves look the same: that IS the point.
 // A simulation mode approximates the gap for sRGB devices.
 
 export function mount(container) {
@@ -32,10 +32,21 @@ export function mount(container) {
         color: var(--ink);
         text-align: center; line-height: 1.3;
       }
-      .rr-half-code { color: var(--ink); }
+      /* Saturated red is near 4:1 against both black and white text at this
+         size, too close to call for 16px body text, so the code line gets a
+         dark chip behind it rather than relying on the red to be light or
+         dark enough on its own. */
+      .rr-half-code {
+        color: var(--ink);
+        background: color-mix(in oklch, var(--scrim) var(--glass), transparent);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        padding: 0.2rem 0.6rem;
+        border-radius: var(--radius);
+      }
       /* sRGB half */
       .rr-srgb  { background: rgb(255, 0, 0); }
-      /* P3 half — on sRGB displays this looks the same as srgb; on P3 it's more vivid */
+      /* P3 half: on an sRGB display this looks the same as srgb; on P3 it's more vivid */
       .rr-p3    { background: color(display-p3 1 0 0); }
 
       .rr-controls {
@@ -63,7 +74,7 @@ export function mount(container) {
       .rr-sim-overlay {
         position: absolute; inset: 0;
         pointer-events: none;
-        background: color-mix(in srgb, rgb(180,0,0) 40%, transparent);
+        background: color-mix(in srgb, oklch(0.483 0.198 29.2) 40%, transparent);
         opacity: 0; transition: opacity var(--motion-slow);
       }
       .rr-sim-overlay.visible { opacity: 1; }

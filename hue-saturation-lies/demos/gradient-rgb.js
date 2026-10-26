@@ -15,6 +15,9 @@ export function mount(container) {
   container.innerHTML = `<style>
     .g-rgb { position:absolute; inset:0; background:var(--scrim); color:var(--ink); font-family:var(--font-body); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.5rem; padding:2rem; box-sizing:border-box; overflow:auto; }
     .g-rgb-heading { align-self:stretch; max-width:72rem; width:100%; margin:0 auto; }
+    /* This label is the slide's only headline (no title overlay here), so it
+       gets a full rung up from a caps-label, not the quiet pill size. */
+    .g-rgb-title { font-size:var(--text-subhead); }
     .g-rgb-heading p { color:var(--ink-soft); margin:.5rem 0 0; font:var(--text-body)/1.5 var(--font-body); }
     .g-rgb-pixel { display:flex; align-items:center; justify-content:space-around; gap:2rem; width:min(78%, 72rem); }
     .g-rgb-bars { display:flex; gap:3px; }
@@ -45,9 +48,9 @@ export function mount(container) {
       .g-rgb-swatch-tag { font-size:12px; }
     }
   </style><div class="g-rgb demo-root">
-    <div class="g-rgb-heading"><div class="caps-label" id="g-rgb-title"></div><p>Move along the gradient. Each channel travels in a straight line, on its own.</p></div>
+    <div class="g-rgb-heading"><div class="caps-label g-rgb-title" id="g-rgb-title"></div><p>Move along the gradient. Each channel travels in a straight line, on its own.</p></div>
     <div class="g-rgb-pixel">
-      <div class="g-rgb-bars">${channels.map((name, i) => `<div class="g-rgb-bar-group"><span class="g-rgb-bar-label caps-label">${name[0]}</span><div class="g-rgb-bar" style="background:${['#1a0000', '#001a00', '#00001a'][i]}"><div class="g-rgb-bar-fill"></div></div></div>`).join('')}</div>
+      <div class="g-rgb-bars">${channels.map((name, i) => `<div class="g-rgb-bar-group"><span class="g-rgb-bar-label caps-label">${name[0]}</span><div class="g-rgb-bar" style="background:${['oklch(0.137 0.056 29.2)', 'oklch(0.189 0.064 142.5)', 'oklch(0.098 0.068 264.1)'][i]}"><div class="g-rgb-bar-fill"></div></div></div>`).join('')}</div>
       <div class="g-rgb-cube" role="img" aria-label="The sRGB cube standing on its black corner, white on top. The blue to yellow gradient is a straight line through it, crossing the grey at its centre."></div>
       <div class="g-rgb-swatch-col"><div class="g-rgb-swatch" role="img" aria-label="Current gradient colour"></div><code class="css-tag g-rgb-swatch-tag"></code></div>
     </div>

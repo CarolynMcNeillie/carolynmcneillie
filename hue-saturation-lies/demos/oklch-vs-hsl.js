@@ -48,7 +48,7 @@ export function mount(container) {
   container.innerHTML = `
     <style>
       .vs-wrap {
-        background: #111;
+        background: oklch(0.178 0 0);
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         gap: 1.6rem;
@@ -61,13 +61,15 @@ export function mount(container) {
       .vs-col {
         flex: 1; display: flex; flex-direction: column; gap: 0.7rem;
       }
+      /* The two column heads and the CSS they expand to are the slide's
+         whole point, so they sit a full rung above the commentary below. */
       .vs-col-label {
         letter-spacing: var(--tracking-caps);
         color: var(--ink-muted);
         text-align: center;
-        font-size: 1.25rem;
+        font-size: var(--text-subhead);
       }
-      .vs-code { color: var(--ink); text-align: center; font-size: 1.25rem; }
+      .vs-code { color: var(--ink); text-align: center; font-size: var(--text-subhead); }
       .vs-note { color: var(--ink-soft); text-align: center; font: var(--text-body)/1.3 var(--font-body); margin-top: -0.3rem; }
       .vs-swatches {
         display: flex; gap: 3px;
@@ -80,7 +82,7 @@ export function mount(container) {
       }
       .vs-grey-row .vs-swatch { height: 48px; border-radius: var(--radius); }
       .vs-grey-label {
-        font-size: 1rem; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+        font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase;
         color: var(--ink-muted); text-align: center;
       }
       .vs-controls {
@@ -94,7 +96,6 @@ export function mount(container) {
         display: flex; align-items: center; gap: 1.2rem;
       }
       .vs-row-label {
-
         color: var(--ink-muted); width: 17rem; flex-shrink: 0; white-space: nowrap;
       }
       .vs-row input[type=range] { flex: 1; }

@@ -27,14 +27,16 @@ function boundary(L, hue) {
 
 export function mount(container) {
   container.innerHTML = `<style>
-    .hs-root { position:absolute; inset:0; display:grid; place-items:center; background:#000; color:var(--ink-muted); }
+    .hs-root { position:absolute; inset:0; display:grid; place-items:center; background:oklch(0 0 0); color:var(--ink-muted); }
     .hs-panel { width:min(620px, calc(100% - 4rem)); }
     .hs-plot { height:min(65vh, 560px); }
     .hs-plot canvas { width:100%; height:100%; display:block; }
-    .hs-row { display:flex; align-items:center; gap:.65rem; min-height:44px; padding:0 1rem 0 2rem; font:var(--text-small)/1.4 var(--font-code); }
+    /* The hue readout is the only place this value is shown, so it reads at
+       label size rather than the caption size of a pure decoration. */
+    .hs-row { display:flex; align-items:center; gap:.65rem; min-height:44px; padding:0 1rem 0 2rem; font:var(--text-label)/1.4 var(--font-code); }
     .hs-row input[type=range] { flex:1; min-width:0; }
     .hs-row .icon-button { flex:none; }
-    .hs-value { min-width:4ch; text-align:right; }
+    .hs-value { min-width:4ch; text-align:right; font-variant-numeric:tabular-nums; }
     .hs-live { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
     @media (max-width:600px) {
       .hs-panel { width:calc(100% - 1rem); }
@@ -67,7 +69,7 @@ export function mount(container) {
       image = ctx.createImageData(w, h);
     }
     const useP3 = image.colorSpace === 'display-p3' && ctx.getContextAttributes?.().colorSpace === 'display-p3';
-    const left = Math.round(35 * dpr), right = w - Math.round(16 * dpr);
+    const left = Math.round(44 * dpr), right = w - Math.round(16 * dpr);
     const top = Math.round(20 * dpr), bottom = h - Math.round(37 * dpr);
     const plotWidth = right - left, plotHeight = bottom - top;
     if (plotWidth <= 0 || plotHeight <= 0) return;
@@ -108,11 +110,15 @@ export function mount(container) {
     ctx.setLineDash([]);
     ctx.strokeStyle = style.getPropertyValue('--ink').trim();
     ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.stroke();
-    ctx.font = `${style.getPropertyValue('--text-small').trim()} ${style.getPropertyValue('--font-code').trim()}`;
+    // The peak L and C are the demo's message, so they read at label size;
+    // the bare axis letters are pure ticks and stay at caption size.
+    const fontCode = style.getPropertyValue('--font-code').trim();
+    ctx.font = `${style.getPropertyValue('--text-label').trim()} ${fontCode}`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText(peakL.toFixed(2), px, b + 5);
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText(peakC.toFixed(2), l - 5, py);
+    ctx.fillText(peakC.toFixed(2), l - 7, py);
+    ctx.font = `${style.getPropertyValue('--text-caption').trim()} ${fontCode}`;
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillText('L', right / dpr - 8, b + 21);
     ctx.fillText('C', l - 18, top / dpr);

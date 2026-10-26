@@ -232,7 +232,7 @@ How do we agree on what those numbers mean?
 <!-- slide: speaking-the-same-language -->
 ## Speaking the same language
 
-[Title over Bruegel, _The Tower of Babel_.]
+[Title over three plates from Patrick Syme, _Werner's Nomenclature of Colours_ (1821): named colours matched to birds, plants and minerals, so naturalists could describe a colour in the same words.]
 
 <!-- slide: colour-systems -->
 ## A painter's grammar

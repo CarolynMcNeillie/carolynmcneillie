@@ -22,7 +22,7 @@ export function mount(container, type) {
       .tg-marker { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink); transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 0 2px var(--scrim); }
       .tg-rows { flex: 1; min-height: 0; display: grid; gap: 16px; }
       .tg-row { min-height: 0; display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: center; }
-      .tg-label { font: 16px/1.4 var(--font-display); text-transform: uppercase; }
+      .tg-label { font: var(--text-label)/1.4 var(--font-display); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-soft); }
       .tg-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; height: 100%; }
       .tg-swatch { border: 0; border-radius: var(--radius); min-height: 75px; cursor: pointer; outline: 2px solid transparent; outline-offset: 2px; }
       .tg-swatch[aria-pressed="true"], .tg-swatch:focus-visible { outline-color: var(--ink); }

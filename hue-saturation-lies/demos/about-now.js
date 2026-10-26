@@ -3,6 +3,7 @@ About me, part 1: now. The laptop photo, zoomed out and anchored right,
 with "hello." in the space beside it.
 Image: images/about/now-laptop.jpg (Carolyn's photo, unchanged).
 */
+import { autoHaloColor } from "../engine.js";
 
 // Vertical crop for the full-bleed layout: 0% shows the top of the photo,
 // 100% the bottom. This keeps her face and hands both in the wide band.
@@ -13,12 +14,15 @@ const BAND = '46%';
 const ZOOM = 0.8;
 
 export function mount(container) {
+  // The halo (Joel's idea): a crisp pixel outline, so "hello." stays crisp
+  // where it crosses the mask into the photo, not just on the black stage.
+  const halo = autoHaloColor(getComputedStyle(document.documentElement).getPropertyValue("--ink").trim());
   container.innerHTML = `
     <style>
       .ph01n { position: absolute; inset: 0; background: var(--scrim); color: var(--ink); }
       .ph01n-bleed { position: absolute; top: 0; right: 0; width: ${ZOOM * 100}%; height: 100%; object-fit: cover; object-position: 50% ${BAND}; display: block; mask-image: linear-gradient(to right, transparent, #000 20%); }
       /* "hello." in the space left of Carolyn. Silkscreen has no lowercase, so it reads as caps. */
-      .ph01n-hello { position: absolute; left: 29%; bottom: 33%; transform: translateX(-50%); margin: 0; font: 96px/1 var(--font-display); color: var(--ink); }
+      .ph01n-hello { position: absolute; left: 29%; bottom: 33%; transform: translateX(-50%); margin: 0; font: var(--text-display)/1 var(--font-display); color: var(--ink); --title-halo-auto: ${halo}; }
       @media (max-width: 900px) {
         .ph01n-hello { left: 30%; font-size: clamp(20px, min(9vw, 13vh), 96px); }
       }

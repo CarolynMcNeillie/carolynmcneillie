@@ -19,8 +19,8 @@ export function mount(container) {
       .spectrum-demo { background: var(--scrim); color: var(--ink); display: grid; place-items: center;
         padding: 1rem 2rem; }
       .spectrum-svg { display: block; width: 100%; height: 100%; }
-      .spectrum-label { fill: var(--ink-soft); font-size: 16px; }
-      .spectrum-muted { fill: var(--ink-muted); font-size: 16px; }
+      .spectrum-label { fill: var(--ink-soft); font-size: var(--text-label); }
+      .spectrum-muted { fill: var(--ink-muted); font-size: var(--text-label); }
       .spectrum-stroke { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
       .spectrum-rule { fill: none; stroke: var(--ink-faint); stroke-width: 1; }
     </style>

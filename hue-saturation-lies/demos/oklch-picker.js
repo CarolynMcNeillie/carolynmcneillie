@@ -24,9 +24,9 @@ export function mount(container, initialType) {
     .pick-controls input { width:100%; }
     .pick-gauge { display:none; }
     .pick-edge .pick-gauge { display:block; }
-    .pick-track { position:relative; height:22px; background:linear-gradient(90deg, #777, var(--ink)); border-radius:4px; margin:1rem 0; }
+    .pick-track { position:relative; height:22px; background:linear-gradient(90deg, oklch(0.569 0 0), var(--ink)); border-radius:4px; margin:1rem 0; }
     .pick-mark { position:absolute; top:-7px; height:36px; border-left:3px solid; }
-    .pick-srgb { border-color:#fff; } .pick-p3 { border-color:#f7a953; }
+    .pick-srgb { border-color:oklch(1 0 0); } .pick-p3 { border-color:oklch(0.795 0.137 66.1); }
     .pick-gauge p { color:var(--ink-soft); }
     @media(max-width:600px) { .pick-labels, .pick-controls { gap:.3rem; } .pick-code { font-size:16px; } }
   </style><section class="pick demo-root" aria-label="OKLCH colour picker"><div class="pick-panel">

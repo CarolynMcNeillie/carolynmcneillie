@@ -113,14 +113,13 @@ export function mount(container) {
         flex: 1;
         position: relative;
       }
+      /* Full contrast-color strength: a dimmed label can fall under AA on a
+         bright test colour (e.g. the warm-white mix). Quiet through size
+         and position, not through transparency against a colour that moves. */
       .cm-half-label {
         position: absolute;
         bottom: 0.6rem; left: 50%;
         transform: translateX(-50%);
-
-        letter-spacing: var(--tracking-caps);
-
-        opacity: 0.6;
         pointer-events: none;
         white-space: nowrap;
       }

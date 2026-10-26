@@ -23,9 +23,12 @@ export function mount(container) {
         gap: 2rem;
         padding: 2rem;
       }
+      /* The slide's only line of text: the demo's headline, not a caption,
+         so it sits a rung above --text-label on the 8px Silkscreen scale. */
       .sf-label {
+        font-size: 1.5rem;
         letter-spacing: var(--tracking-caps);
-         color: var(--ink-muted);
+        color: var(--ink-soft);
       }
       .sf-code { color: var(--ink); }
       .sf-swatches {

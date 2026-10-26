@@ -2,6 +2,38 @@ import { SLIDES } from "./slides.js";
 import { renderTimeline } from "./timeline.js";
 import { renderScriptBody } from "./script-format.js";
 
+// \u2500\u2500 Title halo (Joel's idea) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// A display title needs a halo that contrasts its own ink, not a fixed
+// light or dark. Read the ink's OKLCH lightness back with the same
+// arithmetic the OKLCH slides teach (Bj\u00f6rn Ottosson's sRGB-to-OKLab
+// matrices) and pick the opposite end of the scale. A 1x1 canvas asks the
+// browser to resolve any valid CSS colour (oklch(), a named colour, rgba()),
+// so this works for every ink a slide already uses. Exported so a demo that
+// draws its own heading (title.js, about-now.js) can halo it the same way.
+let haloProbe = null;
+function inkLightness(color) {
+  haloProbe ??= document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  haloProbe.clearRect(0, 0, 1, 1);
+  haloProbe.fillStyle = color;
+  haloProbe.fillRect(0, 0, 1, 1);
+  const [r, g, b] = haloProbe.getImageData(0, 0, 1, 1).data;
+  const toLinear = (c) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const [lr, lg, lb] = [toLinear(r), toLinear(g), toLinear(b)];
+  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+  return 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+}
+export function autoHaloColor(color) {
+  return inkLightness(color) > 0.5 ? "oklch(0.08 0 0)" : "oklch(0.95 0 0)";
+}
+// Sets --title-halo-auto on el from el's own computed (cascaded) colour. CSS
+// reads it as a fallback: var(--title-halo, var(--title-halo-auto)), so a
+// slide's own --title-halo in titleCSS/bodyCSS still wins.
+function updateAutoHalo(el) {
+  el.style.setProperty("--title-halo-auto", autoHaloColor(getComputedStyle(el).color));
+}
+
 // Render the first slide before loading the 3D view. WebGL can be unavailable;
 // no-op controls keep the deck usable until the import resolves or fails.
 let setVizOffset = () => {};
@@ -168,6 +200,15 @@ function applyBgCrossfade(imageUrl, size = "cover", position = "center", scrim) 
 
 // fit: "whole" shows the whole artwork on black instead of a cover crop.
 // A background entry's fit wins over the slide's.
+// Apply a slide's style object. Custom properties (--title-halo) need
+// setProperty: plain assignment ignores them.
+function applyStyle(el, css) {
+  for (const [key, value] of Object.entries(css)) {
+    if (key.startsWith("--")) el.style.setProperty(key, value);
+    else el.style[key] = value;
+  }
+}
+
 // On a phone held sideways a whole painting is pillarboxed, and a lesson title
 // runs past it onto the black, where its dark ink vanishes. Fill the screen there.
 const smallLandscape = matchMedia("(max-width: 900px) and (orientation: landscape)");
@@ -226,8 +267,9 @@ function showSlide(idx, bgIdx = 0) {
   // title above it on black (style.css), for paintings too busy to letter over.
   document.body.classList.toggle("narrow-stack", !!sl.narrowStack);
   slideBodyCenterEl.style.cssText = "";
-  if (sl.bodyCSS) Object.assign(slideBodyCenterEl.style, sl.bodyCSS);
+  if (sl.bodyCSS) applyStyle(slideBodyCenterEl, sl.bodyCSS);
   slideBodyCenterEl.style.display = sl.body ? "block" : "none";
+  updateAutoHalo(slideBodyCenterEl);
   if (sl.subtitle) {
     const subtitle = document.createElement("span");
     subtitle.className = "section-subtitle";
@@ -240,8 +282,9 @@ function showSlide(idx, bgIdx = 0) {
   const titled = bgEntry && "title" in bgEntry ? bgEntry : sl;
   setTitleOverlay(titled.title, titled.titleStyle);
   slideTitleOverlay.style.cssText = "";
-  if (titled.titleCSS) Object.assign(slideTitleOverlay.style, titled.titleCSS);
+  if (titled.titleCSS) applyStyle(slideTitleOverlay, titled.titleCSS);
   slideTitleOverlay.style.display = titled.title ? "" : "none";
+  updateAutoHalo(slideTitleOverlay);
   currentTitle = titled.title ?? "";
 
   // visibility, not display: a display:none layer has no size, and viz.js
@@ -302,8 +345,9 @@ function updateBackground(bgIdx) {
   if ('title' in bgEntry) {
     setTitleOverlay(bgEntry.title, bgEntry.titleStyle);
     slideTitleOverlay.style.cssText = "";
-    if (bgEntry.titleCSS) Object.assign(slideTitleOverlay.style, bgEntry.titleCSS);
+    if (bgEntry.titleCSS) applyStyle(slideTitleOverlay, bgEntry.titleCSS);
     slideTitleOverlay.style.display = bgEntry.title ? "" : "none";
+    updateAutoHalo(slideTitleOverlay);
   }
   currentDemoStepFn?.(bgIdx);
 }
@@ -436,7 +480,8 @@ function navigate(goingForward) {
 }
 
 // Demo authors can put data-no-swipe on a drag surface or its wrapper.
-// Leave controls and the rotatable 3D canvas to their own pointer handlers.
+// Leave controls to their own pointer handlers. The 3D canvases rotate with a
+// mouse only (demos/touch-free.js), so a swipe across them still navigates.
 let swipeStart = null;
 window.addEventListener("pointerdown", (e) => {
   swipeStart = null;
@@ -444,7 +489,6 @@ window.addEventListener("pointerdown", (e) => {
   if (document.querySelector('#slide-sorter')?.hidden === false) return;
   const blocked = e.composedPath().some((node) => node instanceof Element && (
     node.matches('input, button, select, textarea, label, a, [role="slider"], [role="button"], [data-no-swipe]') ||
-    (node.matches('canvas') && node.closest('#viz-layer')) ||
     getComputedStyle(node).touchAction.split(/\s+/).includes('none')
   ));
   if (!blocked) swipeStart = { id: e.pointerId, x: e.clientX, y: e.clientY, time: performance.now() };

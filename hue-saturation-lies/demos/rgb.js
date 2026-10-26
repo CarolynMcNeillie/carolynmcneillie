@@ -75,7 +75,7 @@ export function mount(container, type) {
       .rgb-pixel {
         display: flex; gap: 3px;
       }
-      .rgb-css { display: flex; gap: 1.5rem; color: inherit; }
+      .rgb-css { display: flex; gap: 1.5rem; color: inherit; font-variant-numeric: tabular-nums; }
       .rgb-bar-wrap {
         display: flex; flex-direction: column;
         align-items: center; gap: 0.5rem;
@@ -108,10 +108,11 @@ export function mount(container, type) {
         .rgb-bar { width: 22vw; height: min(66vw, 38vh); }
       }
       .rgb-bar:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
-      .rgb-bar-label {
-        letter-spacing: var(--tracking-caps);
-         opacity: 0.5;
-      }
+      /* Full contrast-color strength, not dimmed: on a saturated full-frame
+         background (e.g. pure red) a 50%-opacity label blends back into the
+         background and fails contrast. The letter stays quiet through its
+         size, not through transparency. */
+      .rgb-bar-label { font-variant-numeric: tabular-nums; }
     </style>
 
     <div class="rgb-wrap demo-root" id="rgb-bg">

@@ -40,9 +40,11 @@ export function mount(container) {
       }
       .gr-bands { flex: 1; display: flex; flex-direction: column; }
       .gr-band { flex: 1; position: relative; }
-      /* The band's own CSS, centred on it. No box behind it: the text takes
-         whichever of black or white contrasts more with the band's midpoint,
-         which color-mix() finds in the same space the gradient mixes in. */
+      /* The band's own CSS, centred on it. A gradient runs from one hue to
+         its opposite, so no single text colour keeps 4.5:1 across the whole
+         width (contrast-color() on the band's midpoint still fails at the
+         ends). A dark chip behind the tag fixes the contrast instead of
+         chasing it, the deck's usual glass-chip recipe. */
       .gr-band-tag {
         position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
@@ -50,7 +52,11 @@ export function mount(container) {
         margin: 0;
         text-align: center;
         color: var(--ink);
-        color: contrast-color(var(--gr-mid));
+        background: color-mix(in oklch, var(--scrim) var(--glass), transparent);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        padding: 0.3rem 0.9rem;
+        border-radius: var(--radius);
       }
       .gr-keyword { font-weight: 800; font-size: 1.3em; }
       .gr-divider { height: 3px; background: var(--scrim); flex-shrink: 0; }
@@ -99,7 +105,6 @@ export function mount(container) {
       // the label shows the plain CSS a reader would write.
       const ends = (space === 'oklch' ? oklchEnds(ca, cb) : [hex(ca), hex(cb)]).join(', ');
       bands[i].style.background = `linear-gradient(to right in ${space}, ${ends})`;
-      bands[i].style.setProperty('--gr-mid', `color-mix(in ${space}, ${ends})`);
       const tag = bands[i].firstElementChild;
       tag.replaceChildren(
         document.createTextNode('linear-gradient(to right '),

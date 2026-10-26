@@ -7,18 +7,47 @@
   --font-body: "Ovo", serif; /* Chosen over Cormorant Garamond: a larger x-height reads better small */
   --font-quote: "Inknut Antiqua", serif; /* Period quotations: Newton's notebook */
   --font-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; /* CSS strings and code: system fonts, nothing to load */
-  /* Type */
-  --text-label: 1rem; /* Silkscreen's 8px grid doubled for legible, sharp labels at any DPR */
-  --text-body: 1rem;
-  --text-small: 0.75rem; /* One-line credits only. Silkscreen stays on its 8px grid. */
-  --text-subtitle: 1.75rem; /* A body-font line under a Silkscreen headline */
+  /* Type: a modular scale on Silkscreen's 8px grid. Every step below 96px
+     halves or two-thirds the one above it (96, 64, 48, 32, 24, 16, 12), so
+     the scale stays pixel-crisp in the display face and still reads as one
+     family of sizes. Named by role, not by px, so a slide picks a rung on
+     the ladder instead of inventing a new size. */
+  --text-caption: 0.75rem; /* 12px: one-line credits only */
+  --text-label: 1rem; /* 16px: caps labels, pills, timeline */
+  --text-body: 1rem; /* 16px: presenter notes */
+  --text-small: var(--text-caption); /* kept for call sites written before the rename */
+  --text-subhead: 1.75rem; /* 28px: a body-font line under a Silkscreen headline */
+  --text-subtitle: var(--text-subhead); /* kept for call sites written before the rename */
+  --text-heading: 4rem; /* 64px: a secondary Silkscreen heading, one rung down from display */
+  --text-display: 6rem; /* 96px: the Silkscreen hero size (title, lesson, section titles) */
   --footer-height: 32px; /* Bottom bar: progress line and credit. Bottom-anchored UI clears it. */
   --timeline-height: 48px; /* Top bar holding the timeline, shown only in the timeline range. */
   --stage-top: 0px;
   --stage-bottom: var(--footer-height);
   --text-title: clamp(1.2rem, 4vw, 2.8rem);
+  /* Leading: tight for display (a few short caps words), looser for the
+     serif kicker and caption, looser still for a reading measure. */
+  --leading-display: 1.25;
+  --leading-subhead: 1.3;
+  --leading-caption: 1.3;
+  --leading-reading: 1.8;
   /* Tracking */
   --tracking-caps: 0.1em;
+  /* Halo: a crisp pixel outline behind a display title, Joel's idea, so it
+     reads over a painting without a backdrop or a soft shadow. Width scales
+     gently with the glyph so it stays a hairline at 16px and a visible rim
+     at 96px, capped so it never turns into a glow. Colour comes from
+     --title-halo-auto (engine.js, from the title's own ink) unless a slide
+     sets --title-halo in titleCSS/bodyCSS. */
+  --halo-width: clamp(1.25px, 0.035em, 3.5px);
+  /* A thinner ring for the serif kicker ('Lesson three'): the body font's
+     stroke is lighter than Silkscreen's, so the full halo-width would read
+     as a blob. Half the halo-width keeps it a hairline at 28px. */
+  --halo-width-fine: clamp(0.75px, 0.02em, 1.5px);
+  /* One spacing ratio for a kicker or subtitle beside its heading: half a
+     line of the --text-subhead role they are both set in, so the gap above
+     a lesson heading and the gap below a section-title heading match. */
+  --space-kicker: calc(var(--text-subhead) * var(--leading-subhead) / 2);
   /* Ink: text on dark, lightest first. All colour tokens are opaque. */
   --ink: #e6e6e6;
   --ink-soft: #b3b3b3;
@@ -287,7 +316,7 @@ body.presenter #slide-footer { left: 0; }
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ink-soft);
-  font: var(--text-small)/1.3 var(--font-body);
+  font: var(--text-caption)/var(--leading-caption) var(--font-body);
 }
 #slide-footer a { color: inherit; text-decoration: none; }
 #slide-footer a:hover { color: var(--ink); }
@@ -464,21 +493,43 @@ body.presenter #slide-text {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-kicker);
 }
 #slide-title-overlay.title-lesson .title-kicker {
-  font: var(--text-subtitle)/1.3 var(--font-body);
+  font: var(--text-subhead)/var(--leading-subhead) var(--font-body);
   letter-spacing: normal;
   text-transform: none;
+  --halo-color: var(--title-halo, var(--title-halo-auto, transparent));
+  text-shadow:
+    var(--halo-width-fine) 0 0 var(--halo-color),
+    0 var(--halo-width-fine) 0 var(--halo-color),
+    var(--halo-width-fine) var(--halo-width-fine) 0 var(--halo-color);
 }
 #slide-title-overlay.title-lesson .title-heading {
-  font-size: 96px;
-  line-height: 1.25;
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
   text-wrap: balance;
   overflow-wrap: normal;
 }
 /* The reader view's stage is narrower: 64px keeps HARMONIES on one line. */
-body:not(.presenter) #slide-title-overlay.title-lesson .title-heading { font-size: 64px; }
+body:not(.presenter) #slide-title-overlay.title-lesson .title-heading { font-size: var(--text-heading); }
+/* The halo (Joel's idea): a crisp, zero-blur pixel outline behind a display
+   title, so it reads over a painting without a backdrop or a soft shadow.
+   Three shadows (right, below, and the corner between) make a hard 45 degree
+   edge on the right and bottom only, with no blur.
+   Colour: a slide's titleCSS/bodyCSS may set --title-halo; otherwise engine.js
+   sets --title-halo-auto from the title's own computed ink (dark ink gets a
+   light halo, light ink gets a dark one). .halo-text is the same edge for a
+   demo that draws its own heading (demos/title.js, demos/about-now.js). */
+#slide-title-overlay.title-lesson .title-heading,
+#slide-body-center.section-title,
+.halo-text {
+  --halo-color: var(--title-halo, var(--title-halo-auto, transparent));
+  text-shadow:
+    var(--halo-width) 0 0 var(--halo-color),
+    0 var(--halo-width) 0 var(--halo-color),
+    var(--halo-width) var(--halo-width) 0 var(--halo-color);
+}
 #slide-body-center {
   position: fixed;
   top: calc((var(--stage-top) + 100% - var(--stage-bottom)) / 2);
@@ -514,9 +565,9 @@ body:not(.presenter) #slide-body-center[style*="left: 4rem"] {
 /* A section title over a photo: 96px, the title slide's size, keeps
    Silkscreen on its grid. */
 #slide-body-center.section-title {
-  font-size: 96px;
+  font-size: var(--text-display);
   text-wrap: balance;
-  line-height: 1.25;
+  line-height: var(--leading-display);
   /* Silkscreen's glyphs stand 1px taller than the line, which would add a
      scrollbar. A title is short, so it never needs to scroll. */
   overflow: visible;
@@ -524,8 +575,8 @@ body:not(.presenter) #slide-body-center[style*="left: 4rem"] {
 /* A serif line under a section title, the title slide's subtitle style. */
 #slide-body-center .section-subtitle {
   display: block;
-  margin-top: 1.5rem;
-  font: var(--text-subtitle)/1.3 var(--font-body);
+  margin-top: var(--space-kicker);
+  font: var(--text-subhead)/var(--leading-subhead) var(--font-body);
   color: var(--ink-soft);
 }
 /* A quotation: a reading measure of about 70 characters. */

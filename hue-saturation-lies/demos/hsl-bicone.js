@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mouseOnlyControls } from './touch-free.js';
 
 function hslToSRGB(h, s, l) {
   const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -56,7 +57,9 @@ export function mount(container) {
       }
       .hsl-toy-sample { display: flex; align-items: center; gap: 1rem; }
       .hsl-toy-chip { width: 3rem; height: 3rem; border-radius: var(--radius); }
-      .hsl-toy-code { color: var(--ink); }
+      /* The slider labels stay quiet; this is the one value worth reading,
+         so it gets a full rung up the scale. */
+      .hsl-toy-code { color: var(--ink); font-size: var(--text-subhead); }
       .hsl-toy-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; width: 100%; }
       .hsl-toy-row { display: flex; align-items: center; gap: .65rem; min-height: 44px; }
       .hsl-toy-label { width: 1.4rem; flex-shrink: 0; }
@@ -126,6 +129,7 @@ export function mount(container) {
   camera.lookAt(0, 0, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
+  mouseOnlyControls(renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');

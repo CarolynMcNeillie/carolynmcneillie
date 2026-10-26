@@ -28,8 +28,8 @@ export function mount(container, type) {
       .cones-demo { background: var(--scrim); color: var(--ink); display: grid; place-items: center;
         padding: 1rem 2rem; }
       .cones-svg { width: 100%; height: 100%; display: block; }
-      .cones-label { font-size: 16px; fill: var(--ink-soft); }
-      .cones-muted { font-size: 16px; fill: var(--ink-muted); }
+      .cones-label { font-size: var(--text-label); fill: var(--ink-soft); }
+      .cones-muted { font-size: var(--text-label); fill: var(--ink-muted); }
       .cones-rule { stroke: var(--ink-faint); stroke-width: 1; fill: none; }
       .cones-q { opacity: 0; transition: opacity 1s; }
       .cones-demo[data-step="1"] .cones-q { opacity: 1; }
