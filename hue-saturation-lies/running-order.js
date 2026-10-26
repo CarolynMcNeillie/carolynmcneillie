@@ -190,6 +190,9 @@ export default {
           "id": "the-medium-is-the-revolution"
         },
         {
+          "id": "the-medium-is-the-revolution-2"
+        },
+        {
           "id": "the-medium-is-the-revolution-3",
           "hidden": false
         },
@@ -200,9 +203,6 @@ export default {
         {
           "id": "swatches",
           "hidden": false
-        },
-        {
-          "id": "the-medium-is-the-revolution-2"
         },
         {
           "id": "45finale"

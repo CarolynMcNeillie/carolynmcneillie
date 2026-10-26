@@ -992,6 +992,35 @@ The point isn't that painters lacked ambition.
 
 They were making decisions within the working properties of their materials.
 
+<!-- slide: the-medium-is-the-revolution-2 -->
+## Another way to work
+
+[Show the Leonardo. Let the audience look.]
+
+Oil gave painters different working properties, including opportunities for blending and building transparent layers.
+
+The same pigments in different binders can produce very different effects.
+
+([nationalgallery.org.uk](https://www.nationalgallery.org.uk/behind-the-scenes/making-colour))
+
+Look at the transitions in the face. The modelling of the hand.
+
+This isn't a controlled comparison, or a ladder from bad painting to good painting.
+
+It's a reminder that making a different process available can change which ideas become practical.
+
+That's the parallel I want to borrow.
+
+Today we held lightness steady while exploring hue.
+
+We changed a whole colour family together.
+
+We chose the route through a gradient.
+
+Not just different ways to write down a result.
+
+**Different ways to arrive at one.**
+
 <!-- slide: the-medium-is-the-revolution-3 -->
 ## The medium is the revolution
 
@@ -1030,35 +1059,6 @@ But painting didn't die. It got weird. (Affectionately.) Once a machine could do
 [Step 6] And artists like Swoon keep pulling new tools into the conversation. This is her stop-motion animation, _Cicada_, from 2019.
 
 We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
-
-<!-- slide: the-medium-is-the-revolution-2 -->
-## Another way to work
-
-[Show the Leonardo. Let the audience look.]
-
-Oil gave painters different working properties, including opportunities for blending and building transparent layers.
-
-The same pigments in different binders can produce very different effects.
-
-([nationalgallery.org.uk](https://www.nationalgallery.org.uk/behind-the-scenes/making-colour))
-
-Look at the transitions in the face. The modelling of the hand.
-
-This isn't a controlled comparison, or a ladder from bad painting to good painting.
-
-It's a reminder that making a different process available can change which ideas become practical.
-
-That's the parallel I want to borrow.
-
-Today we held lightness steady while exploring hue.
-
-We changed a whole colour family together.
-
-We chose the route through a gradient.
-
-Not just different ways to write down a result.
-
-**Different ways to arrive at one.**
 
 <!-- slide: 45finale -->
 ## Look again
