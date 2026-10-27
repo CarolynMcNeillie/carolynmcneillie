@@ -201,10 +201,6 @@ export default {
           "hidden": false
         },
         {
-          "id": "the-camera",
-          "hidden": false
-        },
-        {
           "id": "look-again"
         },
         {
@@ -215,6 +211,10 @@ export default {
     {
       "name": "Staging area",
       "items": [
+        {
+          "id": "the-camera",
+          "hidden": true
+        },
         {
           "id": "a-colour-you-had-to-acquire",
           "hidden": true

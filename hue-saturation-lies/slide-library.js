@@ -21,7 +21,7 @@ export const LIBRARY = {
 
 "lesson-six": {
     slide: {
-      title: "Art History",
+      title: "The medium is the revolution",
       titleStyle: "lesson",
       // Ultramarine, which the next slides are about: dark enough for the pale rock.
       titleCSS: { color: "oklch(0.25 0.16 270)", "--title-halo": "oklch(0.864 0.023 45.6)" /* #E0CEC6 */ },
@@ -260,11 +260,7 @@ export const LIBRARY = {
 "the-medium-changes-the-process": {
     slide: {
       title: "",
-      body: "The medium is\nthe revolution",
-      bodyClass: "font-display section-title",
-      // Top left, on the dark wood, at 64px (on Silkscreen's grid): pale gold
-      // keeps 99 to 100% of letter pixels at 3:1 at 1920 and 1440 wide.
-      bodyCSS: { color: "oklch(0.90 0.08 80)", top: "6rem", left: "4rem", right: "auto", transform: "none", textAlign: "left", fontSize: "64px" },
+      // No title since 27 Oct: the painting alone. The phrase moved to lesson-six.
       backgroundImage: "./images/11Nativity.avif",
       timeline: { year: 1400, label: "c. 1400" },
       attribution: {

@@ -537,14 +537,22 @@ Josef Albers who wrote, “In visual perception a color is almost never seen as 
 <!-- slide: lesson-six -->
 ## Lesson six
 
-So let's start here, with the cave paintings at Lascaux.
+For millennia and until relatively recently, colour had to be found in nature.
 
-For millennia and until relatively recently, colour had to be found in nature. The pigments used to create these images (ochre, charcoal, umber, iron oxides) were pulled from the earth.
+The pigments used to create cave paintings at Lascaux (ochre, charcoal, umber, iron oxides) were pulled from the earth.
+
+These were painted at least 17,000 years ago...
 
 <!-- slide: pigments-from-the-earth -->
-## Pigments from the earth
+## Lesson six
 
-The paintings at Lascaux are at least 17,000 years old, but the same pigments used to make these ancient cave paintings were also used to create Egyptian wall paintings, Medieval illuminated manuscripts, cubist paintings, abstract expressionism, and everything in between.
+And the same pigments were used to paint Egyptian funeral portraits...
+
+Medieval illuminated manuscripts...
+
+Cubist studies...
+
+Abstract expressionism and everything in between.
 
 <!-- slide: the-medium-changes-the-process -->
 ## The medium changes the process
@@ -574,22 +582,6 @@ And the ideas that artists worked out in the new media trained their eye and han
 
 Just the capacity to hold colour in a new way served as a catalyst that restructured how we imagined what we could create.
 
-<!-- slide: the-camera -->
-## The camera
-
-And that's not the only time that technology was a catalyst to reinvent painting.
-
-For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her.
-
-With the advent of photography, suddenly a machine could do that faster, cheaper and more accurately than any painter alive. (Sound familiar?)
-
-Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
-
-But painting didn't die. It got weird.
-Once a machine could do the rendering, painters were free to ask what else a painting could be for.
-
-We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
-
 <!-- slide: look-again -->
 ## Look again
 
@@ -607,6 +599,22 @@ With new tools, with new unencumbrances, what will you make that's delightful an
 Thank you.
 
 <!-- section: Staging area -->
+
+<!-- slide: the-camera -->
+## The camera
+
+And that's not the only time that technology was a catalyst to reinvent painting.
+
+For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her.
+
+With the advent of photography, suddenly a machine could do that faster, cheaper and more accurately than any painter alive. (Sound familiar?)
+
+Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
+
+But painting didn't die. It got weird.
+Once a machine could do the rendering, painters were free to ask what else a painting could be for.
+
+We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
 
 <!-- slide: a-colour-you-had-to-acquire -->
 ## A colour you had to acquire
