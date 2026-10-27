@@ -19,7 +19,7 @@ import { LIBRARY } from '../slide-library.js';
 import { DICE_ICON } from './icons.js';
 
 // One artwork per arrow step, from the slide's backgrounds (art:).
-const ART = (LIBRARY['random-hues']?.slide.backgrounds ?? []).map((entry) => entry.art);
+const ART = (LIBRARY['roll-the-dice']?.slide.backgrounds ?? []).map((entry) => entry.art);
 const DEFAULT_IMAGE = ART[0] ?? './images/12Ermine.avif';
 const STOPS = [0.15, 0.35, 0.55, 0.75, 0.92];
 const MAX_SIDE = 900; // pixels on the longest side of each rendered picture

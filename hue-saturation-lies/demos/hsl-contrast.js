@@ -50,9 +50,10 @@ function wcagLuminance(h, s, l) {
 
 const CT_S = 90, CT_BG_L = 91, CT_FG_L = 60;
 // OKLCH variant (the-contrast-ratio-problem): both chromas stay inside sRGB at
-// every degree (the blue and yellow cusps limit them). The ratio stays between
-// 4.65:1 and 4.77:1 all the way round.
-const OK_BG_L = 0.85, OK_BG_C = 0.07, OK_FG_L = 0.45, OK_FG_C = 0.075;
+// every degree (the blue and yellow cusps limit them). The text lightness is
+// set so the sweep opens at blue on 4.56:1, the HSL sweep's starting ratio,
+// for a fair comparison. It stays between 4.52:1 and 4.63:1 all the way round.
+const OK_BG_L = 0.85, OK_BG_C = 0.07, OK_FG_L = 0.4565, OK_FG_C = 0.075;
 function oklchLuminance(l, c, h) {
   const rad = h * Math.PI / 180;
   const a = c * Math.cos(rad), b = c * Math.sin(rad);

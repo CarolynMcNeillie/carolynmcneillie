@@ -145,8 +145,9 @@ function unmountDemo() {
 // "Lesson one" line was dropped on 26 Oct: it was hard to read.
 function setTitleOverlay(title = "", style) {
   slideTitleOverlay.className = style ? `title-${style}` : "";
-  const split = style === "lesson" ? title.indexOf(":") : -1;
-  if (split < 0) { slideTitleOverlay.textContent = title; return; }
+  if (style !== "lesson") { slideTitleOverlay.textContent = title; return; }
+  // A lesson title without a colon ("Art History") is all heading.
+  const split = title.indexOf(":");
   const heading = document.createElement("span");
   heading.className = "title-heading";
   heading.textContent = title.slice(split + 1).trim();

@@ -2,12 +2,12 @@
 // deck order; slides outside that range keep the footer only.
 // A `timeline` date marks where the story is, not when an image was made:
 // the credit line already gives the artwork's own date.
-export const TIMELINE_START = "pigments-from-the-earth";
+export const TIMELINE_START = "lesson-six";
 export const TIMELINE_END = "good-vibrations-2";
 
 // Slide content is independent of the running order.
 export const LIBRARY = {
-"the-shape-of-oklch": {
+"our-strange-little-friend": {
     slide: {
       viz: true,
       rotate: true,
@@ -19,9 +19,9 @@ export const LIBRARY = {
     },
   },
 
-"pigments-from-the-earth": {
+"lesson-six": {
     slide: {
-      title: "Lesson six: the medium is the revolution",
+      title: "Art History",
       titleStyle: "lesson",
       // Ultramarine, which the next slides are about: dark enough for the pale rock.
       titleCSS: { color: "oklch(0.25 0.16 270)", "--title-halo": "oklch(0.864 0.023 45.6)" /* #E0CEC6 */ },
@@ -39,7 +39,7 @@ export const LIBRARY = {
     },
   },
 
-"pigments-from-the-earth-2": {
+"pigments-from-the-earth": {
     slide: {
       fit: "whole",
       backgrounds: [
@@ -95,7 +95,7 @@ export const LIBRARY = {
     },
   },
 
-"ultramarine": {
+"a-colour-you-had-to-acquire": {
     slide: {
       fit: "whole",
       backgroundImage: "./images/08Ultramarine.avif",
@@ -109,7 +109,7 @@ export const LIBRARY = {
 
   },
 
-"ultramarine-2": {
+"ultramarine": {
     slide: {
       fit: "whole",
       backgroundImage: "./images/09Wilton.avif",
@@ -122,7 +122,7 @@ export const LIBRARY = {
 
   },
 
-"painters-in-css": {
+"art-school-speedrun": {
     slide: {
       body: "Art school\nspeedrun",
       bodyClass: "font-display section-title",
@@ -131,7 +131,7 @@ export const LIBRARY = {
     },
   },
 
-"colour-is-relative": {
+"lesson-five": {
     slide: {
       title: "Lesson five: colour is relative",
       titleStyle: "lesson",
@@ -147,7 +147,7 @@ export const LIBRARY = {
     },
   },
 
-"albers": {
+"lesson-five-2": {
     slide: {
       demo: "albers",
       backgrounds: [{}, {}, {}, {}],
@@ -155,7 +155,7 @@ export const LIBRARY = {
     },
   },
 
-"class-dismissed": {
+"better-tools-for-judgment": {
     slide: {
       body: "Class\ndismissed.",
       bodyClass: "font-display section-title",
@@ -166,7 +166,7 @@ export const LIBRARY = {
 
 
 
-"titian": {
+"lesson-three": {
     slide: {
       title: "Lesson three: dark colours should still be rich",
       titleStyle: "lesson",
@@ -181,18 +181,19 @@ export const LIBRARY = {
     },
   },
 
-"titian-2": {
+"compare-the-choices": {
     slide: { demo: "titian-glaze" },
   },
 
 // The paper-cut forest (images/forest-layers.svg), coloured by --layer-1..9 and --sun.
-"titian-3": {
-    // Steps: the HSL greens, the three ramps (black mix, OKLCH L, shift H), the
-    // shift cranked to its maximum, the sun, then the sun scene turning round the hue wheel.
+"apply-the-ramp": {
+    // Steps: the line drawing (black outlines, white fills), the three ramps
+    // (black mix, OKLCH L, shift H), the shift cranked to its maximum, the sun,
+    // then the sun scene turning round the hue wheel.
     slide: { demo: "forest-scene", backgrounds: [{}, {}, {}, {}, {}, {}, {}] },
   },
 
-"monet": {
+"lesson-two": {
     slide: {
       demo: "grayscale-toggle",
       fit: "whole",
@@ -206,18 +207,18 @@ export const LIBRARY = {
     },
   },
 
-"afterimage": {
+"your-turn": {
     slide: { demo: "afterimage" },
   },
 
-"riley": {
+"choose-vibration-or-separation": {
     slide: {
       demo: "riley", backgrounds: [{}, {}],
       attribution: { text: "An original study inspired by Edna Andrade's _Turbo 1-65_ (1965)" },
     },
   },
 
-"chance": {
+"lesson-four": {
     slide: {
       title: "Lesson four: give chance a chance",
       titleStyle: "lesson",
@@ -233,7 +234,7 @@ export const LIBRARY = {
     },
   },
 
-"random-hues": {
+"roll-the-dice": {
     // Replaces richter and kelly-code (and the mosaic). A tetradic palette keyed
     // to lightness, HSL and OKLCH side by side; the dice or a click rolls again;
     // drop or paste an image to try another. Each arrow step recolours the next
@@ -249,17 +250,21 @@ export const LIBRARY = {
     },
   },
 
-"richter": {
+"lesson-four-give-chance-fewer-decisions": {
     slide: {
       demo: "richter", backgrounds: [{}, {}],
       attribution: { text: "A generative study after Ellsworth Kelly's _Spectrum Colors Arranged by Chance_" },
     },
   },
 
-"the-medium-is-the-revolution": {
+"the-medium-changes-the-process": {
     slide: {
       title: "",
-      // No title since 26 Oct: the painting alone.
+      body: "The medium is\nthe revolution",
+      bodyClass: "font-display section-title",
+      // Top left, on the dark wood, at 64px (on Silkscreen's grid): pale gold
+      // keeps 99 to 100% of letter pixels at 3:1 at 1920 and 1440 wide.
+      bodyCSS: { color: "oklch(0.90 0.08 80)", top: "6rem", left: "4rem", right: "auto", transform: "none", textAlign: "left", fontSize: "64px" },
       backgroundImage: "./images/11Nativity.avif",
       timeline: { year: 1400, label: "c. 1400" },
       attribution: {
@@ -269,7 +274,7 @@ export const LIBRARY = {
     },
   },
 
-"the-medium-is-the-revolution-2": {
+"another-way-to-work": {
     slide: {
       fit: "whole",
       title: "",
@@ -282,7 +287,7 @@ export const LIBRARY = {
     },
   },
 
-"the-medium-is-the-revolution-3": {
+"the-medium-is-the-revolution": {
     slide: {
       fit: "whole",
       title: "",
@@ -323,7 +328,7 @@ export const LIBRARY = {
     },
   },
 
-"the-medium-is-the-revolution-4": {
+"the-medium-is-the-revolution-2": {
     slide: {
       fit: "whole",
       backgroundImage: "./images/Botticelli.jpg",
@@ -335,7 +340,7 @@ export const LIBRARY = {
     },
   },
 
-"let-s-get-physical": {
+"lets-get-physical": {
     slide: {
       title: "",
       body: "Let’s get\nphysical",
@@ -367,7 +372,7 @@ export const LIBRARY = {
     },
   },
 
-"let-s-get-physical-2": {
+"lets-get-physical-2": {
     slide: {
       fit: "whole",
       backgrounds: [
@@ -399,7 +404,7 @@ export const LIBRARY = {
     },
   },
 
-"let-s-get-physical-3": {
+"lets-get-physical-3": {
     slide: {
       backgroundImage: "./images/20Paper.avif",
       body: `“I tooke a bodkin & put it betwixt my eye & the bone as neare to the Backside of my eye as I could, pressing my eye with the end of it… there appeared severall white darke & coloured circles…” `,
@@ -415,7 +420,7 @@ export const LIBRARY = {
     },
   },
 
-"let-s-get-physical-4": {
+"prism-experiments": {
     slide: {
       fit: "whole",
       title: "",
@@ -427,7 +432,7 @@ export const LIBRARY = {
     },
   },
 
-"let-s-get-physical-5": {
+"prism-experiments-2": {
     slide: {
       title: "",
       body: "eureka!",
@@ -472,13 +477,13 @@ export const LIBRARY = {
     },
   },
 
-"good-vibrations-3": {
+"visible-light": {
     slide: {
       demo: "spectrum",
     },
   },
 
-"good-vibrations-4": {
+"good-vibrations-3": {
     slide: {
       demo: "wave",
     },
@@ -510,7 +515,7 @@ export const LIBRARY = {
     },
   },
 
-"deuteranomaly": {
+"colour-vision": {
     slide: {
       demo: "colorblind",
       demoType: "deuteranomaly",
@@ -534,7 +539,7 @@ export const LIBRARY = {
     },
   },
 
-"the-x-factor": {
+"whose-experience": {
     slide: {
       backgroundImage: "./images/28TheDress.avif",
       attribution: {
@@ -543,14 +548,14 @@ export const LIBRARY = {
     },
   },
 
-"cone-sensitivity": {
+"cones": {
     slide: {
       demo: "cones",
       demoType: "trichromat",
     },
   },
 
-"the-x-factor-2": {
+"the-x-factor": {
     slide: {
       demo: "cones",
       backgrounds: [{}, {}],
@@ -573,7 +578,7 @@ export const LIBRARY = {
     },
   },
 
-"think-pink": {
+"names-give-us-handles": {
     slide: { demo: "pink", backgrounds: [{}, {}, {}, {}] },
   },
 
@@ -594,7 +599,7 @@ export const LIBRARY = {
     },
   },
 
-"colour-systems": {
+"a-painters-grammar": {
     slide: {
       // Munsell only: Newton, Runge and Werner were cut for time on 20 Oct.
       fit: "whole",
@@ -610,7 +615,7 @@ export const LIBRARY = {
     },
   },
 
-"the-abcs-of-cie-xyz": {
+"a-shared-reference": {
     slide: {
       demo: "colormatching",
       // The arrow sets the dials one at a time, a little off, then tweaks each.
@@ -619,7 +624,7 @@ export const LIBRARY = {
     },
   },
 
-"the-abcs-of-cie-xyz-2": {
+"the-horseshoe": {
     slide: {
       demo: "cie",
       // Arrow steps highlight sRGB, then Display P3, then Rec. 2020.
@@ -628,7 +633,7 @@ export const LIBRARY = {
     },
   },
 
-"the-abcs-of-cie-xyz-3": {
+"the-srgb-range": {
     slide: {
       demo: "cie",
       // The same chart with no text, the sRGB triangle already marked.
@@ -650,20 +655,20 @@ export const LIBRARY = {
     slide: { demo: "csscolors" },
   },
 
-"srgb": {
+"rgb": {
     slide: { demo: "rgb", demoType: "black" },
   },
 
-"srgb-2": {
+"rgb-2": {
     // Six arrow steps: red, pink, dark red, middle grey, blue, yellow (demos/rgb.js STEPS).
     slide: { demo: "rgb", backgrounds: [{}, {}, {}, {}, {}, {}] },
   },
 
-"srgb-3": {
+"srgb": {
     slide: { demo: "yellow-blue" },
   },
 
-"the-contrast-ratio-problem": {
+"answer-the-practical-problem": {
     // The hue-saturation-lies-3 sweep again, in OKLCH: the ratio holds near 4.7:1.
     slide: { demo: "hsl-contrast", demoType: "oklch", backgrounds: [{}, {}] },
   },
@@ -677,7 +682,7 @@ export const LIBRARY = {
     },
   },
 
-"hue-saturation-lies": {
+"hsl": {
     // Arrow steps: top view with the dot round the hues, the dot in to grey,
     // then back to the side view with the dot up and down the lightness axis.
     slide: { demo: "hsl-bicone", backgrounds: [{}, {}, {}, {}] },
@@ -692,16 +697,16 @@ export const LIBRARY = {
     },
   },
 
-"hue-saturation-lies-2": {
+"hsl-lightness": {
     slide: { demo: "hsl-shortfall" },
   },
 
-"hue-saturation-lies-3": {
+"a-practical-problem": {
     // The arrow presses play on the hue sweep.
     slide: { demo: "hsl-contrast", backgrounds: [{}, {}] },
   },
 
-"an-ok-color-space": {
+"an-ok-colour-space": {
     slide: {
       body: "An ok\ncolourspace",
       bodyClass: "font-display section-title",
@@ -716,7 +721,7 @@ export const LIBRARY = {
     },
   },
 
-"an-ok-color-space-2": {
+"reading-the-hedgehog": {
     slide: {
       viz: true,
       rotate: false,
@@ -728,7 +733,7 @@ export const LIBRARY = {
     },
   },
 
-"oklch-slices": {
+"hue-slices": {
     // One slice; the hue slider scrubs it. The arrow presses play.
     slide: { demo: "hue-slices", backgrounds: [{}, {}] },
   },
@@ -737,35 +742,35 @@ export const LIBRARY = {
     slide: { demo: "oklch-picker", demoType: "syntax" },
   },
 
-"oklch-controls": {
+"what-do-we-want-to-keep": {
     slide: { demo: "oklch-picker", demoType: "controls", backgrounds: [{}, {}, {}, {}] },
   },
 
-"oklch-edge": {
+"what-happens-at-the-edge": {
     slide: { demo: "oklch-picker", demoType: "edge", backgrounds: [{}, {}] },
   },
 
-"colour-harmonies-code": {
+"write-the-relationship": {
     slide: { demo: "harmony-code" },
   },
 
-"kelly-code": {
+"change-the-whole-family": {
     slide: { demo: "richter", demoType: "code", backgrounds: [{}, {}, {}, {}] },
   },
 
-"monday": {
+"one-colour-one-relationship-one-component": {
     slide: { demo: "monday" },
   },
 
-"an-ok-color-space-3": {
+"oklch-lightness": {
     slide: { demo: "oklch-vs-hsl" },
   },
 
-"the-reddest-red": {
+"more-range-is-a-separate-benefit": {
     slide: { demo: "reddest-red" },
   },
 
-"harmony-paintings": {
+"lesson-one": {
     slide: {
       fit: "whole",
       title: "Lesson one: colour harmonies",
@@ -786,7 +791,7 @@ export const LIBRARY = {
 
   // HSL alone, then both wheels, then HSL leaves and one painting per scheme:
   // complementary, analogous, triadic, split-complementary, tetradic.
-  "colour-harmonies-hsl": {
+  "programatic-colour-harmonies": {
     slide: {
       demo: "harmonies",
       demoType: "hsl",
@@ -827,28 +832,27 @@ export const LIBRARY = {
     },
   },
 
-  "colour-harmonies": {
+  "explore-the-relationship": {
     slide: { demo: "harmonies" },
   },
 
-"title": {
+"hue-saturation-lies": {
     slide: { demo: "title" },
   },
 
 "thank-you": {
     // Step 0: "Thank you" alone. Step 1: the P.S. fades in.
-    // One step: the hiring P.S. (second step) stays hidden until it is confirmed.
-    slide: { demo: "title", demoType: "thanks" },
+    slide: { demo: "title", demoType: "thanks", backgrounds: [{}, {}] },
   },
 
-"about-me-now": {
+"about-me": {
     slide: {
       demo: "about-now",
       attribution: { text: "Photo: Josh Sanger · Shopify Summit 2025", url: "https://www.joshsanger.ca/" },
     },
   },
 
-"work-editions": {
+"my-work": {
     slide: {
       demo: "video",
       demoType: "editions",
@@ -872,19 +876,19 @@ export const LIBRARY = {
     },
   },
 
-"about-me-collage": {
+"my-education": {
     slide: {
       demo: "about-collage",
       attribution: { text: "Photos: Carolyn McNeillie, c. a lady never tells" },
     },
   },
 
-"gradient-rgb": {
+"rgb-gradients": {
     // Two steps: the sweep parked at the start, then played.
     slide: { demo: "gradient-rgb", backgrounds: [{}, {}] },
   },
 
-"gradient-paths": {
+"hsl-gradients": {
     // The arrow sends the spot along the path, as on gradient-rgb.
     slide: { demo: "gradient-paths", demoType: "hsl", backgrounds: [{}, {}] },
   },
@@ -894,15 +898,15 @@ export const LIBRARY = {
     slide: { demo: "hsl-contrast", demoType: "talked", backgrounds: [{}, {}] },
   },
 
-"gradient-paths-2": {
+"oklch-gradients": {
     slide: { demo: "gradient-paths", demoType: "oklch", backgrounds: [{}, {}] },
   },
 
-"colours-between-colours": {
+"gradient-comparisons": {
     slide: { demo: "gradients" },
   },
 
-"swatches": {
+"the-camera": {
     slide: {
       backgrounds: [
         {
@@ -957,7 +961,7 @@ export const LIBRARY = {
     },
   },
 
-"45finale": {
+"look-again": {
     // The "What could you make from there?" overlay was removed on 25 Oct.
     slide: { viz: true, rotate: true, vizControls: false },
   },

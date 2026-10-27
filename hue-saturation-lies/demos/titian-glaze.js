@@ -1,11 +1,15 @@
 // A colour-design analogy to glazing, not a physical pigment simulation.
-const NAMES = ['Mix towards black in sRGB', 'Lower OKLCH L', 'Lower L, reduce C, shift H'];
+const NAMES = ['Mix towards black in sRGB', 'Lower OKLCH L', 'Lower L, reduce C, shift H', 'Lower L, mix in the complement'];
+// The fourth row is the painter's way: the colour gets darker as more of its
+// complement (the hue 180 degrees round) is mixed in. The mix runs in Oklab,
+// so the two hues meet through grey, as paints do, not round the wheel.
 function expressions(i) {
   const delta = (i * 0.07).toFixed(2);
   return [
     `color-mix(in srgb, var(--color), black ${i * 14}%)`,
     `oklch(from var(--color) calc(l - ${delta}) c h)`,
     `oklch(from var(--color) calc(l - ${delta}) calc(c * ${(1 - i * 0.08).toFixed(2)}) calc(h + ${i * 5}))`,
+    `color-mix(in oklab, oklch(from var(--color) calc(l - ${delta}) c h), oklch(from var(--color) calc(l - ${delta}) c calc(h + 180)) ${i * 8}%)`,
   ];
 }
 export function mount(container, type) {

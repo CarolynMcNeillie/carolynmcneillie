@@ -1,12 +1,12 @@
 <!-- section: Introduction -->
 
-<!-- slide: title -->
+<!-- slide: hue-saturation-lies -->
 ## Hue, Saturation, Lies
 
 Raise your hand if you’ve ever been personally victimized by HSL.
 
-<!-- slide: hue-saturation-lies-2 -->
-## The same lightness
+<!-- slide: hsl-lightness -->
+## HSL Lightness
 
 CSS and I are in a fight. It's got us all pretending that these colours all have the same lightness.
 
@@ -23,7 +23,7 @@ Luckily I had the foresight to make a button that does exactly that.
 Look, it's not even close.
 It’s not a bug. HSL stands for hue, saturation, and lightness. That last number just doesn’t mean what we expect it to mean.
 
-<!-- slide: hue-saturation-lies-3 -->
+<!-- slide: a-practical-problem -->
 ## A practical problem
 
 And this matters when we’re choosing colours for the browser.
@@ -40,15 +40,15 @@ Watch the contrast ratio absolutely bottom out.
 
 If you’ve ever changed a colour to match the brand and accidentally broken your text contrast, you are among friends here.
 
-<!-- slide: about-me-now -->
+<!-- slide: about-me -->
 ## About me
 
 I’m Carolyn McNeillie. I’m a senior web developer at Shopify, specialising in the front-of-the front end.
 
 Which means I feed my family by discovering just how much engineering can result from the sentance, “Could we just tweak this a little?”
 
-<!-- slide: work-editions -->
-## Work: Editions
+<!-- slide: my-work -->
+## My work
 
 I’m on the Brand Design Studio team at Shopify.
 
@@ -62,8 +62,8 @@ This one on screen is Winter 2026: the  most recent one I worked on, and a perso
 
 Partly because before I worked in tech, I went to art school.
 
-<!-- slide: about-me-collage -->
-## Before the browser
+<!-- slide: my-education -->
+## My Education
 
 I studied painting and drawing at OCAD, here in Toronto.
 
@@ -83,7 +83,7 @@ Out of the shot is a whole production of art handlers who brought it down.  I ha
 
 I’m telling you this partly to establish my qualifications, and partly to establish the level of art nerd you’re dealing with.
 
-<!-- slide: the-shape-of-oklch -->
+<!-- slide: our-strange-little-friend -->
 ## Our strange little friend
 
 This is where those two parts of my life meet.
@@ -102,7 +102,7 @@ And if I really get to have everything I want, I hope you might come to love it 
 
 <!-- section: The light and the observer -->
 
-<!-- slide: let-s-get-physical -->
+<!-- slide: lets-get-physical -->
 ## Let's get physical
 
 To understand what the heck is going on with HSL's lightness number, and how we can do better, we need to separate what the light is doing from what our eyes do with it.
@@ -119,8 +119,8 @@ Not this grey-haired version we think of...
 
 but a young, bored Newton, waiting out the plague back at his mom's house.
 
-<!-- slide: let-s-get-physical-4 -->
-## Where did the colour come from?
+<!-- slide: prism-experiments -->
+## Prism Experiments
 
 In 2020, we baked sourdough. In 1665, Newton messed around with prisms.
 
@@ -128,8 +128,8 @@ Now, making a rainbow wasn’t the big deal. People were already familiar with r
 
 The puzzle was: did the colour come from the glass, or from the light passing through it?
 
-<!-- slide: let-s-get-physical-5 -->
-## Separate and recombine
+<!-- slide: prism-experiments-2 -->
+## Prism experiments
 
 Newton’s experiments helped answer that question.
 
@@ -149,8 +149,8 @@ For that, we need the other half of the question:
 
 The person looking at it.
 
-<!-- slide: good-vibrations-3 -->
-## The part we call visible
+<!-- slide: visible-light -->
+## visible light
 
 This is the electromagnetic spectrum, from radio waves through to gamma rays.
 
@@ -173,8 +173,8 @@ HSL’s lightness number describes the red, green, and blue channels in our scre
 
 So if we want our colour numbers to describe something closer to what we see, we need to understand a little about how we see it.
 
-<!-- slide: cone-sensitivity -->
-## Not three little RGB eyedroppers
+<!-- slide: cones -->
+## Cones
 
 The sensors in our eyes involved in colour vision are called cones.
 
@@ -186,16 +186,14 @@ For the pedantic in the audience, I'll save you the trouble at question period a
 
 And more importantly, look at how much these curves overlap.
 
-[Point to a wavelength around 550 nanometres. Trace upwards to the M and L curves.]
-
 This one wavelength stimulates both the medium and long cones. The height of each curve tells us how sensitive that cone type is to it.
 
 So these aren’t three little RGB eyedroppers.
 
 Our visual system works with the pattern of responses across them—not three separate buckets of colour.
 
-<!-- slide: deuteranomaly -->
-## Different observers
+<!-- slide: colour-vision -->
+## Colour vision
 
 But there is a lot of variation in cones from person to person.
 
@@ -212,7 +210,7 @@ The cones in our eyes are as unique from person to person as our height or the s
 
 But even if there's not one objective single way that humans see colour, we still need some shared system to describe it.
 
-<!-- slide: colour-systems -->
+<!-- slide: a-painters-grammar -->
 ## A painter's grammar
 
 Here's one of my favourite attempts.
@@ -225,7 +223,7 @@ His system was one of the first that accounts for the fact that different colour
 
 This is the ancestor of our spiky friend OKLCH.
 
-<!-- slide: the-abcs-of-cie-xyz -->
+<!-- slide: a-shared-reference -->
 ## A shared reference
 
 But between the two world wars, scientists came together to find a way to measure colour perception more systemically.
@@ -239,8 +237,8 @@ The test subject changes the mixture until the two sides match.
 
 The data collected from experiments  like these helped establish the CIE's 1931 standard observer and XYZ colour measurement.
 
-<!-- slide: the-abcs-of-cie-xyz-2 -->
-## Coordinates and limits
+<!-- slide: the-horseshoe -->
+## The horseshoe
 
 From XYZ we can derive this chromaticity diagram, the horseshoe, which represents the average range of human colour vision.
 
@@ -248,33 +246,19 @@ This is a slice of the overall colour space that leaves out the darkness/lightne
 
 This is used across all sorts of industries from textile design, to paint colours, to electronic devices. Any other colour space is a subset of this one.
 
-[Show the sRGB outline.]
-
 Here's sRGB.
-
-[Show the Display P3 outline.]
 
 Here's Display P3.
 
-Notice that the available range is different.
+Here's Rec 2020.
 
-For the rest of the talk, keep two questions separate:
-
-**How am I describing a colour?**
-
-And **can the destination reproduce it?**
-
-The coordinates give us an address. The gamut tells us whether that address is inside the available territory.
-
-([w3.org](https://www.w3.org/TR/css-color-4/))
-
-<!-- slide: srgb -->
-## Instructions for a screen
+<!-- slide: rgb -->
+## RGB
 
 RGB and hexadecimal colour notation are describing colour in essentially the same way, which is by describing the strength of each of three colour channels, red green and blue.
 
-<!-- slide: srgb-2 -->
-## Finally: why yellow and blue differ
+<!-- slide: rgb-2 -->
+## RGB
 
 You can see here we get red when we dial just the red channel to the top.
 
@@ -286,15 +270,15 @@ The closer the three channels are in value, the more desaturated the colour you 
 
 And you can see yellow, which is generated by mixing yellow and red, is in this model the opposite of blue.
 
-<!-- slide: gradient-rgb -->
-## Who chose the middle?
+<!-- slide: rgb-gradients -->
+## RGB Gradients
 
 So when you understand how this works, you can see why rgb colours do some of the weird things they do.
 
 For example, a yellow to blue gradient might be the most disappointing one in the browser.
 
-<!-- slide: hue-saturation-lies -->
-## Same colours, different coordinates
+<!-- slide: hsl -->
+## HSL
 
 Now let's have a look at HSL which approaches things a little differently.
 
@@ -304,7 +288,7 @@ The closer you are to the equator, the more saturated your colour is. Lightness 
 
 This system is really tidy and hue, saturation and lightness is easier to reason about than RGB channels, but you might already be thinking that this really simple shape is a bit of a red flag. we know that blue and yellow aren't perceptually the same lightness, so to achieve this shape the colour relationships are stretch and warped. I almost never reach for hsl.
 
-<!-- slide: the-abcs-of-cie-xyz-3 -->
+<!-- slide: the-srgb-range -->
 ## The sRGB range
 
 So first of all, HSL is a different model for describing the exact same colour range that RGB and hexadecimal colour notation is. There's no added rage, just the same colours arranged in a different way.
@@ -316,8 +300,8 @@ And because the colour relationships are still based on the properties of our sc
 
 Regardless of the notation, we're still left manually plucking colours with an eyedropper at the end of the day.
 
-<!-- slide: gradient-paths -->
-## Gradient paths: HSL
+<!-- slide: hsl-gradients -->
+## HSL Gradients
 
 The one place that I might reach for HSL is gradients.
 
@@ -327,7 +311,7 @@ But there's a lot of room left for CSS to do colour a lot better.
 
 <!-- section: Three decisions, better separated -->
 
-<!-- slide: an-ok-color-space -->
+<!-- slide: an-ok-colour-space -->
 ## An OK colour space
 
 Apparently pandemics are productive times for colour science.
@@ -344,139 +328,45 @@ Not Perfectlab.
 
 OKLCH expresses that same system using lightness, chroma, and a hue angle.
 
-<!-- slide: an-ok-color-space-3 -->
-## Repeat the opening test
+<!-- slide: oklch-lightness -->
+## OKLCH Lightness
 
 Here's the opening experiment again.
 
 On this side, equal HSL lightness.
 
 On this side, equal OKLCH lightness.
-
-I've given each hue as much chroma as sRGB allows at this lightness, so nothing needs gamut mapping. We're testing the lightness relationship here—not which row can shout louder.
-
-[Toggle the greyscale comparison.]
-
 Notice how much steadier the relationship is.
 
 That's what we wanted: changing hue without such a large, unintended change in how light the colours look.
 
-Oklab was designed to make these properties behave more independently.
-
-([bottosson.github.io](https://bottosson.github.io/posts/oklab/))
-
-Now let's learn to ask for a colour.
-
 <!-- slide: oklch-syntax -->
-## Read—and change—one colour
+## OKLCH Syntax
 
-```css
---base: oklch(0.7 0.15 250);
-```
+Let's have a look at the syntax.
 
-Three numbers.
+Lightness is measured on a scale from 0 - 1
+Hue rounds the colour wheel from 0 to 360 degrees. And chroma caps out at 0.4.
 
-Lightness. Chroma. Hue.
+We can use css calc functions to do really great things with this notation as we will look at together later.
 
-Lightness runs from zero to one for the usual black-to-white range.
-
-Chroma starts at zero: neutral.
-
-Hue is an angle around a wheel.
-
-Two hundred and fifty degrees puts this colour in blue territory.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch))
-
-[Move only H: 250 → 30.]
-
-I like how light this is. I want a different hue.
-
-Change H.
-
-[Lower C: 0.15 → 0.06.]
-
-Now I want it quieter.
-
-Change C.
-
-[Lower L: 0.70 → 0.45.]
-
-Now darker.
-
-Change L.
-
-The important thing isn't memorising these numbers.
-
-It's being able to separate three requests that often get bundled into “Can we tweak this?”
-
-**Too dark? Too colourful? Wrong hue?**
-
-Which one do we actually mean?
-
-<!-- slide: an-ok-color-space-2 -->
-## Read the strange shape
+<!-- slide: reading-the-hedgehog -->
+## Reading the hedgehog
 
 Now we can read the shape.
 
 This is the Display P3 gamut plotted in OKLCH, with hue unwrapped across one axis.
 
-[Indicate each axis.]
+<!-- slide: hue-slices -->
+## Hue Slices
 
-[Step 2]
+By looking at hue slices we can really start to understand what this shape represents.
 
-Lightness.
+Different hues have different levels at which perceivable chroma maxes out. Our eyes or our brains -- I'm not sure who is at fault here -- but every colour has a cap and that cap is different for different hues.
 
-[Step 3]
+On top of that, chroma peeks for different colours at different perceived lightness.
 
-Chroma.
-
-[Step 4]
-
-Hue.
-
-The shape shows the combinations inside that gamut.
-
-And those uneven peaks tell us that the available chroma depends on where we are.
-
-We don't have an identical range at every hue and lightness.
-
-([bottosson.github.io](https://bottosson.github.io/posts/gamutclipping/))
-
-Let's take one slice and see what that means.
-
-<!-- slide: oklch-slices -->
-## One hue, two remaining decisions
-
-We've fixed the hue.
-
-On this slice, lightness runs left to right. Chroma runs upwards.
-
-[Trace along the neutral baseline.]
-
-Down here, neutral colours from black to white.
-
-[Point to a middle lightness and trace upwards.]
-
-At this lightness, we can increase chroma until we reach the boundary.
-
-Now change hue.
-
-[Move the hue control.]
-
-The boundary moves.
-
-That is why “maximum chroma” isn't one number.
-
-And why keeping chroma unchanged while making a colour darker can eventually take us outside the gamut.
-
-([bottosson.github.io](https://bottosson.github.io/posts/gamutclipping/))
-
-Remember Munsell's branches?
-
-The unevenness is information.
-
-<!-- slide: oklch-edge -->
+<!-- slide: what-happens-at-the-edge -->
 ## What happens at the edge?
 
 [Increase chroma past the marked boundary.]
@@ -493,186 +383,66 @@ In practice: watch the boundary while exploring.
 
 If moving a control stops producing the change you expected, you may have reached the limits of the output—not the limits of the notation.
 
-<!-- slide: the-contrast-ratio-problem -->
+<!-- slide: answer-the-practical-problem -->
 ## Answer the practical problem
 
-Now let's answer the other problem we started with.
+Now let's look at this experiment again using oklch.
 
-Remember the text that became difficult to read when we changed hue?
+Now we have two blues with roughly the same contrast ratio as our hsl example. But watch what happens when we keep lightness and chroma steady, but loop through the hue wheel.
 
-[Each row holds its saturation or chroma and its two lightnesses constant across twelve hues. HSL: S 78%, L 68% and 33%. OKLCH: C 0.059, L 64% and 36%.]
+You will notice that the contrast ratio is still changing a little. Remember, it's not _perfect_LCH. We still need to run our work through a contrast checker to ensure we're serving all our audience. But damn if OKLCH doesn't get you a heck of a lot closer.
 
-[Indicate the ratios.]
+<!-- slide: oklch-gradients -->
+## OKLCH gradients
 
-Watch how little the ratios vary in this OKLCH example.
+The shape of OKLCH gives us gradients that step smoothly though all three axises.
 
-That's a more consistent starting point—not an accessibility guarantee.
+<!-- slide: gradient-comparisons -->
+## Gradient comparisons
 
-These particular pairs are around three to one. Ordinary text needs at least four-and-a-half to one for WCAG AA; large text has a three-to-one threshold.
+It's fun to compare just how different gradients look in the different colour models.
 
-So we still check the actual foreground and background.
+In all these examples we're starting and ending withe the exact same rgb colour, but the effect is very varied.
 
-([w3.org](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html))
-
-So the workflow is:
-
-Build the relationship.
-
-Check the result.
-
-Adjust.
-
-**The point isn't to retire the contrast checker. It's to arrive at useful candidates with less guessing.**
-
-<!-- slide: gradient-paths-2 -->
-## Choose the journey
-
-[Show the existing path comparison.]
-
-In HSL or OKLCH, we can interpolate through hue angles instead.
-
-We can choose which way around the wheel to travel.
-
-In Oklab, we can take a different kind of route again. ([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method))
-
-<!-- slide: colours-between-colours -->
-## Choose the journey
-
-Same endpoints.
-
-Different interpolation spaces.
-
-[Indicate sRGB, HSL, then OKLCH.]
-
-Here we interpolate RGB channels.
-
-Here we travel through HSL hue angles.
-
-Here we interpolate OKLCH lightness, chroma, and hue.
-
-Different instructions. Different intermediate colours.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color-interpolation-method))
-
-Here's where we choose that in CSS:
-
-```css
-background: linear-gradient(in oklch, blue, yellow);
-```
-
-For a hue-based space, we can also specify the direction around the hue wheel.
-
-But start with this one practical experiment:
-
-**Before adding extra colour stops to fix a gradient, try changing its interpolation space.**
-
-Sometimes the missing ingredient isn't another colour.
-
-It's another route.
-
-<!-- slide: the-reddest-red -->
+<!-- slide: more-range-is-a-separate-benefit -->
 ## More range is a separate benefit
 
-One more distinction.
+So ok, I mentioned that most of our css colour notation -- rgb, hexidecimal, and hcl -- are bounded to the sRGB colour space. So no matter what your monitor can do, they limit you to that particular range.
 
-This sample is sRGB red. This one is Display P3 red.
+OKLCH is more agnostic. It can describe any colour that the eye can see, and then your monitor will display colours based on what it can handle.
 
-If the display supports it, P3 can reproduce the more vivid red.
+In practical terms, that is likely to be display P3, but as our monitors become more robust so will our palettes.
 
-If the projector makes them look identical, the equipment has joined the educational programme.
-
-OKLCH can describe colours outside sRGB, including colours available in P3.
-
-But P3 gives us the extra range. OKLCH gives us another way to describe colours.
-
-([w3.org](https://www.w3.org/TR/css-color-4/))
-
-We can benefit from the controls even when we stay inside sRGB.
-
-Now let's make something with them.
+Here you can see "the most red" you can get in RGB and the most red you can get in display P3.
 
 <!-- section: Art school, with CSS -->
 
-<!-- slide: painters-in-css -->
+<!-- slide: art-school-speedrun -->
 ## Art school speedrun
+
+Ok, so we have this new colour system,  but how can we actually apply it?
+
+Well, artists have been thinking about colour in terms of lightness, chroma and hue for centuries, and we can borrow from their wisdom and apply it to the screen.
 
 I spent years of my life, and borrowed tens of thousands of dollars, on art school.
 
 Today, you get the highlights for the cost of your FITC ticket.
 
-Painters make decisions about colour relationships by looking.
+<!-- slide: lesson-one -->
+## Lesson One
 
-We're going to borrow some of those questions, then use our new controls to explore them in the browser.
 
-Four lessons.
 
-Then a crit.
+<!-- slide: programatic-colour-harmonies -->
+## Programatic Colour Harmonies
 
-I'm afraid the crit is compulsory.
+So remember how we saw that, if you're thinking in terms of the red green and blue channels, yellow is the opposite of blue.
 
-<!-- slide: harmony-paintings -->
-## Lesson one: choose the emphasis
+This is how the HSL colour wheel is tuned.  But I'm sure you know that this is not how our eyes are tuned. To us, the opposite of blue is orange.
 
-[Step 1]
+In OKLCH the hues are tuned to our perception too, which unlocks so many cool things we can do with just a little CSS.
 
-Here's Van Gogh's _The Night Café_.
-
-Look at the reds and greens.
-
-To me, this relationship feels tense. Almost argumentative.
-
-[Step 2]
-
-Now the Whistler.
-
-Mostly blues and silvers. Then those small orange accents.
-
-Imagine covering them.
-
-[Point to the accents; allow looking time.]
-
-The lesson isn't “add orange.”
-
-It's that a small difference can organise a much larger quiet field.
-
-So when we choose a colour relationship, the question isn't only “Do these go together?”
-
-It's **“What should this relationship do?”**
-
-Emphasis? Energy? Quiet? Discomfort?
-
-Let's choose one deliberately.
-
-<!-- slide: colour-harmonies-hsl -->
-## Explore the relationship: HSL
-
-[The wheel and swatches in HSL.]
-
-[Step 2]
-
-[OKLCH slides in beside it, with the same base hue and scheme.]
-
-[Step 3]
-
-[HSL exits left and The Scream fades in. The OKLCH wheel takes the sky orange, oklch(0.517 0.154 47), as its base, complementary: oklch(0.517 0.154 227). The whole wheel redraws at that lightness and chroma.]
-
-[Step 4]
-
-[Analogous: Van Gogh, Sunflowers. Base oklch(0.79 0.15 90), the yellow, with hues 30 degrees either side: nearly the whole painting sits between hue 60 and 120.]
-
-[Step 5]
-
-[Triadic: Matisse, Dance II. Base oklch(0.53 0.16 32), the dancers' red; the triad lands near the green hill and the blue sky.]
-
-[Step 6]
-
-[Split-complementary: Van Gogh, Café Terrace at Night. Base oklch(0.68 0.18 267), the sky blue; the splits land near the terrace orange and the awning yellow.]
-
-[Step 7]
-
-[Tetradic: Matisse, Woman with a Hat. Base oklch(0.6 0.107 183), the teal background; the other three land near the violet hat, the pinks and the ochre.]
-
-<!-- slide: afterimage -->
+<!-- slide: your-turn -->
 ## Your turn
 
 ```css
@@ -714,407 +484,131 @@ We’re not going to use that as a precision test of the hue wheel.
 
 We’re just taking a moment to notice that colour relationships happen in a visual system—not only in a diagram.
 
-<!-- slide: monet -->
-## Lesson two: separate colour from lightness
+<!-- slide: lesson-two -->
+## Lesson two
 
-This is Monet's _Impression, Sunrise_.
+What do you notice here about the sun?
 
-Look at the sun.
-
-It glows.
-
-Now make a prediction.
-
-When I switch to greyscale, will it still look so brilliant?
-
-[Pause. Toggle greyscale.]
-
-It nearly disappears.
-
-Margaret Livingstone uses this painting to discuss the sun's close luminance relationship with the surrounding sky.
-
-([harvard.edu](https://news.harvard.edu/gazette/story/2015/10/art-that-lights-the-mind/))
-
-[Restore colour.]
-
-Our visual system processes colour and luminance differences differently. That helps explain how a colour can appear striking without a strong luminance edge.
-
-The greyscale version hasn't preserved everything important about the image.
-
-Monet didn't have a lightness slider.
-
-He had to look.
-
-<!-- slide: riley -->
+<!-- slide: choose-vibration-or-separation -->
 ## Choose vibration—or separation
 
-This is my own stripe study, inspired by Op art.
+You can see this leveraged in op art.
+Look how much less trippy this becomes when the strips contrast in lightness as well as hue.
 
-[Step 1]
+<!-- slide: lesson-three -->
+## Lesson three
 
-Here, the colours are close in lightness.
 
-[Step 2]
 
-Now we introduce a larger lightness difference.
-
-[Allow the audience to compare.]
-
-[Step 3]
-
-Here's a starting relationship we can explore:
-
-```css
---stripe-b:
-  oklch(from var(--stripe-a) l c calc(h + 180));
-```
-
-Keep L and C. Change hue.
-
-Then try separating L instead.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_colors/Relative_colors))
-
-The effect changes.
-
-That gives us a creative control—not an instruction to make every colour pair behave this way.
-
-A decorative field might benefit from instability.
-
-Text usually needs a clear distinction.
-
-Please don't make your checkout vibrate.
-
-**Decide whether you want the colours to interact—or the information to separate.**
-
-<!-- slide: titian -->
-## Lesson three: decide what a dark should keep
-
-Here's Titian's _Bacchus and Ariadne_.
-
-Look at the depth of colour.
-
-The National Gallery's technical study describes how glazing intensified colour in parts of this painting.
-
-([nationalgallery.org.uk](https://www.nationalgallery.org.uk/research/publications/technical-bulletin/titian-s-bacchus-and-ariadne))
-
-This isn't a lesson in simulating oil paint.
-
-It's a question we can borrow:
-
-**When I make a colour darker, what else do I want to change?**
-
-“Darker” doesn't have to mean “less colourful.”
-
-And it doesn't tell us whether the hue should move.
-
-Let's separate those decisions.
-
-<!-- slide: titian-2 -->
+<!-- slide: compare-the-choices -->
 ## Compare the choices
 
-Here's our starting colour.
+It's a cliche for painting instructors to tell you to never ever use black.
 
-[Indicate the first row.]
-
-First, a mixture towards black in sRGB.
-
-[Indicate the second.]
-
-Now, lower OKLCH lightness while retaining the specified chroma and hue.
-
-```css
---dark:
-  oklch(from var(--base) calc(l - 0.15) c h);
-```
-
-[Indicate the third.]
-
-And here we make three explicit choices: lower lightness, reduce chroma, and shift hue.
-
-```css
---dark:
-  oklch(
-    from var(--base)
-    calc(l - 0.15)
-    calc(c * 0.8)
-    calc(h + 10)
-  );
-```
-
-Relative colour syntax lets us express these decisions separately.
-
-([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_colors/Relative_colors))
-
-Which result do we want?
-
-That depends on the work.
-
-For a button state, an illustration shadow, or a palette ramp, we can now describe the relationship instead of collecting unrelated values.
-
-These numbers aren't a shadow recipe.
-
-They're a way to make our choices visible—and repeatable.
-
-<!-- slide: titian-3 -->
+<!-- slide: apply-the-ramp -->
 ## Apply the ramp
 
-[The forest, in nine colour layers plus the sun. Each layer takes one step of a ramp: --layer-1 is the nearest, darkest frame, --layer-9 the sky.]
 
-[Step 2]
 
-[Mix towards black in sRGB, from a blue base.]
+<!-- slide: lesson-four -->
+## Lesson four
 
-[Step 3]
 
-[Lower OKLCH L.]
 
-[Step 4]
-
-[Lower L, reduce C, shift H.]
-
-[Step 5]
-
-[The hue per step cranks to its maximum, 22.5 degrees: the hue turns 180 degrees from the sky to the nearest trees.]
-
-[Step 6]
-
-[Reveal: the sun rises from behind the hills, the sky's complement at the same OKLCH L and C, hue turned 180 degrees.]
-
-[Step 7]
-
-[The hue turns round the wheel, a full turn every 6 seconds. Sky, ramp and sun move together; the sun stays opposite the sky.]
-
-<!-- slide: chance -->
-## Lesson four: give chance a chance
-
-[Jean Arp, _Constellation According to the Laws of Chance_ (c. 1930). In his earlier collages Arp dropped torn paper and glued the pieces where they fell.]
-
-<!-- slide: random-hues -->
+<!-- slide: roll-the-dice -->
 ## Roll the dice
 
-[One tetradic palette from a random base hue, four hues 90 degrees apart keyed to lightness, applied to the same picture in HSL and OKLCH. Click to roll again.]
 
-[Each arrow press shows the next picture with new hues: American Gothic, the Whistler, Girl with a Pearl Earring, then Aldrin on the Moon. The dice button rolls again.]
 
-<!-- slide: colour-is-relative -->
-## Lesson five: colour is relative
+<!-- slide: lesson-five -->
+## Lesson five
 
 [Title only.]
 
-<!-- slide: albers -->
-## The final crit
+<!-- slide: lesson-five-2 -->
+## Lesson five
 
-Every art school ends with a crit.
-
-Ours is run by Josef Albers.
-
-He wrote:
-
-“In visual perception a color is almost never seen as it really is.”
-
-([albersfoundation.org](https://www.albersfoundation.org/alberses/teaching/interaction-of-color))
-
-[Step 1]
-
-Do these squares look like the same colour?
-
-Don't answer according to what you think the trick is.
-
-Look.
-
-[Allow several seconds.]
-
-[Step 2]
-
-They're the same.
-
-Same declared colour. Same pixels.
-
-I promise there are no conference-talk crimes in the source code.
-
-Only the neighbours changed.
-
-Now backwards.
-
-[Step 3]
-
-These are different colours.
-
-But in these surroundings, they can look similar.
-
-[Step 4]
-
-Put them on the same ground—
-
-—and there's the difference again.
+Josef Albers who wrote, “In visual perception a color is almost never seen as it really is.”
 
 <!-- section: One thing to try -->
 
 <!-- section: A different way to carry colour -->
 
+<!-- slide: lesson-six -->
+## Lesson six
+
+So let's start here, with the cave paintings at Lascaux.
+
+For millennia and until relatively recently, colour had to be found in nature. The pigments used to create these images (ochre, charcoal, umber, iron oxides) were pulled from the earth.
+
 <!-- slide: pigments-from-the-earth -->
-## Before the number
-
-I want to finish a long way from the browser.
-
-These are the cave paintings at Lascaux.
-
-Colour had to be found in physical materials, prepared, and brought to the surface.
-
-([culture.gouv.fr](https://archeologie.culture.gouv.fr/lascaux/en/raw-materials))
-
-Think about that as a creative constraint.
-
-Not simply “Which colour do I want?”
-
-**“Which colour can I get?”**
-
-<!-- slide: pigments-from-the-earth-2 -->
 ## Pigments from the earth
 
-These paintings are at least 17,000 years old. Watch the images change: Egyptian portraits, manuscripts, then modern paintings. The same earth pigments keep showing up.
+The paintings at Lascaux are at least 17,000 years old, but the same pigments used to make these ancient cave paintings were also used to create Egyptian wall paintings, Medieval illuminated manuscripts, cubist paintings, abstract expressionism, and everything in between.
 
-<!-- slide: the-medium-is-the-revolution -->
+<!-- slide: the-medium-changes-the-process -->
 ## The medium changes the process
 
-Paint is pigment carried in a medium.
+For much of the Middle Ages, European painters worked mainly in egg tempera: pigment bound in egg yolk; and fresco: pigment applied onto wet plaster. Both of these media required planning and speed. They set quickly and then can't be reworked, so they encourage commitment to the first marks, flatter images, layered cross-hatching, and techniques that are closer to drawing than what we think of as painting. When we look at Medieval paintings, they tend to be flat, almost like cartoons.
 
-Change the medium, and you change how it behaves in your hands.
-
-Egg tempera dries quickly and lends itself to fine, deliberate work.
-
-([npg.org.uk](https://www.npg.org.uk/collections/explore/glossary-of-art-terms/tempera))
-
-[Look at the painting.]
-
-The point isn't that painters lacked ambition.
-
-They were making decisions within the working properties of their materials.
-
-<!-- slide: the-medium-is-the-revolution-2 -->
+<!-- slide: another-way-to-work -->
 ## Another way to work
 
-[Show the Leonardo. Let the audience look.]
+But in the 15th century, artists took up oil painting as a dominant medium. The motivation was largely practical, but the results were transformative.
 
-Oil gave painters different working properties, including opportunities for blending and building transparent layers.
-
-The same pigments in different binders can produce very different effects.
-
-([nationalgallery.org.uk](https://www.nationalgallery.org.uk/behind-the-scenes/making-colour))
-
-Look at the transitions in the face. The modelling of the hand.
-
-This isn't a controlled comparison, or a ladder from bad painting to good painting.
-
-It's a reminder that making a different process available can change which ideas become practical.
-
-That's the parallel I want to borrow.
-
-Today we held lightness steady while exploring hue.
-
-We changed a whole colour family together.
-
-We chose the route through a gradient.
-
-Not just different ways to write down a result.
-
-**Different ways to arrive at one.**
-
-<!-- slide: the-medium-is-the-revolution-3 -->
+<!-- slide: the-medium-is-the-revolution -->
 ## The medium is the revolution
 
 It's not as simple as saying that artists became _better_. They had a different tool.
 
-Over the centuries since the cave paintings at Lascaux, we continued to add to our palette, but we haven't really taken anything away. Earth pigments are a constant across art history, and they are all still used by artists to this day.
+Oil paint dries slowly and stays workable longer, so you can blend transitions over multiple sessions instead of locking into the first marks.
 
-But the exact same pigments suspended in a different binder completely changed what kinds of pictures were practical to make.
+And the paint doesn’t set and fight back, so artists were able to use more fluid and natural movements.
 
-<!-- slide: the-medium-is-the-revolution-4 -->
+Oil also enabled glazing: building up thin transparent layers over dry paint to shift colours and values without hiding what’s underneath.
+
+<!-- slide: the-medium-is-the-revolution-2 -->
 ## The medium is the revolution
 
 And the ideas that artists worked out in the new media trained their eye and hand and taste, so even images rendered in more traditional “stiffer” media began to take on the qualities developed in oil painting, like in this example, Botticelli's Primavera which is painted in egg tempera.
 
 Just the capacity to hold colour in a new way served as a catalyst that restructured how we imagined what we could create.
 
-<!-- slide: swatches -->
+<!-- slide: the-camera -->
 ## The camera
 
 And that's not the only time that technology was a catalyst to reinvent painting.
 
-[Step 1] In 1839, Louis Daguerre announced the daguerreotype to the world. This is his _Boulevard du Temple_, from 1838. It's a busy Paris street, but the exposure took so long that everything moving simply vanished. The only people who stood still long enough to be recorded are down in the corner, a man and, it seems, someone shining his boots. It's one of the earliest photographs with a person in it.
+For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her.
 
-For centuries, one of painting's main jobs had been recording what things looked like: who was king, what the harbour looked like, what your fiancée looked like before you agreed to marry her. Suddenly a machine could do that faster, cheaper and more accurately than any painter alive. Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
+With the advent of photography, suddenly a machine could do that faster, cheaper and more accurately than any painter alive. (Sound familiar?)
 
-But painting didn't die. It got weird. (Affectionately.) Once a machine could do the rendering, painters were free to ask what else a painting could be for. Monet and the Impressionists stopped painting things and started painting light. The Cubists painted one thing from several sides at once. And it kept going.
+Charles Baudelaire, reviewing the Salon of 1859, called photography art's "most mortal enemy".
 
-[Step 2] Henri Rousseau painted jungles he never saw. He never left France. His tropics came from the botanical garden in Paris, magazine pictures and his own imagination.
-
-[Step 3] Chuck Close turned around and painted the camera itself: a photograph of his own face, nearly nine feet tall, so you can see exactly what a lens does to a person.
-
-[Step 4] Jean-Michel Basquiat threw out the rules of rendering entirely, and painted like he was writing on a wall.
-
-[Step 5] Chinyee left the picture behind altogether, and painted colour and gesture for their own sake.
-
-[Step 6] And artists like Swoon keep pulling new tools into the conversation. This is her stop-motion animation, _Cicada_, from 2019.
+But painting didn't die. It got weird.
+Once a machine could do the rendering, painters were free to ask what else a painting could be for.
 
 We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
 
-<!-- slide: 45finale -->
+<!-- slide: look-again -->
 ## Look again
 
-[Step 1]
+So let's look at this shape one more time. I hope it looks different now.
 
-Here's our strange little friend again.
+Like oil paint, OKLCH unlocks a new way of carrying colour for the browser. Like when the camera was invented, with the rise of AI, we as designers and developers find ourselves, along with so many others, unlatched from the necessities around which we built our craft.
 
-Same shape.
+Today I wanted to share with you the connections I see between two diciplines that make me really exicited about what OKLCH unlocks. But the really exciting thing, the thing the history books will write about, is what you do now after you leave.
 
-But I hope it looks different now.
-
-You can read its coordinates.
-
-You know what its boundaries mean.
-
-And you know why no coordinate can describe everything about the experience of seeing colour.
-
-What excites me isn't only the possibility of a more vivid red.
-
-It's getting an idea a little further before the tool interrupts.
-
-Being able to say:
-
-Keep this relationship.
-
-Change that one.
-
-What happens if I try this?
-
-And then having enough room left to notice something unexpected.
-
-So take one thing you already make.
-
-Choose something to hold steady.
-
-Give something else permission to change.
-
-Then look carefully.
-
-[Step 2]
-
-**What could you make from there?**
+With new tools, with new unencumbrances, what will you make that's delightful and brand new that you wouldn't have even conceived of a year ago. How will you explore the gap that exists between what we can do, and what we can do
 
 <!-- slide: thank-you -->
 ## Thank you
 
 Thank you.
 
-[Pause. Let the ending land.]
-
-[Hiring P.S., held until confirmed: "And a small postscript: we're hiring. If this is the sort of work you'd like to do, come find me afterwards."]
-
 <!-- section: Staging area -->
 
-<!-- slide: ultramarine -->
+<!-- slide: a-colour-you-had-to-acquire -->
 ## A colour you had to acquire
 
 Natural ultramarine was made from lapis lazuli.
@@ -1127,7 +621,7 @@ That's an extraordinary freedom.
 
 But getting more colours isn't the only way a tool can change what we make.
 
-<!-- slide: richter -->
+<!-- slide: lesson-four-give-chance-fewer-decisions -->
 ## Lesson four: give chance fewer decisions
 
 Art school also teaches you to let go a little.
@@ -1160,7 +654,7 @@ Because we gave it fewer decisions.
 
 **We haven't removed randomness. We've decided what it's allowed to change.**
 
-<!-- slide: kelly-code -->
+<!-- slide: change-the-whole-family -->
 ## Change the whole family
 
 ```css
@@ -1216,7 +710,7 @@ But friendlier controls aren't necessarily perceptually predictable controls.
 
 ([developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/hsl))
 
-<!-- slide: class-dismissed -->
+<!-- slide: better-tools-for-judgment -->
 ## Better tools for judgment
 
 The numbers let us specify and repeat a colour.
@@ -1231,7 +725,7 @@ Albers made those changing contextual relationships central to learning colour.
 
 **Better numbers don't replace judgment. They give judgment better tools.**
 
-<!-- slide: colour-harmonies -->
+<!-- slide: explore-the-relationship -->
 ## Explore the relationship
 
 [Use the existing hue-wheel controls.]
@@ -1254,7 +748,7 @@ We can also make the surroundings quieter.
 
 That is a useful browser decision: an accent doesn't always need more intensity. Sometimes everything around it needs less.
 
-<!-- slide: monday -->
+<!-- slide: one-colour-one-relationship-one-component -->
 ## One colour. One relationship. One component.
 
 Here's one thing to try when you get back to work.
@@ -1294,7 +788,7 @@ The question isn't “Can I replace all my hex values?”
 
 It's **“Which decisions could I stop making from scratch?”**
 
-<!-- slide: colour-harmonies-code -->
+<!-- slide: write-the-relationship -->
 ## Write the relationship
 
 ```css
@@ -1339,12 +833,12 @@ I've been with Shopify for five years, and I'm on the Brand Design Studio team (
 
 As well as special projects, for example this site just went up a couple of weeks ago. It helps you to build a customizable skill for your agents to shop the Shopify ecosystem.
 
-<!-- slide: let-s-get-physical-2 -->
+<!-- slide: lets-get-physical-2 -->
 ## Let's get physical
 
 During our pandemic in 2020, we made sourdough and Dalgona coffee. On the other hand, Isaac Newton, who didn't have the Internet or Zoom calls, spent the next 18 months inventing calculus, planting the seed of a single law of gravitation, and reshaping the science of colour.
 
-<!-- slide: let-s-get-physical-3 -->
+<!-- slide: lets-get-physical-3 -->
 ## Let's get physical
 
 You can tell he hadn’t yet hit his Saturn return when you consider some of his more questionable experiments.
@@ -1361,7 +855,7 @@ He seems to have been a humble guy. There's documentation of him referring to "a
 
 What he was describing was his Unified Theory of Electromagnetism. In fact, he accurately predicted something later confirmed: light is electromagnetic radiation.
 
-<!-- slide: good-vibrations-4 -->
+<!-- slide: good-vibrations-3 -->
 ## Good vibrations
 
 Within the visible range, the hue produced by a particular wavelength is determined by its frequency, which is how many times the wave oscillates per second.
@@ -1375,7 +869,7 @@ Here's one way our cones might be distributed. You're welcome for not showing a 
 
 Short, or blue, cones are only a small part of the picture. And the mix of medium and long cones varies between people with normal colour vision. Even before colour blindness, we don't all sample the light in quite the same way.
 
-<!-- slide: the-x-factor -->
+<!-- slide: whose-experience -->
 ## Whose experience?
 
 And whose experience are we talking about?
@@ -1403,7 +897,7 @@ In tritanopia, the S (short or "blue") cones are absent. Blues and greens become
 
 About 0.003% of the population have no functional cone cells at all. This results in the complete absence of colour vision, often accompanied by high light sensitivity and reduced acuity.
 
-<!-- slide: the-x-factor-2 -->
+<!-- slide: the-x-factor -->
 ## The X Factor
 
 And if, like me, you're a member of the double-x chromosome coven, it gets even more interesting.
@@ -1416,7 +910,7 @@ But even if a tetrachromat really does experience colours the rest of us can’t
 
 Think about how you would explain yellow to someone who has never seen it. Now imagine a world where you’re the _only_ person you've ever met who can see yellow. How would you explain it? What could someone say to to you to make you realize they're not seeing something that you do?
 
-<!-- slide: think-pink -->
+<!-- slide: names-give-us-handles -->
 ## Names give us handles
 
 [Step 1]
@@ -1465,7 +959,7 @@ Himba speakers in Namibia use a word that covers what we call blue and green, wh
 
 Now colour is an instruction for a screen. We need to tell it how much light to emit in each channel.
 
-<!-- slide: oklch-controls -->
+<!-- slide: what-do-we-want-to-keep -->
 ## What do we want to keep?
 
 [Use the existing slices or controls. Make each change separately.]
@@ -1510,7 +1004,7 @@ Wrong hue?
 
 Which one do I actually mean?
 
-<!-- slide: srgb-3 -->
+<!-- slide: srgb -->
 ## SRGB
 
 This is why you can read yellow text on a blue background with no trouble at all. Because we're weird squishy animals, different colours are inherently more dark or light.
@@ -1532,7 +1026,7 @@ For example, Himba speakers in Namibia use five colour categories. Their word _b
 
 Some colours were once exceedingly rare. Rare minerals, insects, the guts of sea snails: colour had a supply chain. Access to a particular hue could tell you about region, class and money.
 
-<!-- slide: ultramarine-2 -->
+<!-- slide: ultramarine -->
 ## ultramarine
 
 At that time prices and origins of different pigments were so varied and meaningful that how much of which pigment would be used in which way in an image was literally written into artists' contracts.

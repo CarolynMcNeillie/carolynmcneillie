@@ -55,8 +55,10 @@ function isolatedLayers() {
 
 export function mount(container) {
   let alive = true;
-  // ramp: -1 HSL green (the opening state), 0..2 an index into RAMPS.
-  let ramp = -1, hue = 30, darkestFront = true, dragging = false, sunUp = false;
+  // ramp: -1 HSL green (no longer a step; kept for the code path), 0..2 an
+  // index into RAMPS. outline: the opening line drawing, black outlines on
+  // white-filled shapes, so nearer shapes hide the ones behind them.
+  let ramp = -1, hue = 30, darkestFront = true, dragging = false, sunUp = false, outline = false;
   const strengths = RAMPS.map((r) => r.value);
   const isolate = isolatedLayers();
   const stops = Array.from({ length: 25 }, (_, i) => `oklch(0.72 0.12 ${i * 15}) ${i * 15}deg`).join(", ");
@@ -72,7 +74,13 @@ export function mount(container) {
          fades: an in-between colour would break the illusion. */
       .fs.fs-tween .fs-wrap { transition: background-color 0.9s ease-in-out; }
       .fs.fs-tween .fs-wrap g[id^="layer-"] { transition: fill 0.9s ease-in-out; }
-      @media (prefers-reduced-motion: reduce) { .fs-wrap #sun, .fs.fs-tween .fs-wrap, .fs.fs-tween .fs-wrap g[id^="layer-"] { transition: none; } }
+      /* The opening line drawing. The land layers get a stroke; the sun and the
+         sky (a rectangle whose edge would draw a frame line) do not. */
+      .fs-wrap g[id^="layer-"]:not(#layer-9) > * { stroke: transparent; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+      .fs.fs-outline .fs-wrap { background: white; }
+      .fs.fs-outline .fs-wrap g[id^="layer-"]:not(#layer-9) > * { stroke: black; }
+      .fs.fs-tween .fs-wrap g[id^="layer-"] > * { transition: stroke 0.9s ease-in-out; }
+      @media (prefers-reduced-motion: reduce) { .fs-wrap #sun, .fs.fs-tween .fs-wrap, .fs.fs-tween .fs-wrap g[id^="layer-"], .fs.fs-tween .fs-wrap g[id^="layer-"] > * { transition: none; } }
       .fs-corner { position: absolute; top: 24px; right: 24px; display: flex; align-items: center; gap: 12px; }
       .fs-bottom { position: absolute; left: 24px; right: 24px; bottom: 48px; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
       .fs-bottom > * { pointer-events: auto; }
@@ -124,7 +132,7 @@ export function mount(container) {
   const rampButtons = RAMPS.map((r) => r.name).map((name, index) => {
     const button = document.createElement("button");
     button.type = "button"; button.className = "pill-button"; button.textContent = name;
-    button.addEventListener("click", () => { tween(); ramp = index; sunUp = false; setSpin(false); render(); });
+    button.addEventListener("click", () => { tween(); ramp = index; outline = false; sunUp = false; setSpin(false); render(); });
     container.querySelector(".fs-ramps").append(button);
     return button;
   });
@@ -142,7 +150,9 @@ export function mount(container) {
   // The palette lives on .fs; isolation overrides it on .fs-wrap.
   function render() {
     root.style.setProperty("--color", `oklch(0.72 0.12 ${hue})`);
+    root.classList.toggle("fs-outline", outline);
     for (let n = 1; n <= 9; n++) {
+      if (outline) { root.style.setProperty(`--layer-${n}`, "white"); continue; }
       if (ramp === -1) {
         const k = darkestFront ? n : 9 - n;
         root.style.setProperty(`--layer-${n}`, n === 9 ? "hsl(180 100% 50%)" : `hsl(120 100% ${+(20 + (k - 1) * 60 / 7).toFixed(1)}%)`);
@@ -255,10 +265,10 @@ export function mount(container) {
     .then(fit)
     .catch((error) => console.warn(error));
 
-  // Arrow-key steps: 0 the HSL greens, 1 to 3 the three ramps in button order,
-  // 4 the shift-H ramp with its hue per step cranked to the maximum, 5 the same
-  // with the sun revealed, 6 the same with the hue turning. Leaving the greens
-  // starts the ramps from a blue base; after that the hue is wherever the wheel
+  // Arrow-key steps: 0 the line drawing (black outlines, white fills), 1 to 3
+  // the three ramps in button order, 4 the shift-H ramp with its hue per step
+  // cranked to the maximum, 5 the same with the sun revealed, 6 the same with
+  // the hue turning. Leaving the drawing starts the ramps from a blue base; after that the hue is wherever the wheel
   // left it. Stepping back from the crank returns the slider to where it was.
   const SHIFT = RAMPS.length - 1;
   const CRANK_STEP = RAMPS.length + 1, SUN_STEP = CRANK_STEP + 1, SPIN_STEP = SUN_STEP + 1;
@@ -277,11 +287,14 @@ export function mount(container) {
     };
     crankFrame = requestAnimationFrame(tick);
   }
-  function step(n) {
+  function step(arrowStep) {
+    const wasOutline = outline;
+    outline = arrowStep === 0;
+    const n = arrowStep;
     const next = Math.max(-1, Math.min(SHIFT, n - 1));
     if (next >= 0 && ramp < 0) hue = START_HUE;
     // Glide when the ramp changes; the crank and the spin animate themselves.
-    if (!firstStep && next !== ramp) tween();
+    if (!firstStep && (next !== ramp || outline !== wasOutline)) tween();
     ramp = next;
     sunUp = n >= SUN_STEP;
     setSpin(n >= SPIN_STEP);

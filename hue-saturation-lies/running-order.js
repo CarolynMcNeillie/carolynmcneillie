@@ -4,25 +4,25 @@ export default {
       "name": "Introduction",
       "items": [
         {
-          "id": "title"
+          "id": "hue-saturation-lies"
         },
         {
-          "id": "hue-saturation-lies-2"
+          "id": "hsl-lightness"
         },
         {
-          "id": "hue-saturation-lies-3"
+          "id": "a-practical-problem"
         },
         {
-          "id": "about-me-now"
+          "id": "about-me"
         },
         {
-          "id": "work-editions"
+          "id": "my-work"
         },
         {
-          "id": "about-me-collage"
+          "id": "my-education"
         },
         {
-          "id": "the-shape-of-oklch"
+          "id": "our-strange-little-friend"
         }
       ]
     },
@@ -30,25 +30,25 @@ export default {
       "name": "The light and the observer",
       "items": [
         {
-          "id": "let-s-get-physical"
+          "id": "lets-get-physical"
         },
         {
-          "id": "let-s-get-physical-4"
+          "id": "prism-experiments"
         },
         {
-          "id": "let-s-get-physical-5"
+          "id": "prism-experiments-2"
         },
         {
-          "id": "good-vibrations-3"
+          "id": "visible-light"
         },
         {
           "id": "the-biology-of-colour"
         },
         {
-          "id": "cone-sensitivity"
+          "id": "cones"
         },
         {
-          "id": "deuteranomaly"
+          "id": "colour-vision"
         }
       ]
     },
@@ -59,34 +59,34 @@ export default {
           "id": "speaking-the-same-language"
         },
         {
-          "id": "colour-systems"
+          "id": "a-painters-grammar"
         },
         {
-          "id": "the-abcs-of-cie-xyz"
+          "id": "a-shared-reference"
         },
         {
-          "id": "the-abcs-of-cie-xyz-2"
+          "id": "the-horseshoe"
         },
         {
-          "id": "srgb"
+          "id": "rgb"
         },
         {
-          "id": "srgb-2"
+          "id": "rgb-2"
         },
         {
-          "id": "gradient-rgb"
+          "id": "rgb-gradients"
         },
         {
-          "id": "hue-saturation-lies"
+          "id": "hsl"
         },
         {
-          "id": "the-abcs-of-cie-xyz-3"
+          "id": "the-srgb-range"
         },
         {
           "id": "we-already-talked-about-this"
         },
         {
-          "id": "gradient-paths",
+          "id": "hsl-gradients",
           "hidden": false
         }
       ]
@@ -95,35 +95,35 @@ export default {
       "name": "Three decisions, better separated",
       "items": [
         {
-          "id": "an-ok-color-space"
+          "id": "an-ok-colour-space"
         },
         {
-          "id": "an-ok-color-space-3"
+          "id": "oklch-lightness"
         },
         {
           "id": "oklch-syntax"
         },
         {
-          "id": "an-ok-color-space-2"
+          "id": "reading-the-hedgehog"
         },
         {
-          "id": "oklch-slices"
+          "id": "hue-slices"
         },
         {
-          "id": "oklch-edge",
+          "id": "what-happens-at-the-edge",
           "hidden": true
         },
         {
-          "id": "the-contrast-ratio-problem"
+          "id": "answer-the-practical-problem"
         },
         {
-          "id": "gradient-paths-2"
+          "id": "oklch-gradients"
         },
         {
-          "id": "colours-between-colours"
+          "id": "gradient-comparisons"
         },
         {
-          "id": "the-reddest-red"
+          "id": "more-range-is-a-separate-benefit"
         }
       ]
     },
@@ -131,44 +131,44 @@ export default {
       "name": "Art school, with CSS",
       "items": [
         {
-          "id": "painters-in-css"
+          "id": "art-school-speedrun"
         },
         {
-          "id": "harmony-paintings"
+          "id": "lesson-one"
         },
         {
-          "id": "colour-harmonies-hsl"
+          "id": "programatic-colour-harmonies"
         },
         {
-          "id": "afterimage",
+          "id": "your-turn",
           "hidden": true
         },
         {
-          "id": "monet"
+          "id": "lesson-two"
         },
         {
-          "id": "riley"
+          "id": "choose-vibration-or-separation"
         },
         {
-          "id": "titian"
+          "id": "lesson-three"
         },
         {
-          "id": "titian-2"
+          "id": "compare-the-choices"
         },
         {
-          "id": "titian-3"
+          "id": "apply-the-ramp"
         },
         {
-          "id": "chance"
+          "id": "lesson-four"
         },
         {
-          "id": "random-hues"
+          "id": "roll-the-dice"
         },
         {
-          "id": "colour-is-relative"
+          "id": "lesson-five"
         },
         {
-          "id": "albers"
+          "id": "lesson-five-2"
         }
       ]
     },
@@ -180,32 +180,32 @@ export default {
       "name": "A different way to carry colour",
       "items": [
         {
-          "id": "pigments-from-the-earth"
+          "id": "lesson-six"
         },
         {
-          "id": "pigments-from-the-earth-2",
+          "id": "pigments-from-the-earth",
           "hidden": false
         },
         {
-          "id": "the-medium-is-the-revolution"
+          "id": "the-medium-changes-the-process"
         },
         {
-          "id": "the-medium-is-the-revolution-2"
+          "id": "another-way-to-work"
         },
         {
-          "id": "the-medium-is-the-revolution-3",
+          "id": "the-medium-is-the-revolution",
           "hidden": false
         },
         {
-          "id": "the-medium-is-the-revolution-4",
+          "id": "the-medium-is-the-revolution-2",
           "hidden": false
         },
         {
-          "id": "swatches",
+          "id": "the-camera",
           "hidden": false
         },
         {
-          "id": "45finale"
+          "id": "look-again"
         },
         {
           "id": "thank-you"
@@ -216,15 +216,15 @@ export default {
       "name": "Staging area",
       "items": [
         {
-          "id": "ultramarine",
+          "id": "a-colour-you-had-to-acquire",
           "hidden": true
         },
         {
-          "id": "richter",
+          "id": "lesson-four-give-chance-fewer-decisions",
           "hidden": true
         },
         {
-          "id": "kelly-code",
+          "id": "change-the-whole-family",
           "hidden": true
         },
         {
@@ -232,19 +232,19 @@ export default {
           "hidden": true
         },
         {
-          "id": "class-dismissed",
+          "id": "better-tools-for-judgment",
           "hidden": true
         },
         {
-          "id": "colour-harmonies",
+          "id": "explore-the-relationship",
           "hidden": true
         },
         {
-          "id": "monday",
+          "id": "one-colour-one-relationship-one-component",
           "hidden": true
         },
         {
-          "id": "colour-harmonies-code",
+          "id": "write-the-relationship",
           "hidden": true
         },
         {
@@ -260,11 +260,11 @@ export default {
           "hidden": true
         },
         {
-          "id": "let-s-get-physical-2",
+          "id": "lets-get-physical-2",
           "hidden": true
         },
         {
-          "id": "let-s-get-physical-3",
+          "id": "lets-get-physical-3",
           "hidden": true
         },
         {
@@ -276,7 +276,7 @@ export default {
           "hidden": true
         },
         {
-          "id": "good-vibrations-4",
+          "id": "good-vibrations-3",
           "hidden": true
         },
         {
@@ -284,7 +284,7 @@ export default {
           "hidden": true
         },
         {
-          "id": "the-x-factor",
+          "id": "whose-experience",
           "hidden": true
         },
         {
@@ -300,11 +300,11 @@ export default {
           "hidden": true
         },
         {
-          "id": "the-x-factor-2",
+          "id": "the-x-factor",
           "hidden": true
         },
         {
-          "id": "think-pink",
+          "id": "names-give-us-handles",
           "hidden": true
         },
         {
@@ -316,11 +316,11 @@ export default {
           "hidden": true
         },
         {
-          "id": "oklch-controls",
+          "id": "what-do-we-want-to-keep",
           "hidden": true
         },
         {
-          "id": "srgb-3",
+          "id": "srgb",
           "hidden": true
         },
         {
@@ -336,7 +336,7 @@ export default {
           "hidden": true
         },
         {
-          "id": "ultramarine-2",
+          "id": "ultramarine",
           "hidden": true
         }
       ]
