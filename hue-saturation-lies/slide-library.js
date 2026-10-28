@@ -182,7 +182,8 @@ export const LIBRARY = {
   },
 
 "compare-the-choices": {
-    slide: { demo: "titian-glaze" },
+    // Steps: the ramps, then the hue once round the wheel (2 seconds).
+    slide: { demo: "titian-glaze", backgrounds: [{}, {}] },
   },
 
 // The paper-cut forest (images/forest-layers.svg), coloured by --layer-1..9 and --sun.

@@ -129,8 +129,13 @@ let currentDemoStepFn  = null;
 let currentDemoName    = null;
 let currentDemoUpdate  = null;
 let demoCarriedOver    = false;
+// Counts mounts and unmounts. A mount still waiting on its import gives up when
+// the count moves on, so two quick mounts (page load runs two) cannot leave the
+// first demo running with no cleanup, and its document listeners alive.
+let demoGeneration     = 0;
 
 function unmountDemo() {
+  demoGeneration++;
   currentDemoCleanup?.();
   currentDemoCleanup = null;
   currentDemoStepFn  = null;
@@ -156,8 +161,10 @@ function setTitleOverlay(title = "", style) {
 
 async function mountDemo(name, type, bgIdx = 0) {
   unmountDemo();
+  const generation = demoGeneration;
   const slideIdx = currentSlide;
   const { mount } = await import(`./demos/${name}.js`);
+  if (generation !== demoGeneration) return;
   demoLayer.style.pointerEvents = "auto";
   const result = mount(demoLayer, type) ?? null;
   currentDemoName = name;

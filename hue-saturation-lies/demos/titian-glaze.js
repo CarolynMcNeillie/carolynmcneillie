@@ -119,5 +119,73 @@ export function mount(container, type) {
     section.append(label, swatches); rows.append(section);
   });
   render();
-  return () => container.replaceChildren();
+
+  // Keys, in the capture phase on document so they run before the engine's
+  // window listener. Up and Down select the swatch above or below; Tab and
+  // Shift+Tab the one to the right or left in the same row. Left and Right stay
+  // with the engine. At a row's end Tab moves focus on as usual, so it is no trap.
+  function focusSelected() {
+    root.querySelector(`.tg-swatch[data-row="${rowSelected}"][data-index="${selected}"]`)?.focus({ preventScroll: true });
+  }
+  function onKey(event) {
+    const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+    if (!vertical && event.key !== 'Tab') return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (document.querySelector('#slide-sorter')?.hidden === false ||
+        event.target.closest?.('input, textarea, select, [contenteditable]')) return;
+    if (vertical) {
+      rowSelected = Math.min(NAMES.length - 1, Math.max(0, rowSelected + (event.key === 'ArrowDown' ? 1 : -1)));
+    } else {
+      const next = selected + (event.shiftKey ? -1 : 1);
+      if (next < 0 || next > 5) return;
+      selected = next;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    render();
+    focusSelected();
+  }
+  document.addEventListener('keydown', onKey, true);
+  // A swatch that takes focus any other way (Tab past a row's end) is selected too.
+  rows.addEventListener('focusin', (event) => {
+    const button = event.target.closest('.tg-swatch');
+    if (!button) return;
+    selected = Number(button.dataset.index);
+    rowSelected = Number(button.dataset.row);
+    render();
+  });
+
+  // Arrow step 1 turns the hue once round the wheel over 2 seconds and lands
+  // where it started. Landing on the slide, either way, does not spin.
+  let spinFrame = 0, firstStep = true;
+  function stopSpin() {
+    cancelAnimationFrame(spinFrame);
+    spinFrame = 0;
+  }
+  function spin() {
+    stopSpin();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const from = hue, begin = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - begin) / 2000);
+      const eased = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      setHue(from + 360 * eased);
+      spinFrame = t < 1 ? requestAnimationFrame(tick) : 0;
+    };
+    spinFrame = requestAnimationFrame(tick);
+  }
+  wheel.addEventListener('pointerdown', stopSpin, { capture: true });
+
+  return {
+    step(n) {
+      if (n >= 1 && !firstStep) spin();
+      else if (n < 1) stopSpin();
+      firstStep = false;
+    },
+    cleanup() {
+      stopSpin();
+      document.removeEventListener('keydown', onKey, true);
+      container.replaceChildren();
+    },
+  };
 }
