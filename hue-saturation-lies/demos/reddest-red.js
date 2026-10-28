@@ -114,14 +114,17 @@ export function mount(container) {
 
   }
 
-  simBtn.addEventListener("click", () => {
-    simMode = !simMode;
+  const setSim = (on) => {
+    simMode = on;
     simBtn.setAttribute("aria-pressed", String(simMode));
     render();
-  });
+  };
+  simBtn.addEventListener("click", () => setSim(!simMode));
   render();
 
+  // Step 0: the real display colours. Step 1 (arrow): the simulation on.
   return {
+    step: (i) => setSim(i >= 1),
     credit: hasP3 ? "Your device supports Display P3" : "Your device supports sRGB",
     cleanup: () => { container.innerHTML = ""; },
   };

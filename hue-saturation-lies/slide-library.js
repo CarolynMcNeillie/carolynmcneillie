@@ -187,10 +187,10 @@ export const LIBRARY = {
 
 // The paper-cut forest (images/forest-layers.svg), coloured by --layer-1..9 and --sun.
 "apply-the-ramp": {
-    // Steps: the line drawing (black outlines, white fills), the three ramps
-    // (black mix, OKLCH L, shift H), the shift cranked to its maximum, the sun,
-    // then the sun scene turning round the hue wheel.
-    slide: { demo: "forest-scene", backgrounds: [{}, {}, {}, {}, {}, {}, {}] },
+    // Steps: the line drawing (black outlines, white fills), the four ramps
+    // (black mix, OKLCH L, the complement, shift H), the shift cranked to its
+    // maximum, the sun, then the sun scene turning round the hue wheel.
+    slide: { demo: "forest-scene", backgrounds: [{}, {}, {}, {}, {}, {}, {}, {}] },
   },
 
 "lesson-two": {
@@ -200,8 +200,10 @@ export const LIBRARY = {
       title: "Lesson two: colours that vibrate",
       titleStyle: "lesson",
       // The title leaves on the first press, so the painting can be discussed.
+      // The second press turns the painting grey (demos/grayscale-toggle.js).
       backgrounds: [
         { image: "./images/MonetSunrise.avif", title: "Lesson two: colours that vibrate", titleStyle: "lesson", titleCSS: { "--title-halo": "oklch(0.520 0.031 184.7)" /* #556F6B */ }, attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
+        { image: "./images/MonetSunrise.avif", title: "", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
         { image: "./images/MonetSunrise.avif", title: "", attribution: { text: "Claude Monet, _Impression, Sunrise_ (1872) · Public domain · Musée Marmottan Monet, Paris", url: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" } },
       ],
     },
@@ -694,7 +696,8 @@ export const LIBRARY = {
   },
 
 "hsl-lightness": {
-    slide: { demo: "hsl-shortfall" },
+    // The arrow presses the grayscale button.
+    slide: { demo: "hsl-shortfall", backgrounds: [{}, {}] },
   },
 
 "a-practical-problem": {
@@ -763,7 +766,8 @@ export const LIBRARY = {
   },
 
 "more-range-is-a-separate-benefit": {
-    slide: { demo: "reddest-red" },
+    // The arrow turns the simulation on, for a projector that cannot show P3.
+    slide: { demo: "reddest-red", backgrounds: [{}, {}] },
   },
 
 "lesson-one": {
@@ -837,7 +841,7 @@ export const LIBRARY = {
   },
 
 "thank-you": {
-    // Step 0: "Thank you" alone. Step 1: the P.S. fades in.
+    // Step 0: "Thank you" and the QR code. Step 1: the P.S. fades in.
     slide: { demo: "title", demoType: "thanks", backgrounds: [{}, {}] },
   },
 
@@ -899,7 +903,9 @@ export const LIBRARY = {
   },
 
 "gradient-comparisons": {
-    slide: { demo: "gradients" },
+    // One arrow step per colour pair: blue/yellow, red/cyan, purple/green,
+    // purple/amber, white/pink (demos/gradient-pairs.js PAIRS).
+    slide: { demo: "gradients", backgrounds: [{}, {}, {}, {}, {}] },
   },
 
 "the-camera": {

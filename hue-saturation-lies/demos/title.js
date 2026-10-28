@@ -2,6 +2,10 @@
 // (type "thanks"), which reuses the same layout. The closing slide opens on
 // "Thank you" alone; the next arrow press fades in the P.S. (step 1).
 // The subtitle is placeholder copy for Carolyn.
+// The closing slide also shows a QR code for the deck in the top right corner,
+// with its address under it, so "Thank you" keeps the centre. images/qr-hue-saturation-lies.svg is a static file made once with
+// `npx qrcode -t svg -e M -q 4` (no runtime dependency); its white quiet zone
+// is part of the image.
 import { autoHaloColor } from "../engine.js";
 const SLIDES = {
   // Each heading takes one saturated colour; on black any of them passes 3:1 easily.
@@ -26,9 +30,21 @@ export function mount(container, type = 'title') {
       }
       /* Hidden, not removed, so the heading does not move when the P.S. appears. */
       .ttl-sub.is-waiting { opacity: 0; visibility: hidden; }
+      .ttl-link { position: absolute; top: 32px; right: 32px; width: 180px; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+      .ttl-qr { width: 180px; height: 180px; image-rendering: pixelated; border-radius: var(--radius); }
+      .ttl-url { font: var(--text-body)/1.3 var(--font-body); color: var(--ink); text-align: center; }
+      @media (max-width: 900px) {
+        .ttl-link { top: 16px; right: 16px; width: min(120px, 18vh); gap: 8px; }
+        .ttl-qr { width: min(120px, 18vh); height: min(120px, 18vh); }
+        .ttl-url { font-size: 12px; }
+      }
     </style>
     <div class="ttl-root">
       <h1 class="ttl-title halo-text" style="color: ${colour}">${heading}</h1>
+      ${type === 'thanks' ? `<p class="ttl-link">
+        <img class="ttl-qr" src="./images/qr-hue-saturation-lies.svg" alt="QR code for carolynmcneillie.com/hue-saturation-lies">
+        <span class="ttl-url">carolynmcneillie.com/<wbr>hue-saturation-lies</span>
+      </p>` : ''}
       <p class="ttl-sub${type === 'thanks' ? ' is-waiting' : ''}">${sub}</p>
     </div>`;
   const subEl = container.querySelector('.ttl-sub');

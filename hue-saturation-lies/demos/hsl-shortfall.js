@@ -77,14 +77,17 @@ export function mount(container) {
   }
 
   const grayBtn = container.querySelector('#sf-gray');
-  grayBtn.addEventListener('click', () => {
-    grayActive = !grayActive;
+  const setGray = (on) => {
+    grayActive = on;
     grayBtn.setAttribute('aria-pressed', String(grayActive));
     render();
-  });
+  };
+  grayBtn.addEventListener('click', () => setGray(!grayActive));
 
   render();
-  return () => {
-    container.innerHTML = "";
+  // Step 0: the colours. Step 1 (arrow): press the grayscale button.
+  return {
+    cleanup: () => { container.innerHTML = ""; },
+    step: (i) => setGray(i >= 1),
   };
 }

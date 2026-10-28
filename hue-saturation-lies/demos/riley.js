@@ -44,10 +44,17 @@ export function mount(container, type) {
       .ri { background: var(--scrim); color: var(--ink); padding: 32px 5vw; display: flex; flex-direction: column; }
       .ri-field { flex: 1; min-height: 0; overflow: hidden; }
       .ri-field svg { width: 100%; height: 100%; display: block; }
+      /* Each arrow step fades the stripes to their new colours. */
+      .ri-stripe-a, .ri-stripe-b { transition: fill 0.9s ease-in-out; }
       .ri-stripe-a { fill: var(--stripe-a); }
       .ri-stripe-b { fill: var(--stripe-b); }
       .ri-caption { display:none; padding:1rem; background:var(--scrim); font:clamp(16px,2vw,28px) var(--font-code); }
-      .ri.has-code .ri-caption { display:block; }
+      .ri.has-code .ri-caption { display:block; animation: ri-fade-in 0.9s ease-in-out; }
+      @keyframes ri-fade-in { from { opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .ri-stripe-a, .ri-stripe-b { transition: none; }
+        .ri.has-code .ri-caption { animation: none; }
+      }
     </style>
     <section class="ri demo-root" aria-label="Original ray study inspired by Edna Andrade">
       <div class="ri-field">

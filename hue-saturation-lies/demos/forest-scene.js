@@ -10,11 +10,16 @@ import { depthOrderIcon } from "./icons.js";
 // lighter layers bleed through as a hairline. The SVG is therefore sized and
 // placed in whole pixels.
 
-// The ramps are the three from titian-2 (demos/titian-glaze.js), from the same
-// base colour oklch(0.72 0.12 h), run for nine steps instead of six. Step 0 is the
-// base. The strength slider sets each ramp's change per step, kept per ramp:
+// The ramps are the four from compare-the-choices (demos/titian-glaze.js), from
+// the same base colour oklch(0.72 0.12 h), run for nine steps instead of six.
+// Step 0 is the base. The strength slider sets each ramp's change per step,
+// kept per ramp:
 //   black: % of black mixed in per step (titian-2 uses 14)
 //   L:     OKLCH lightness removed per step (titian-2 uses 0.07)
+//   complement: % of the complement mixed in per step, in Oklab, with L down
+//          0.07 per step as on titian-2. titian-2 uses 8% over six steps; 5%
+//          over nine keeps the nearest layer (40%) short of the 50% grey, so
+//          it never turns into the complement's own hue.
 //   shift: degrees of hue turned per step (titian-2 uses 5). Its lightness and
 //          chroma steps are gentler than titian-2's (L 0.05, C x0.04), so the
 //          nearest layers keep enough colour for the hue turn to show.
@@ -23,12 +28,15 @@ import { depthOrderIcon } from "./icons.js";
 // eight land layers, hsl(120 100% L), under an hsl(180 100% 50%) cyan sky.
 // The Illustrator colours stay in the SVG as fallbacks.
 const RAMPS = [
-  { name: "Mix towards black in sRGB", label: "Black per step", min: 0, max: 25, by: 1, value: 14,
+  { name: "Mix towards black", label: "Black per step", min: 0, max: 25, by: 1, value: 14,
     show: (v) => `${v}%`,
     step: (i, v) => `color-mix(in srgb, var(--color), black ${Math.min(100, i * v)}%)` },
   { name: "Lower OKLCH L", label: "L per step", min: 0, max: 0.09, by: 0.005, value: 0.07,
     show: (v) => v.toFixed(3),
     step: (i, v) => `oklch(from var(--color) calc(l - ${(i * v).toFixed(3)}) c h)` },
+  { name: "Lower L, mix in the complement", label: "Complement per step", min: 0, max: 6, by: 0.5, value: 5,
+    show: (v) => `${v}% (${v * 8}% in all)`,
+    step: (i, v) => `color-mix(in oklab, oklch(from var(--color) calc(l - ${(i * 0.07).toFixed(2)}) c h), oklch(from var(--color) calc(l - ${(i * 0.07).toFixed(2)}) c calc(h + 180)) ${+(i * v).toFixed(1)}%)` },
   { name: "Lower L, reduce C, shift H", label: "Hue per step", min: 0, max: 22.5, by: 0.5, value: 10,
     show: (v) => `${v}° (${v * 8}° in all)`,
     step: (i, v) => `oklch(from var(--color) calc(l - ${(i * 0.05).toFixed(2)}) calc(c * ${(1 - i * 0.04).toFixed(2)}) calc(h + ${i * v}))` },
@@ -55,7 +63,7 @@ function isolatedLayers() {
 
 export function mount(container) {
   let alive = true;
-  // ramp: -1 HSL green (no longer a step; kept for the code path), 0..2 an
+  // ramp: -1 HSL green (no longer a step; kept for the code path), 0..3 an
   // index into RAMPS. outline: the opening line drawing, black outlines on
   // white-filled shapes, so nearer shapes hide the ones behind them.
   let ramp = -1, hue = 30, darkestFront = true, dragging = false, sunUp = false, outline = false;
@@ -265,9 +273,9 @@ export function mount(container) {
     .then(fit)
     .catch((error) => console.warn(error));
 
-  // Arrow-key steps: 0 the line drawing (black outlines, white fills), 1 to 3
-  // the three ramps in button order, 4 the shift-H ramp with its hue per step
-  // cranked to the maximum, 5 the same with the sun revealed, 6 the same with
+  // Arrow-key steps: 0 the line drawing (black outlines, white fills), 1 to 4
+  // the four ramps in button order, 5 the shift-H ramp with its hue per step
+  // cranked to the maximum, 6 the same with the sun revealed, 7 the same with
   // the hue turning. Leaving the drawing starts the ramps from a blue base; after that the hue is wherever the wheel
   // left it. Stepping back from the crank returns the slider to where it was.
   const SHIFT = RAMPS.length - 1;

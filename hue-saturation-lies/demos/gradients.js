@@ -114,9 +114,10 @@ export function mount(container) {
     });
   }
 
-  container.querySelector('#gr-pair-control').append(pairList({
+  const pairs = pairList({
     pairs: PAIRS, get: () => current, set: value => { current = value; }, onChange: render,
-  }));
+  });
+  container.querySelector('#gr-pair-control').append(pairs);
 
   const grayBtn = container.querySelector('#gr-gray');
   const grWrap = container.querySelector('.gr-bands');
@@ -128,5 +129,11 @@ export function mount(container) {
   });
 
   render();
-  return () => { container.innerHTML = ''; };
+  // One arrow step per pair (slide-library.js gives the slide PAIRS.length steps).
+  const step = (i) => {
+    current = Math.min(Math.max(i, 0), PAIRS.length - 1);
+    pairs.update();
+    render();
+  };
+  return { cleanup: () => { container.innerHTML = ''; }, step };
 }

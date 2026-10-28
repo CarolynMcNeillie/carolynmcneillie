@@ -1,6 +1,6 @@
 // A colour-design analogy to glazing, not a physical pigment simulation.
-const NAMES = ['Mix towards black in sRGB', 'Lower OKLCH L', 'Lower L, reduce C, shift H', 'Lower L, mix in the complement'];
-// The fourth row is the painter's way: the colour gets darker as more of its
+const NAMES = ['Mix towards black in sRGB', 'Lower OKLCH L', 'Lower L, mix in the complement', 'Lower L, reduce C, shift H'];
+// The third row is the painter's way: the colour gets darker as more of its
 // complement (the hue 180 degrees round) is mixed in. The mix runs in Oklab,
 // so the two hues meet through grey, as paints do, not round the wheel.
 function expressions(i) {
@@ -8,12 +8,13 @@ function expressions(i) {
   return [
     `color-mix(in srgb, var(--color), black ${i * 14}%)`,
     `oklch(from var(--color) calc(l - ${delta}) c h)`,
-    `oklch(from var(--color) calc(l - ${delta}) calc(c * ${(1 - i * 0.08).toFixed(2)}) calc(h + ${i * 5}))`,
     `color-mix(in oklab, oklch(from var(--color) calc(l - ${delta}) c h), oklch(from var(--color) calc(l - ${delta}) c calc(h + 180)) ${i * 8}%)`,
+    `oklch(from var(--color) calc(l - ${delta}) calc(c * ${(1 - i * 0.08).toFixed(2)}) calc(h + ${i * 5}))`,
   ];
 }
 export function mount(container, type) {
-  let hue = 30, selected = 4, rowSelected = 2;
+  // Opens on the shift-H row, as before the rows were reordered on 28 Oct.
+  let hue = 30, selected = 4, rowSelected = 3;
   let dragging = false;
   const stops = Array.from({ length: 25 }, (_, i) => `oklch(0.72 0.12 ${i * 15}) ${i * 15}deg`).join(', ');
   container.innerHTML = `
