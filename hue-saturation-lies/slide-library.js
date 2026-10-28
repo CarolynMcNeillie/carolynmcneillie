@@ -210,7 +210,8 @@ export const LIBRARY = {
   },
 
 "your-turn": {
-    slide: { demo: "afterimage" },
+    // Steps: the two squares, then the white screen.
+    slide: { demo: "afterimage", backgrounds: [{}, {}] },
   },
 
 "choose-vibration-or-separation": {
@@ -232,6 +233,19 @@ export const LIBRARY = {
       attribution: {
         text: "Jean Arp, _Constellation According to the Laws of Chance_ (c. 1930) · Public domain in Canada · Tate · Photo: Wmpearl, CC0",
         url: "https://commons.wikimedia.org/wiki/File:%27Constellation_According_to_the_Laws_of_Chance%27_by_Jean_Arp_(Hans_Arp),_Tate_Modern.JPG",
+      },
+    },
+  },
+
+"chuck-close-lucas": {
+    // A flash before roll-the-dice: every cell is loose, the grid and the values
+    // are not. Randomness does the most inside tight constraints.
+    slide: {
+      fit: "whole",
+      backgroundImage: "./images/ChuckLucas.avif",
+      attribution: {
+        text: "Chuck Close, _Lucas_, 1993, woodcut with pochoir, 46 1/8 x 36 in. (117.47 x 91.44 cm) © Chuck Close · Vertu Fine Art",
+        url: "https://www.vertufineart.com/artists/38-chuck-close/works/2328-chuck-close-lucas-1993/",
       },
     },
   },
@@ -738,7 +752,8 @@ export const LIBRARY = {
   },
 
 "oklch-syntax": {
-    slide: { demo: "oklch-picker", demoType: "syntax" },
+    // Steps: the base colour, then L, C and H move one at a time.
+    slide: { demo: "oklch-picker", demoType: "syntax", backgrounds: [{}, {}, {}, {}] },
   },
 
 "what-do-we-want-to-keep": {

@@ -262,7 +262,8 @@ function drawBase(canvas, text = true) {
 }
 
 // ── Gamut overlay: blit base + darken outside selected triangle ───────────────
-function drawGamut(canvas, gamut, opacity, text = true) {
+// named: the chart with no other text still names the gamut, beside its R-G edge.
+function drawGamut(canvas, gamut, opacity, text = true, named = false) {
   if (!gamut || opacity <= 0) return;
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
@@ -309,6 +310,13 @@ function drawGamut(canvas, gamut, opacity, text = true) {
     const [dx, dy] = gamut.labelOffsets[i];
     ctx.textAlign = dx > 0 ? 'left' : 'right';
     label(['R', 'G', 'B'][i], px + dx, py + dy);
+  }
+  if (named) {
+    const [rx, ry] = toPixel(...gamut.primaries[0]);
+    const [gx, gy] = toPixel(...gamut.primaries[1]);
+    ctx.font = `20px ${getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim()}`;
+    ctx.textAlign = 'left';
+    ctx.fillText(gamut.label, (rx + gx) / 2 + 12, (ry + gy) / 2 - 10);
   }
   ctx.restore();
 }
@@ -369,7 +377,7 @@ export function mount(container, type) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(offscreen, 0, 0);
     drawGamut(canvas, getGamut(previousId), 1 - progress, !bare);
-    drawGamut(canvas, getGamut(selectedId), progress, !bare);
+    drawGamut(canvas, getGamut(selectedId), progress, !bare, bare);
   }
 
   function select(id, animate = true) {

@@ -96,7 +96,7 @@ export function mount(container) {
           <figcaption><b>OKLCH</b></figcaption></figure>
       </div>
       <div class="hs-foot">
-        <button type="button" class="icon-button hs-roll" aria-label="Roll new hues" title="Roll new hues">${DICE_ICON}</button>
+        <button type="button" class="icon-button hs-roll" data-randomize aria-label="Roll new hues" title="Roll new hues">${DICE_ICON}</button>
       </div>
     </div>`;
   const hslCanvas = container.querySelector('.hs-hsl');

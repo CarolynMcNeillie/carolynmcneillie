@@ -46,7 +46,7 @@ export function mount(container, type) {
       .richter-code input { flex:1; }
     </style>
     <section class="richter demo-root" aria-label="Original random colour panel study">
-      <header><button class="pill-button richter-shuffle" type="button">Shuffle</button></header>
+      <header><button class="pill-button richter-shuffle" data-randomize type="button">Shuffle</button></header>
       <div class="richter-grid" role="img" aria-label="Twelve columns and eight rows of colour panels"></div>
       <div class="richter-code"><code></code><label>Lightness<input type="range" aria-label="Grid lightness" min="0" max="1" step="0.01" value="0.7"></label><label>Chroma<input type="range" aria-label="Grid chroma" min="0" max="0.3" step="0.01" value="0.1"></label></div>
     </section>`;

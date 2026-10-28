@@ -45,7 +45,8 @@ export default {
           "id": "the-biology-of-colour"
         },
         {
-          "id": "cones"
+          "id": "the-x-factor",
+          "hidden": false
         },
         {
           "id": "colour-vision"
@@ -137,11 +138,11 @@ export default {
           "id": "lesson-one"
         },
         {
-          "id": "programatic-colour-harmonies"
+          "id": "your-turn",
+          "hidden": false
         },
         {
-          "id": "your-turn",
-          "hidden": true
+          "id": "programatic-colour-harmonies"
         },
         {
           "id": "lesson-two"
@@ -162,6 +163,9 @@ export default {
           "id": "lesson-four"
         },
         {
+          "id": "chuck-close-lucas"
+        },
+        {
           "id": "roll-the-dice"
         },
         {
@@ -171,10 +175,6 @@ export default {
           "id": "lesson-five-2"
         }
       ]
-    },
-    {
-      "name": "One thing to try",
-      "items": []
     },
     {
       "name": "A different way to carry colour",
@@ -190,11 +190,11 @@ export default {
           "id": "the-medium-changes-the-process"
         },
         {
-          "id": "another-way-to-work"
-        },
-        {
           "id": "the-medium-is-the-revolution",
           "hidden": false
+        },
+        {
+          "id": "another-way-to-work"
         },
         {
           "id": "the-medium-is-the-revolution-2",
@@ -213,6 +213,10 @@ export default {
       "items": [
         {
           "id": "the-camera",
+          "hidden": true
+        },
+        {
+          "id": "cones",
           "hidden": true
         },
         {
@@ -297,10 +301,6 @@ export default {
         },
         {
           "id": "achromatopsia",
-          "hidden": true
-        },
-        {
-          "id": "the-x-factor",
           "hidden": true
         },
         {

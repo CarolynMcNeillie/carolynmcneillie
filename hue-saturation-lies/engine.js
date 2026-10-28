@@ -510,6 +510,14 @@ window.addEventListener("keydown", (e) => {
     setMode(!presenterMode);
     return;
   }
+  // Enter presses the current demo's randomize control (data-randomize), so a
+  // presenter can roll without the mouse. A focused button or slider keeps its own Enter.
+  if (e.key === "Enter" && !e.repeat) {
+    if (e.target.closest?.('button, a, [role="button"], [role="slider"]')) return;
+    const roll = demoLayer.querySelector("[data-randomize]");
+    if (roll) { e.preventDefault(); roll.click(); }
+    return;
+  }
   if (!(e.key in KEY_DIRS)) return;
   e.preventDefault();
   navigate(KEY_DIRS[e.key]);

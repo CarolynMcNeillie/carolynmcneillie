@@ -77,6 +77,10 @@ export function mount(container) {
       .fs-wrap.fs-isolate { background: white; }
       .fs-wrap #sun { transform: translateY(280px); transition: transform 2.4s cubic-bezier(0.2, 0.6, 0.3, 1); }
       .fs.fs-sun .fs-wrap #sun { transform: none; }
+      /* The spin step is a sunset: the sun sinks back behind the hills over one and a half
+         turns of the wheel (SPIN_SECONDS is 6). */
+      .fs.fs-sun.fs-set .fs-wrap #sun { transform: translateY(280px); transition: transform 9s cubic-bezier(0.4, 0, 0.7, 1); }
+      @media (prefers-reduced-motion: reduce) { .fs.fs-sun.fs-set .fs-wrap #sun { transform: none; } }
       /* Ramp, step and order changes glide (tween() adds the class). The wheel,
          slider and spin change every frame, so they stay instant. The sun never
          fades: an in-between colour would break the illusion. */
@@ -305,6 +309,7 @@ export function mount(container) {
     if (!firstStep && (next !== ramp || outline !== wasOutline)) tween();
     ramp = next;
     sunUp = n >= SUN_STEP;
+    root.classList.toggle("fs-set", n >= SPIN_STEP);
     setSpin(n >= SPIN_STEP);
     const crank = n >= CRANK_STEP;
     if (crank && !cranked) { beforeCrank = strengths[SHIFT]; glideStrength(RAMPS[SHIFT].max); }

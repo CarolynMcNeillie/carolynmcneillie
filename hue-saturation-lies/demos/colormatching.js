@@ -178,7 +178,7 @@ export function mount(container) {
       </div>
       <div class="cm-nav">
         <span class="cm-hint">Try to match the left half.</span>
-        <button class="icon-button" id="cm-next" aria-label="New test colour" title="New test colour">
+        <button class="icon-button" data-randomize id="cm-next" aria-label="New test colour" title="New test colour">
           <!-- A die: "roll" a new random colour. -->
           <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>

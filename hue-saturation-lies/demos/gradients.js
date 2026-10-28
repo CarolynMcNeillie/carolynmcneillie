@@ -97,6 +97,17 @@ export function mount(container) {
   `;
 
   const bands = ['srgb', 'hsl', 'oklch'].map((id) => container.querySelector(`#gr-${id}`));
+  // A gradient cannot transition, so each band crossfades: a layer under the
+  // tag takes the old gradient and fades out over the new one.
+  const fades = bands.map((band) => {
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.style.cssText = 'position: absolute; inset: 0; opacity: 0; pointer-events: none;';
+    band.prepend(layer);
+    return layer;
+  });
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let painted = false;
 
   function render() {
     const { a: ca, b: cb } = PAIRS[current];
@@ -104,8 +115,15 @@ export function mount(container) {
       // The OKLCH band swaps a grey end for its Chrome-safe twin (see oklchEnds);
       // the label shows the plain CSS a reader would write.
       const ends = (space === 'oklch' ? oklchEnds(ca, cb) : [hex(ca), hex(cb)]).join(', ');
-      bands[i].style.background = `linear-gradient(to right in ${space}, ${ends})`;
-      const tag = bands[i].firstElementChild;
+      const next = `linear-gradient(to right in ${space}, ${ends})`;
+      const before = bands[i].style.background;
+      bands[i].style.background = next;
+      if (painted && !motion.matches && before && before !== bands[i].style.background) {
+        fades[i].style.background = before;
+        fades[i].getAnimations().forEach((a) => a.cancel());
+        fades[i].animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: 'ease-in-out' });
+      }
+      const tag = bands[i].lastElementChild;
       tag.replaceChildren(
         document.createTextNode('linear-gradient(to right '),
         Object.assign(document.createElement('strong'), { className: 'gr-keyword', textContent: `in ${space}` }),
@@ -129,6 +147,7 @@ export function mount(container) {
   });
 
   render();
+  painted = true;
   // One arrow step per pair (slide-library.js gives the slide PAIRS.length steps).
   const step = (i) => {
     current = Math.min(Math.max(i, 0), PAIRS.length - 1);

@@ -173,8 +173,8 @@ HSL’s lightness number describes the red, green, and blue channels in our scre
 
 So if we want our colour numbers to describe something closer to what we see, we need to understand a little about how we see it.
 
-<!-- slide: cones -->
-## Cones
+<!-- slide: the-x-factor -->
+## The X Factor
 
 The sensors in our eyes involved in colour vision are called cones.
 
@@ -433,6 +433,11 @@ Today, you get the highlights for the cost of your FITC ticket.
 
 
 
+<!-- slide: your-turn -->
+## Your turn
+
+
+
 <!-- slide: programatic-colour-harmonies -->
 ## Programatic Colour Harmonies
 
@@ -441,48 +446,6 @@ So remember how we saw that, if you're thinking in terms of the red green and bl
 This is how the HSL colour wheel is tuned.  But I'm sure you know that this is not how our eyes are tuned. To us, the opposite of blue is orange.
 
 In OKLCH the hues are tuned to our perception too, which unlocks so many cool things we can do with just a little CSS.
-
-<!-- slide: your-turn -->
-## Your turn
-
-```css
---opposite:
-  oklch(from var(--base) l c calc(h + 180));
-```
-
-This is relative colour syntax.
-
-Start from an existing colour.
-
-Keep its lightness and chroma.
-
-Move its hue half a turn.
-
-([w3.org](https://www.w3.org/TR/css-color-5/))
-
-The relationship is now in the CSS.
-
-Change the base, and the derived colour follows.
-
-Traditional painters' complementary pairs don't line up exactly with this wheel. This is an opposite in these coordinates, not a universal artistic rule.
-
-Let’s experience one kind of colour opposition.
-
-Look at the centre mark.
-
-You don’t have to participate if you’d rather not.
-
-[Hold the existing afterimage stimulus for its tested duration. Allow quiet looking time.]
-
-Try to keep your eyes there.
-
-[Switch.]
-
-Notice what appears.
-
-We’re not going to use that as a precision test of the hue wheel.
-
-We’re just taking a moment to notice that colour relationships happen in a visual system—not only in a diagram.
 
 <!-- slide: lesson-two -->
 ## Lesson two
@@ -515,6 +478,11 @@ It's a cliche for painting instructors to tell you to never ever use black.
 
 
 
+<!-- slide: chuck-close-lucas -->
+## Chuck Close, Lucas
+
+
+
 <!-- slide: roll-the-dice -->
 ## Roll the dice
 
@@ -529,8 +497,6 @@ It's a cliche for painting instructors to tell you to never ever use black.
 ## Lesson five
 
 Josef Albers who wrote, “In visual perception a color is almost never seen as it really is.”
-
-<!-- section: One thing to try -->
 
 <!-- section: A different way to carry colour -->
 
@@ -559,11 +525,6 @@ Abstract expressionism and everything in between.
 
 For much of the Middle Ages, European painters worked mainly in egg tempera: pigment bound in egg yolk; and fresco: pigment applied onto wet plaster. Both of these media required planning and speed. They set quickly and then can't be reworked, so they encourage commitment to the first marks, flatter images, layered cross-hatching, and techniques that are closer to drawing than what we think of as painting. When we look at Medieval paintings, they tend to be flat, almost like cartoons.
 
-<!-- slide: another-way-to-work -->
-## Another way to work
-
-But in the 15th century, artists took up oil painting as a dominant medium. The motivation was largely practical, but the results were transformative.
-
 <!-- slide: the-medium-is-the-revolution -->
 ## The medium is the revolution
 
@@ -574,6 +535,11 @@ Oil paint dries slowly and stays workable longer, so you can blend transitions o
 And the paint doesn’t set and fight back, so artists were able to use more fluid and natural movements.
 
 Oil also enabled glazing: building up thin transparent layers over dry paint to shift colours and values without hiding what’s underneath.
+
+<!-- slide: another-way-to-work -->
+## Another way to work
+
+But in the 15th century, artists took up oil painting as a dominant medium. The motivation was largely practical, but the results were transformative.
 
 <!-- slide: the-medium-is-the-revolution-2 -->
 ## The medium is the revolution
@@ -615,6 +581,25 @@ But painting didn't die. It got weird.
 Once a machine could do the rendering, painters were free to ask what else a painting could be for.
 
 We can't know for sure. But I don't think we'd have Impressionism, or Cubism, or Abstract Expressionism, or so many of my favourite movements and works, if painters hadn't been untethered from rendering by a machine that could do it better and faster.
+
+<!-- slide: cones -->
+## Cones
+
+The sensors in our eyes involved in colour vision are called cones.
+
+Most of us have three types: S, M, and L, for short, medium, and long wavelengths.
+
+We often call them blue, green, and red cones.
+
+For the pedantic in the audience, I'll save you the trouble at question period and acknowledge now that what we call the red cone peeks closer to goldenrod.
+
+And more importantly, look at how much these curves overlap.
+
+This one wavelength stimulates both the medium and long cones. The height of each curve tells us how sensitive that cone type is to it.
+
+So these aren’t three little RGB eyedroppers.
+
+Our visual system works with the pattern of responses across them—not three separate buckets of colour.
 
 <!-- slide: a-colour-you-had-to-acquire -->
 ## A colour you had to acquire
@@ -904,19 +889,6 @@ In tritanopia, the S (short or "blue") cones are absent. Blues and greens become
 ## Achromatopsia
 
 About 0.003% of the population have no functional cone cells at all. This results in the complete absence of colour vision, often accompanied by high light sensitivity and reduced acuity.
-
-<!-- slide: the-x-factor -->
-## The X Factor
-
-And if, like me, you're a member of the double-x chromosome coven, it gets even more interesting.
-
-In fact, some studies estimate that 12% of people with two X chromosomes carry a genetic variant linked to a fourth cone type, making them potential tetrachromats.
-
-But it's surprisingly difficult to confirm if they actually see more colours. For one thing, our brains are wired for three cones. The extra input may have nowhere to go and simply be thrown away.
-
-But even if a tetrachromat really does experience colours the rest of us can’t see, describing them is a different challenge.
-
-Think about how you would explain yellow to someone who has never seen it. Now imagine a world where you’re the _only_ person you've ever met who can see yellow. How would you explain it? What could someone say to to you to make you realize they're not seeing something that you do?
 
 <!-- slide: names-give-us-handles -->
 ## Names give us handles

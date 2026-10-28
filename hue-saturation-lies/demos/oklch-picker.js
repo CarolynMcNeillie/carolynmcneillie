@@ -67,8 +67,9 @@ export function mount(container, initialType) {
     frame = requestAnimationFrame(tick);
   }
   sliders.forEach((slider, i) => slider.addEventListener('input', () => { cancelAnimationFrame(frame); generation++; values[i] = Number(slider.value); render(); }));
+  // syntax: each arrow step moves one slider, in reading order: L, then C, then H.
   function step(n) {
-    const targets = type === 'controls' ? [[.7,.15,250],[.7,.15,30],[.7,.06,30],[.45,.06,30]] : type === 'edge' ? [[.7,.15,250],[.7,.4,250]] : [[.7,.15,250]];
+    const targets = type === 'controls' ? [[.7,.15,250],[.7,.15,30],[.7,.06,30],[.45,.06,30]] : type === 'edge' ? [[.7,.15,250],[.7,.4,250]] : [[.7,.15,250],[.45,.15,250],[.45,.06,250],[.45,.06,30]];
     animate(targets[Math.max(0, Math.min(n, targets.length - 1))]);
   }
   function update(nextType, n = 0) { type = nextType; root.classList.toggle('pick-edge', type === 'edge'); step(n); }

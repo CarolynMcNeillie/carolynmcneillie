@@ -1,20 +1,19 @@
 import { LIGHT_ICON } from './icons.js';
 
 // Original afterimage experiment, not a reproduction of an artwork.
-// At L=0.70, C=0.12, sRGB excludes H 193-206, and their opposites 13-26.
-// Snap these narrow intervals to the nearest in-gamut edge so both squares stay in sRGB.
+// The squares are oklch(0.73 0.168 H) and H + 180, opening on 60 and 240.
+// That chroma is past sRGB for most hues: 240 sits just outside it (inside
+// Display P3), so an sRGB screen shows the browser's nearest colour.
+const L = 0.73, C = 0.168, START_HUE = 60;
 function safeHue(hue) {
-  const h = Math.round((hue + 360) % 360) % 360;
-  if (h >= 13 && h <= 26) return h < 20 ? 12 : 27;
-  if (h >= 193 && h <= 206) return h < 200 ? 192 : 207;
-  return h;
+  return Math.round((hue + 360) % 360) % 360;
 }
 
 export function mount(container) {
-  const stops = Array.from({ length: 25 }, (_, i) => `oklch(0.70 0.12 ${i * 15}) ${i * 15}deg`).join(', ');
+  const stops = Array.from({ length: 25 }, (_, i) => `oklch(${L} ${C} ${i * 15}) ${i * 15}deg`).join(', ');
   container.innerHTML = `
     <style>
-      .after { --base: oklch(0.70 0.12 30); --opposite: oklch(from var(--base) l c calc(h + 180)); background: var(--scrim); position: absolute; inset: 0; }
+      .after { --base: oklch(${L} ${C} ${START_HUE}); --opposite: oklch(from var(--base) l c calc(h + 180)); background: var(--scrim); position: absolute; inset: 0; }
       .after-stage { position: absolute; inset: 0; pointer-events: none; }
       .after-square { position: absolute; top: 42%; width: min(28vw, 42vh); aspect-ratio: 1; transform: translateY(-50%); display: flex; align-items: flex-end; padding: 16px; box-sizing: border-box; }
       .after-square span { font: clamp(14px, 1.4vw, 20px)/1 var(--font-code); color: oklch(0.2 0 0); }
@@ -55,7 +54,7 @@ export function mount(container) {
       <pre class="after-code"><code>--opposite:
   oklch(from var(--base) l c calc(h + 180));</code></pre>
       <div class="after-controls">
-        <div class="after-wheel" data-no-swipe role="slider" tabindex="0" aria-label="Hue of the left square" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30">
+        <div class="after-wheel" data-no-swipe role="slider" tabindex="0" aria-label="Hue of the left square" aria-valuemin="0" aria-valuemax="359" aria-valuenow="${START_HUE}">
           <span class="after-marker after-marker-a" aria-hidden="true"></span>
           <span class="after-marker after-marker-b" aria-hidden="true"></span>
         </div>
@@ -65,12 +64,12 @@ export function mount(container) {
   const root = container.querySelector('.after');
   const wheel = root.querySelector('.after-wheel');
   const button = root.querySelector('.after-light');
-  let hue = 30;
+  let hue = START_HUE;
   let dragging = false;
   let pointerHeld = false;
   function setHue(value) {
     hue = safeHue(value);
-    root.style.setProperty('--base', `oklch(0.70 0.12 ${hue})`);
+    root.style.setProperty('--base', `oklch(${L} ${C} ${hue})`);
     wheel.setAttribute('aria-valuenow', String(hue));
     for (const [selector, angle] of [['.after-marker-a', hue], ['.after-marker-b', hue + 180]]) {
       const radians = angle * Math.PI / 180;
@@ -131,8 +130,12 @@ export function mount(container) {
   button.addEventListener('blur', onButtonBlur);
   window.addEventListener('blur', release);
   setHue(hue);
-  return () => {
-    window.removeEventListener('blur', release);
-    container.replaceChildren();
+  return {
+    // Arrow step 1 turns the screen white and keeps it white; stepping back shows the squares.
+    step(n) { if (n >= 1) root.dataset.white = ''; else release(); },
+    cleanup() {
+      window.removeEventListener('blur', release);
+      container.replaceChildren();
+    },
   };
 }
