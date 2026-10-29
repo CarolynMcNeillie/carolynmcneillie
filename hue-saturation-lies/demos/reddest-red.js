@@ -70,23 +70,19 @@ export function mount(container) {
         }
       }
 
-      /* sim mode: overlay a muted rectangle on the sRGB half */
-      .rr-sim-overlay {
-        position: absolute; inset: 0;
-        pointer-events: none;
-        background: color-mix(in srgb, oklch(0.483 0.198 29.2) 40%, transparent);
-        opacity: 0; transition: opacity var(--motion-slow);
-      }
-      .rr-sim-overlay.visible { opacity: 1; }
+      /* sim mode: swap the colours directly, no overlay over the text.
+         The P3 half becomes sRGB max red, the sRGB half a darker red. */
+      .rr-half { transition: background-color var(--motion-slow); }
+      .rr-halves.sim .rr-srgb { background: #AA0000; }
+      .rr-halves.sim .rr-p3   { background: #ff0000; }
       @media (prefers-reduced-motion: reduce) {
-        .rr-sim-overlay { transition: none; }
+        .rr-half { transition: none; }
       }
     </style>
 
     <div class="rr-wrap">
-      <div class="rr-halves">
+      <div class="rr-halves" id="rr-halves">
         <div class="rr-half rr-srgb" id="rr-srgb">
-          <div class="rr-sim-overlay" id="rr-sim-overlay"></div>
           <span class="rr-half-label">sRGB<br>maximum red</span>
           <code class="css-tag rr-half-code">rgb(255 0 0)</code>
         </div>
@@ -104,11 +100,11 @@ export function mount(container) {
     </div>
   `;
 
-  const simOverlay = container.querySelector("#rr-sim-overlay");
+  const halves = container.querySelector("#rr-halves");
   const simBtn = container.querySelector("#rr-sim-btn");
 
   function render() {
-    simOverlay.classList.toggle("visible", simMode);
+    halves.classList.toggle("sim", simMode);
     simBtn.classList.toggle("active", simMode);
     simBtn.textContent = simMode ? "Simulation of a wider-gamut difference: on" : "Simulation: off";
 

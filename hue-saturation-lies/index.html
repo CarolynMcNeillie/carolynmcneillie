@@ -9,19 +9,46 @@
       content="A talk tracing colour from cave painting to OKLCH: why colour does not exist, how language shapes what we can see, and what CSS colour spaces get wrong."
     />
 
-    <!-- Unlisted while the talk is under embargo. Deliberately not added to
-         robots.txt: a Disallow rule would advertise the path to anyone who
-         reads it, whereas noindex needs no rule to be effective. -->
+    <!-- Kept out of search so the talk stays fresh for future presentations;
+         anyone with the link can still open it, and link previews still work.
+         Deliberately not added to robots.txt: a Disallow rule would advertise
+         the path to anyone who reads it, whereas noindex needs no rule to be
+         effective. No rel=canonical while noindex is on: the two send search
+         engines opposite signals. -->
     <meta name="robots" content="noindex, nofollow" />
 
+    <!-- Share card: images/og-image.png, 1200x630, rendered from the forest scene
+         (images/forest-layers.svg) with the title slide's text, the sun replaced
+         by a radial glow from sun to sky in oklch decreasing hue. Crawlers need
+         absolute URLs. LinkedIn caches previews: after a change, refresh it at
+         https://www.linkedin.com/post-inspector/ -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Carolyn McNeillie" />
+    <meta property="og:url" content="https://carolynmcneillie.com/hue-saturation-lies/" />
     <meta property="og:title" content="Hue, Saturation, Lies" />
     <meta
       property="og:description"
       content="From cave painting to OKLCH: why colour does not exist, how language shapes what we can see, and what CSS colour spaces get wrong."
     />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://carolynmcneillie.com/hue-saturation-lies/images/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Hue, Saturation, Lies: Colour theory for the browser, in white pixel lettering over a paper-cut forest at dusk, where a coral glow on the horizon fades through violet into a teal sky."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Hue, Saturation, Lies" />
+    <meta
+      name="twitter:description"
+      content="From cave painting to OKLCH: why colour does not exist, how language shapes what we can see, and what CSS colour spaces get wrong."
+    />
+    <meta name="twitter:image" content="https://carolynmcneillie.com/hue-saturation-lies/images/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Hue, Saturation, Lies: Colour theory for the browser, in white pixel lettering over a paper-cut forest at dusk, where a coral glow on the horizon fades through violet into a teal sky."
+    />
 
     <link
       rel="icon"
