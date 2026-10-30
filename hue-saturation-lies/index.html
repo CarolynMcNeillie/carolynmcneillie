@@ -118,6 +118,16 @@
     </div>
     <div id="slide-title-overlay"></div>
     <div id="slide-body-center"></div>
+    <!-- Published site only: engine.js unhides this on carolynmcneillie.com (or with ?nav).
+         The deck is driven by the arrow keys, which a visitor has no way to guess. -->
+    <nav id="slide-nav" aria-label="Slides" hidden>
+      <button id="slide-prev" type="button" aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4 L7 12 L15 20"/></svg>
+      </button>
+      <button id="slide-next" type="button" aria-label="Next slide">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4 L17 12 L9 20"/></svg>
+      </button>
+    </nav>
 <div id="viz-annotations">
       <!-- Lightness view (x): horizontal L axis -->
       <svg

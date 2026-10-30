@@ -87,7 +87,7 @@ body.has-timeline { --stage-top: var(--timeline-height); }
 
 /* Glass = a colour token made see-through by --glass. One recipe for every
    glass surface: the chip and panel classes, the notes panel, the title pill. */
-.glass-chip, .glass-panel, #slide-text, #slide-title-overlay.title-pill {
+.glass-chip, .glass-panel, #slide-text, #slide-title-overlay.title-pill, #slide-nav button {
   background: color-mix(in srgb, var(--scrim) var(--glass), transparent);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -320,6 +320,45 @@ body.presenter #slide-footer { left: 0; }
 }
 #slide-footer a { color: inherit; text-decoration: none; }
 #slide-footer a:hover { color: var(--ink); }
+
+/* Published site only: the deck is driven by the arrow keys, so it shipped with
+   no visible controls and a visitor saw a hero and nothing else. engine.js
+   unhides these on carolynmcneillie.com. They sit quiet until hover or focus. */
+#slide-nav {
+  position: fixed;
+  right: 1.75rem;
+  bottom: calc(var(--footer-height) + 1rem);
+  z-index: 40;
+  display: flex;
+  gap: 0.5rem;
+}
+#slide-nav[hidden] { display: none; } /* display: flex would otherwise win */
+#slide-nav button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem; /* 44px: WCAG 2.5.5 target size, and a thumb on a phone */
+  height: 2.75rem;
+  padding: 0;
+  /* A hairline keeps the disc readable where a slide behind it is bright. */
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  opacity: 0.75;
+  transition: opacity var(--motion-fast), color var(--motion-fast);
+}
+#slide-nav button:hover,
+#slide-nav button:focus-visible { opacity: 1; }
+#slide-nav button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+#slide-nav button:disabled { opacity: 0.3; }
+#slide-nav svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .timeline-track { position: absolute; inset: 0; font: var(--text-label)/1 var(--font-display); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
 /* The line sits low in the bar; the date sits centred above its dot. */
 .timeline-track::before {

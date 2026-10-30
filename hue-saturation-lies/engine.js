@@ -78,6 +78,9 @@ const slideBodyEl = document.querySelector("#slide-body");
 const slideTitleOverlay = document.querySelector("#slide-title-overlay");
 const slideBodyCenterEl = document.querySelector("#slide-body-center");
 const progressFillEl = document.querySelector("#progress-fill");
+const slideNavEl = document.querySelector("#slide-nav");
+const slideNavPrevEl = document.querySelector("#slide-prev");
+const slideNavNextEl = document.querySelector("#slide-next");
 const illustrationEl = document.querySelector("#illustration");
 const vizLayer = document.querySelector("#viz-layer");
 const vizAnnotations = document.querySelector("#viz-annotations");
@@ -185,6 +188,17 @@ async function mountDemo(name, type, bgIdx = 0) {
 
 function updateProgress() {
   progressFillEl.style.transform = `scaleX(${(currentSlide + 1) / SLIDES.length})`;
+  updateNavEnds();
+}
+
+// Grey the arrow that would do nothing. Background steps count: the last slide
+// is not the end of the deck until its last step is on screen.
+function updateNavEnds() {
+  if (slideNavEl.hidden) return;
+  const sl = SLIDES[currentSlide].slide;
+  const lastBgIndex = (sl.backgrounds?.length ?? 1) - 1;
+  slideNavPrevEl.disabled = currentSlide === 0 && currentBgIndex === 0;
+  slideNavNextEl.disabled = currentSlide === SLIDES.length - 1 && currentBgIndex === lastBgIndex;
 }
 
 // position: which part of a cropped (cover) image stays in view, as CSS
@@ -356,6 +370,7 @@ function updateBackground(bgIdx) {
     updateAutoHalo(slideTitleOverlay);
   }
   currentDemoStepFn?.(bgIdx);
+  updateNavEnds();
 }
 
 function slideOut({ keepDemo = false } = {}) {
@@ -483,6 +498,17 @@ function navigate(goingForward) {
     const prevSl = SLIDES[nextSlide].slide;
     goToSlide(nextSlide, prevSl.backgrounds ? prevSl.backgrounds.length - 1 : 0);
   }
+}
+
+// Carolyn presents with the arrow keys, so the deck carried no on-screen
+// controls: on the published site that reads as a hero that does nothing.
+// `?nav` turns the arrows on anywhere else, to check them locally.
+const PUBLIC_HOSTS = new Set(["carolynmcneillie.com", "www.carolynmcneillie.com"]);
+if (PUBLIC_HOSTS.has(location.hostname) || new URLSearchParams(location.search).has("nav")) {
+  slideNavEl.hidden = false;
+  slideNavPrevEl.addEventListener("click", () => navigate(false));
+  slideNavNextEl.addEventListener("click", () => navigate(true));
+  updateNavEnds();
 }
 
 // Demo authors can put data-no-swipe on a drag surface or its wrapper.
