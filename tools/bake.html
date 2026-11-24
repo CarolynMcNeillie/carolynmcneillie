@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Bake homepage prints</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap">
+<style>
+  h1 { display: inline-block; font: 600 48px/1 Montserrat; letter-spacing: .08em;
+    text-transform: uppercase; color: #f1e5df; text-shadow: .055em .055em #1d1d1d; }
+  .lowercase { text-transform: none; }
+</style>
+<h1>Carolyn<br>M<span class="lowercase">c</span>Neillie</h1>
+<div id="card"></div>
+<script type="module">
+import { makeCanvas, printOnce } from './print-once.js';
+window.bake = async () => {
+  await document.fonts.load('600 48px Montserrat');
+  await document.fonts.ready;
+  const heading = document.querySelector('h1');
+  const style = getComputedStyle(heading);
+  const box = heading.getBoundingClientRect();
+  const scale = 2, margin = 7.2;
+  const width = Math.ceil((box.width + margin * 2) * scale);
+  const height = Math.ceil((box.height + margin * 2) * scale);
+  const mask = makeCanvas(width, height);
+  const ctx = mask.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = 'white';
+  ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  ctx.letterSpacing = style.letterSpacing;
+  const ascent = ctx.measureText('Mg').fontBoundingBoxAscent;
+  const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const rect = range.getClientRects()[0];
+    const text = getComputedStyle(node.parentElement).textTransform === 'uppercase'
+      ? node.textContent.toUpperCase() : node.textContent;
+    ctx.fillText(text, rect.left - box.left + margin, rect.top - box.top + margin + ascent);
+  }
+  const layer = makeCanvas(width, height), ink = layer.getContext('2d');
+  ink.drawImage(mask, 0.055 * 48 * scale, 0.055 * 48 * scale);
+  const union = makeCanvas(width, height), edge = union.getContext('2d');
+  edge.drawImage(layer, 0, 0);
+  edge.drawImage(mask, 0, 0);
+  ink.globalCompositeOperation = 'destination-out';
+  ink.drawImage(mask, 0, 0);
+  ink.globalCompositeOperation = 'source-in';
+  ink.fillStyle = '#ff0000';
+  ink.fillRect(0, 0, width, height);
+  await printOnce(heading, 'name', 'printed')({ mask: union, layer, scale, margin });
+  // A 360 x 180 CSS-pixel sheet. Nine-slice corners keep the edge at native scale.
+  const cardMask = makeCanvas(720, 360);
+  const paper = cardMask.getContext('2d');
+  paper.fillStyle = 'white';
+  paper.fillRect(8, 8, 704, 344);
+  await printOnce(document.querySelector('#card'), 'paper', 'printed')({
+    mask: cardMask, scale, margin: 0, dilation: 0, blur: 3
+  });
+  return Object.fromEntries(['name', 'paper'].map(id => {
+    const canvas = document.getElementById(id).baked;
+    return [id, { width: canvas.width / 2, height: canvas.height / 2,
+      png: canvas.toDataURL('image/png'), webp: canvas.toDataURL('image/webp', 1) }];
+  }));
+};
+</script>
+</html>

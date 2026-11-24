@@ -1,14 +1,15 @@
 # carolynmcneillie.com
 
-Personal site. Framework-free: one self-contained HTML file, six images, no build
-step and no dependencies.
+Personal site. Framework-free HTML and local JavaScript modules. No build step.
 
 ## Structure
 
 ```
 .
-├── index.html          # everything: markup, inlined CSS, inline WebGL2 module
-├── images/
+├── index.html          # markup and inline CSS
+├── riso/               # two-press risograph flower background (WebGL2)
+├── tools/              # offline name and card print baker
+├── images/             # baked name.webp and nine-slice card-paper.webp
 │   ├── Carolyn.png     # social share image (twitter:image)
 │   ├── icon.png        # favicon
 │   ├── codepen.svg     # social icons
@@ -19,10 +20,9 @@ step and no dependencies.
 └── .nojekyll           # skip Jekyll; nothing here needs processing
 ```
 
-The animated WebGL2 background is an inline `<script type="module">` in
-`index.html` (around line 362), not a separate file. All CSS is inlined in
-`<head>` so there is no render-blocking stylesheet. The only external requests
-are Google Fonts (Montserrat).
+`riso/background.js` runs the decorative kaleidoscope from riso-lab. Reduced
+motion shows one still frame. See `riso/README.md` for source and ink credits.
+The only external requests are Google Fonts (Montserrat).
 
 ## Running locally
 
@@ -34,8 +34,36 @@ python3 -m http.server 8000
 
 Then open http://localhost:8000.
 
-Opening `index.html` directly via `file://` will not work, because the inline
-script is an ES module and modules require an HTTP origin.
+Opening `index.html` directly via `file://` will not work. The external
+`riso/background.js` script uses ES modules, which need an HTTP origin.
+
+Background flags:
+- `?seed=0` starts with that flower seed.
+- `?t=4` freezes at that time in seconds.
+- `?noworker` prepares flowers on the main thread.
+- `?debug` exposes `renderAt`, `renderAtAsync`, and `mirrorState` on `window`.
+
+Combine flags with `&`, for example `?seed=0&t=4&debug`.
+
+## Re-bake the name and card
+
+Use Node.js with built-in WebSocket support and `cwebp` on PATH.
+With the preview server on port 8799, start dedicated Chrome on port 9240:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9240 --user-data-dir=/tmp/carolyn-bake-chrome --use-angle=metal about:blank > /tmp/carolyn-bake-chrome.log 2>&1 &
+CHROME_PID=$!
+node tools/bake.mjs
+kill "$CHROME_PID"
+```
+
+The baker keeps its lossless PNG intermediates in `/tmp`, outside the repo.
+It encodes the images with `cwebp -q 95 -sharp_yuv`. Update their `?v=` values
+in `index.html` after a re-bake.
+
+The tool opens its own tab, prints at 2x, saves alpha WebP images, and closes the tab.
+Set `BAKE_ORIGIN` to use another preview port. The live page only prints the background.
+The card uses 8px nine-slice borders; its centre texture scales with the content box.
 
 ## Deploying
 
